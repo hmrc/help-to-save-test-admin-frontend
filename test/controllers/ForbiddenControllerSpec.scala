@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
-@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+package controllers
 
-@contentHeader = {
-  <h1>@heading</h1>
+import play.api.http.Status
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
+import uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController
+
+class ForbiddenControllerSpec extends TestSupport {
+
+  "The ForbiddenController" must {
+
+    val controller = new ForbiddenController
+
+    "return a forbidden status" in {
+      val result = controller.forbidden(FakeRequest())
+      status(result) shouldBe Status.FORBIDDEN
+      contentAsString(result) shouldBe "Please ask the HtS Dev team for permissions to access this site"
+    }
+
+  }
+
 }
-
-@mainContent = {
-  <p>@message</p>
-}
-
-@govuk_wrapper(appConfig = appConfig, title = pageTitle, contentHeader = Some(contentHeader), mainContent = mainContent)

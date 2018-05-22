@@ -14,15 +14,20 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
-@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
-
-@contentHeader = {
-  <h1>@heading</h1>
+@(args: (Symbol, String)*)(content: Html)(implicit messages: play.api.i18n.Messages)
+@argsMap = @{
+    args.toMap
 }
-
-@mainContent = {
-  <p>@message</p>
+@defining({
+    var a = argsMap.filterNot(entry => entry._1.name.startsWith("_")) + ('type -> "submit")
+    if(argsMap.isDefinedAt('_buttonClass)) {
+        a = a + ('_modifierClass -> argsMap.getOrElse('_buttonClass,""))
+    }
+    a.toVector
+}) { buttonArgs =>
+    <div class="form-field form-field--submit@if(argsMap.get('_modifierClass).isDefined) {
+        @argsMap.get('_modifierClass)
+    }">
+    @button(buttonArgs: _*)(content)
+    </div>
 }
-
-@govuk_wrapper(appConfig = appConfig, title = pageTitle, contentHeader = Some(contentHeader), mainContent = mainContent)

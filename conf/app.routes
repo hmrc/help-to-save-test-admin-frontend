@@ -1,3 +1,6 @@
 # microservice specific routes
 
-GET        /hello-world             uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelloWorld.helloWorld
+GET        /                            @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.specifyEmailsToDelete
+POST       /delete-emails               @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.deleteVerifiedEmails
+
+GET        /forbidden                   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController.forbidden

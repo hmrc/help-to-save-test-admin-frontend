@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
-@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
-@contentHeader = {
-  <h1>@heading</h1>
+import com.google.inject.{Inject, Singleton}
+import play.api.i18n.MessagesApi
+import play.api.mvc.{Action, AnyContent}
+import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
+import uk.gov.hmrc.play.bootstrap.controller.{ActionWithMdc, BaseController}
+
+@Singleton
+class ForbiddenController @Inject()(implicit messagesApi: MessagesApi, appConfig: AppConfig) extends BaseController {
+
+  def forbidden: Action[AnyContent] = ActionWithMdc {
+    Forbidden("Please ask the HtS Dev team for permissions to access this site")
+  }
+
 }
-
-@mainContent = {
-  <p>@message</p>
-}
-
-@govuk_wrapper(appConfig = appConfig, title = pageTitle, contentHeader = Some(contentHeader), mainContent = mainContent)

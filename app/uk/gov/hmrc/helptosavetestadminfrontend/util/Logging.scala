@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
-@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+package uk.gov.hmrc.helptosavetestadminfrontend.util
 
-@contentHeader = {
-  <h1>@heading</h1>
+import play.api.Logger
+
+trait Logging {
+
+  val logger = Logger(this.getClass)
+
 }
-
-@mainContent = {
-  <p>@message</p>
-}
-
-@govuk_wrapper(appConfig = appConfig, title = pageTitle, contentHeader = Some(contentHeader), mainContent = mainContent)
