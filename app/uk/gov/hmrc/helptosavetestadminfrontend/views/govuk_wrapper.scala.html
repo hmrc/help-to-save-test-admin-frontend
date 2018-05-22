@@ -37,10 +37,7 @@
     <meta name="format-detection" content="telephone=no" />
 }
 
-@headerNavLinks = {
-  <li><a id="homeNavHref" href="http://www.google.com"
-       data-journey-click="primary-navigation:Click:Home">Home</a></li>
-}
+@headerNavLinks = {}
 
 @insideHeader = {
     @uiLayouts.header_nav(
@@ -54,8 +51,8 @@
 
 @bodyEnd = {
     @uiLayouts.footer(
-      analyticsToken = Some(appConfig.analyticsToken),
-      analyticsHost = appConfig.analyticsHost,
+      analyticsToken = None,
+      analyticsHost = "None",
       ssoUrl = None,
       scriptElem = scriptElem,
       gaCalls = None)
@@ -77,8 +74,6 @@
     }
 }
 
-@getHelpForm = @{uiHelpers.reportAProblemLink(appConfig.reportAProblemPartialUrl, appConfig.reportAProblemNonJSUrl)}
-
 @content = {
     @uiLayouts.main_content(
       article = mainContent,
@@ -86,7 +81,6 @@
       mainDataAttributes = mainDataAttributes,
       mainContentHeader = mainContentHeader,
       serviceInfo = serviceInfo,
-      getHelpForm = getHelpForm,
       sidebar = sidebar)
 }
 
