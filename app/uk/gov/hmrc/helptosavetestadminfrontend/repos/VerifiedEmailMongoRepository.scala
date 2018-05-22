@@ -16,25 +16,16 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.repos
 
-import cats.Applicative
-import cats.syntax.traverse._
-import cats.instances.list._
-import cats.syntax.either._
+
 import com.google.inject.{ImplementedBy, Inject, Singleton}
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.MultiBulkWriteResult
-import reactivemongo.bson.{BSON, BSONDocument, BSONObjectID, BSONString}
+import reactivemongo.bson.BSONObjectID
+import uk.gov.hmrc.helptosavetestadminfrontend.forms.Email
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
 import scala.concurrent.{ExecutionContext, Future}
-
-case class Email(email: String)
-
-object Email {
-  implicit val format = Json.format[Email]
-}
 
 @ImplementedBy(classOf[VerifiedEmailMongoRepositoryImpl])
 trait VerifiedEmailMongoRepository {

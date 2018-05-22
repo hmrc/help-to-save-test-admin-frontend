@@ -24,9 +24,9 @@ object EmailsForm {
   def deleteEmailsForm = Form(
     mapping(
       "emails" -> nonEmptyText
-    )(Emails.apply)(Emails.unapply)
+    )(Email.apply)(Email.unapply)
   )
 
 }
 
-case class Emails(emails: String)
+case class Email(emails: String)

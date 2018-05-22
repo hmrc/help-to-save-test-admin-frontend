@@ -20,7 +20,8 @@ import controllers.TestSupport
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.helptosavetestadminfrontend.repos.{Email, VerifiedEmailMongoRepositoryImpl}
+import uk.gov.hmrc.helptosavetestadminfrontend.forms.Email
+import uk.gov.hmrc.helptosavetestadminfrontend.repos.VerifiedEmailMongoRepositoryImpl
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}

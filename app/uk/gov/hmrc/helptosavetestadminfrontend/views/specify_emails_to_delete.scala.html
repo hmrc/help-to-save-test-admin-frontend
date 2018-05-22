@@ -14,12 +14,12 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.forms.Emails
+@import uk.gov.hmrc.helptosavetestadminfrontend.forms.Email
 @import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers
 @import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 @import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 
-@(form: Form[Emails])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Email])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @main_template(title = "Hello from help-to-save-test-admin-frontend", bodyClasses = None) {
 
@@ -33,6 +33,5 @@
 
   @helpers.submit('_buttonClass -> "delete-button", 'id → "Delete Emails") { Delete Emails }
 }
-
 
 }
