@@ -60,7 +60,7 @@ class VerifiedEmailMongoRepositorySpec extends TestSupport with MongoTestSupport
         mockDeleteEmail(email2)(Future.successful(Left(s"An error has occurred while deleting email: $email2")))
       }
 
-      delete(emails) shouldBe Left(List(s"An error has occurred while deleting email: $email2"))
+      delete(emails) shouldBe Left(List(s"An error has occurred while deleting email: $email2, error: None"))
     }
   }
 

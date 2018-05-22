@@ -1,6 +1,6 @@
 # microservice specific routes
 
-GET        /                            @uk.gov.hmrc.helptosavetestadminfrontend.controllers.DeleteVerifiedEmailsController.specifyEmailsToDelete
-POST       /delete-email                @uk.gov.hmrc.helptosavetestadminfrontend.controllers.DeleteVerifiedEmailsController.deleteVerifiedEmails
+GET        /                            @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.specifyEmailsToDelete
+POST       /delete-emails               @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.deleteVerifiedEmails
 
 GET        /forbidden                   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController.forbidden

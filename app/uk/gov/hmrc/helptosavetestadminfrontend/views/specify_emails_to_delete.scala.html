@@ -23,7 +23,7 @@
 
 @main_template(title = "Hello from help-to-save-test-admin-frontend", bodyClasses = None) {
 
-@helpers.form(uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes.DeleteVerifiedEmailsController.deleteVerifiedEmails(), 'class -> "group subsection--wide") {
+@helpers.form(uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes.VerifiedEmailsController.deleteVerifiedEmails(), 'class -> "group subsection--wide") {
   @helpers.input_text(
     id = "emails",
     name = "emails",

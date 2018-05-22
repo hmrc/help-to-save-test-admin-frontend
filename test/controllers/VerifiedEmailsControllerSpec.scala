@@ -17,16 +17,17 @@
 package controllers
 
 import play.api.mvc.Result
-import uk.gov.hmrc.helptosavetestadminfrontend.controllers.DeleteVerifiedEmailsController
+import play.api.test.Helpers._
+import uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController
 import uk.gov.hmrc.helptosavetestadminfrontend.repos.VerifiedEmailMongoRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeleteVerifiedEmailsControllerSpec extends TestSupport with CSRFSupport {
+class VerifiedEmailsControllerSpec extends TestSupport with CSRFSupport {
 
   val store = mock[VerifiedEmailMongoRepository]
 
-  val controller = new DeleteVerifiedEmailsController(store)(appConfig, messagesApi)
+  val controller = new VerifiedEmailsController(store)(appConfig, messagesApi)
 
   def mockDeleteEmails(emails: List[String])(result: Future[Either[List[String], Unit]]): Unit =
     (store.deleteEmails(_: List[String])(_: ExecutionContext))
@@ -54,6 +55,23 @@ class DeleteVerifiedEmailsControllerSpec extends TestSupport with CSRFSupport {
 
       val result = submit()
       status(result) shouldBe 500
+    }
+
+    "return 200 status and directs the user back to the same page when a form with errors is submitted" in {
+      val result = await(controller.deleteVerifiedEmails()(fakeRequestWithCSRFToken.withFormUrlEncodedBody("emails" → "")))
+
+      status(result) shouldBe 200
+      contentAsString(result) should include("Specify the emails you wish to delete from email-verification")
+    }
+  }
+
+  "rendering specify_emails_to_delete page" must {
+
+    "return 200 status with the correct page content" in {
+      val result = await(controller.specifyEmailsToDelete()(fakeRequestWithCSRFToken))
+
+      status(result) shouldBe 200
+      contentAsString(result) should include("Specify the emails you wish to delete from email-verification")
     }
   }
 
