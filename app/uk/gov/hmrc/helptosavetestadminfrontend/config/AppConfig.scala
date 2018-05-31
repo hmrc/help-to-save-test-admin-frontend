@@ -17,9 +17,8 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.config
 
 import javax.inject.{Inject, Singleton}
-
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
@@ -29,4 +28,20 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   private def loadConfig(key: String) = runModeConfiguration.getString(key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
   lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
+
+  val host: String = getString("microservice.services.host")
+
+  val apiHost: String = baseUrl("api")
+
+  val oauthURL: String = baseUrl("oauth-frontend")
+
+  val clientId: String = getString("microservice.services.oauth-frontend.client_id")
+  val clientSecret: String = getString("microservice.services.oauth-frontend.client_secret")
+
+  def oAuthRedirectUrl(htsUrl: String): String =
+    s"/oauth/authorize?client_id=$clientId&response_type=code&scope=read:help-to-save&redirect_uri=$htsUrl"
+
+  val eligibilityAuthorizeCallback = s"$host/help-to-save-test-admin-frontend/eligibility-authorize-callback"
+
+  val oauthTokenCallback = s"$host/help-to-save-test-admin-frontend/handle-oauth-token-callback"
 }
