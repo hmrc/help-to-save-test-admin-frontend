@@ -17,9 +17,8 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.config
 
 import javax.inject.{Inject, Singleton}
-
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
@@ -29,4 +28,27 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   private def loadConfig(key: String) = runModeConfiguration.getString(key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
   lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
+
+  val clientId: String = getString("microservice.services.oauth-frontend.client_id")
+  val clientSecret: String = getString("microservice.services.oauth-frontend.client_secret")
+
+  val adminFrontendUrl: String = getString("microservice.services.help-to-save-test-admin-frontend.url")
+
+  val apiUrl: String = getString("microservice.services.api.url")
+
+  val oauthURL: String = baseUrl("oauth-frontend")
+  val scopes = "read:help-to-save write:help-to-save"
+  val authorizeCallback: String = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback"
+  val authorizeUrl = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=$authorizeCallback"
+
+  val authStubUrl: String = s"${baseUrl("auth-login-stub")}/auth-login-stub/gg-sign-in"
+
+  def tokenRequest(code: String): String =
+    s"""{
+          "client_secret":"$clientSecret",
+          "client_id":"$clientId",
+          "grant_type":"authorization_code",
+          "redirect_uri":"$authorizeCallback",
+          "code":"$code"
+      }"""
 }
