@@ -4,3 +4,9 @@ GET        /                            @uk.gov.hmrc.helptosavetestadminfrontend
 POST       /delete-emails               @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.deleteVerifiedEmails
 
 GET        /forbidden                   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController.forbidden
+
+GET        /check-eligibility/:nino           @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.checkEligibility(nino: String)
+
+GET        /auth-login-stub-callback        @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authLoginStubCallback
+
+GET        /eligibility-authorize-callback   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.eligibilityAuthorizeCallback
