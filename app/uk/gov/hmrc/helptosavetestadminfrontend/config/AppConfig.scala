@@ -33,11 +33,15 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   val apiHost: String = getString("microservice.services.api-host")
 
-   val clientId = getString("microservice.services.oauth-frontend.client_id")
+  val oauthURL: String = baseUrl("oauth-frontend")
+
+  val clientId = getString("microservice.services.oauth-frontend.client_id")
    val clientSecret = getString("microservice.services.oauth-frontend.client_secret")
 
   def oAuthRedirectUrl(htsUrl: String): String =
     s"/oauth/authorize?client_id=$clientId&response_type=code&scope=read:help-to-save&redirect_uri=$htsUrl"
 
   val eligibilityAuthorizeCallback = s"$host/help-to-save-test-admin-frontend/eligibility-authorize-callback"
+
+  val oauthTokenCallback = s"$host/help-to-save-test-admin-frontend/handle-oauth-token-callback"
 }

@@ -37,7 +37,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
   }
 
   def eligibilityAuthorizeCallback: Action[AnyContent] = Action.async { implicit request =>
-    http.post(s"${appConfig.host}/oauth/token", body(request.queryString.get("code")))
+    http.post(s"${appConfig.oauthURL}/oauth/token", body(request.queryString.get("code")))
       .map {
 
         response =>
@@ -53,13 +53,17 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
       }
   }
 
+  def handleOauthTokenCallback(): Action[AnyContent] = Action.async { implicit request =>
+   Future.successful(Ok("success"))
+  }
+
   def body(maybeCode: Option[Seq[String]]): String = {
     val code = maybeCode.getOrElse(Seq("")).head
-    s"client_secret=${appConfig.clientSecret}&client_id=${appConfig.clientId}&grant_type=authorization_code&redirect_uri=${appConfig.eligibilityAuthorizeCallback}&code=$code"
+    s"client_secret=${appConfig.clientSecret}&client_id=${appConfig.clientId}&grant_type=authorization_code&redirect_uri=${appConfig.oauthTokenCallback}&code=$code"
   }
 
   def checkEligibility(nino: String): Action[AnyContent] = Action.async { implicit request =>
-    logger.info(s"inside checkEligibility")
+    logger.info("inside checkEligibility")
     val headers = Map("Content-Type" -> "application/json",
       "Accept" -> "application/vnd.hmrc.2.0+json",
       "Gov-Client-User-ID" -> "EL069651A",
