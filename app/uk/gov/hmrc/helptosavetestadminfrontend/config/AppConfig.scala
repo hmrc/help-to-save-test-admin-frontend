@@ -31,13 +31,11 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   val htsTestAdminUrl: String = getString("microservice.services.help-to-save-test-admin-frontend.url")
 
-  private val clientId = getString("microservice.services.oauth-frontend.client_id")
-  private val clientSecret = getString("microservice.services.oauth-frontend.client_secret")
+   val clientId = getString("microservice.services.oauth-frontend.client_id")
+   val clientSecret = getString("microservice.services.oauth-frontend.client_secret")
 
   def oAuthRedirectUrl(htsUrl: String): String =
     s"/oauth/authorize?client_id=$clientId&response_type=code&scope=read:help-to-save&redirect_uri=$htsUrl"
 
-  val eligibilityCallbackUrl = s"$htsTestAdminUrl/help-to-save-test-admin-frontend/eligibility-callback"
-
-  val accountCallbackUrl = s"$htsTestAdminUrl/help-to-save-test-admin-frontend/account-callback"
+  val eligibilityAuthorizeCallback = s"$htsTestAdminUrl/help-to-save-test-admin-frontend/eligibility-authorize-callback"
 }
