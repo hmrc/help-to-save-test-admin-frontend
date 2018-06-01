@@ -62,7 +62,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
           "client_secret":"${appConfig.clientSecret}",
           "client_id":"${appConfig.clientId}",
           "grant_type":"authorization_code",
-          "redirect_uri":"${appConfig.oauthTokenCallback}",
+          "redirect_uri":"${appConfig.eligibilityAuthorizeCallback}",
           "code":"${maybeCode.getOrElse(Seq("")).head}"
       }"""
 
