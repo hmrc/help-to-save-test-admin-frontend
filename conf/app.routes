@@ -10,3 +10,6 @@ GET        /check-eligibility/:nino           @uk.gov.hmrc.helptosavetestadminfr
 GET        /auth-login-stub-callback        @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authLoginStubCallback
 
 GET        /eligibility-authorize-callback   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.eligibilityAuthorizeCallback
+
+GET        /handle-oauth-token-callback    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleOauthTokenCallback
+
