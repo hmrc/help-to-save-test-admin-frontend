@@ -37,11 +37,9 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
   }
 
   def eligibilityAuthorizeCallback: Action[AnyContent] = Action.async { implicit request =>
-    http.post(s"${appConfig.oauthURL}/oauth/token", body(request.queryString.get("code")))
+    http.post(s"${appConfig.oauthURL}/oauth/token", body(request.queryString.get("code")), Map("Content-Type" -> "application/json"))
       .map {
-
         response =>
-
           response.status match {
             case OK | CREATED =>
               accessToken = (response.json \ "access_token").as[String]
@@ -54,13 +52,17 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
   }
 
   def handleOauthTokenCallback(): Action[AnyContent] = Action.async { implicit request =>
-   Future.successful(Ok("success"))
+    Future.successful(Ok("success"))
   }
 
-  def body(maybeCode: Option[Seq[String]]): String = {
-    val code = maybeCode.getOrElse(Seq("")).head
-    s"client_secret=${appConfig.clientSecret}&client_id=${appConfig.clientId}&grant_type=authorization_code&redirect_uri=${appConfig.oauthTokenCallback}&code=$code"
-  }
+  def body(maybeCode: Option[Seq[String]]): String =
+    s"""{
+          "client_secret":"${appConfig.clientSecret}",
+          "client_id":"${appConfig.clientId}",
+          "grant_type":"authorization_code",
+          "redirect_uri":"${appConfig.oauthTokenCallback}",
+          "code":"${maybeCode.getOrElse(Seq("")).head}"
+      }"""
 
   def checkEligibility(nino: String): Action[AnyContent] = Action.async { implicit request =>
     logger.info("inside checkEligibility")
