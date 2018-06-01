@@ -39,7 +39,6 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
 
   def eligibilityAuthorizeCallback: Action[AnyContent] = Action.async { implicit request =>
     val b = body(request.queryString.get("code"))
-    println(s"body of /auth/token is: $b")
     http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(b), Map("Content-Type" -> "application/json"))
       .map {
         response =>
@@ -60,11 +59,11 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
 
   def body(maybeCode: Option[Seq[String]]): String =
     s"""{
-          "client_secret":${appConfig.clientSecret},
-          "client_id":${appConfig.clientId},
+          "client_secret":"${appConfig.clientSecret}",
+          "client_id":"${appConfig.clientId}",
           "grant_type":"authorization_code",
-          "redirect_uri":${appConfig.oauthTokenCallback},
-          "code":${maybeCode.getOrElse(Seq("")).head}
+          "redirect_uri":"${appConfig.oauthTokenCallback}",
+          "code":"${maybeCode.getOrElse(Seq("")).head}"
       }"""
 
   def checkEligibility(nino: String): Action[AnyContent] = Action.async { implicit request =>
