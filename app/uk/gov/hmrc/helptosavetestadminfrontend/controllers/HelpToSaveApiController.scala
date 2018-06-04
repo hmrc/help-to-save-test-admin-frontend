@@ -51,7 +51,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     val maybeToken = Option(tokenCache.getIfPresent("token"))
 
     maybeToken match {
-      case Some(token) => logger.info("token exists in cache, not going through login processl")
+      case Some(token) =>  logger.info("token exists in cache, not going through login process")
       case None =>
         logger.info("no access token in the cache, getting the token and redirecting to getCheckEligibilityPage")
         val p = authConnector.loginAndGetToken()
@@ -76,9 +76,9 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
               tokenCache.put("token", accessToken)
 
-              logger.info(s"updated token cache with token: $accessToken")
+              logger.info(s"updated token cache with token: $accessToken, tokenCache.size()=${tokenCache.size()}")
 
-              SeeOther(accessToken)
+              NoContent
 
             case other: Int =>
               logger.warn(s"got $other status during get access_token, body=${response.body}")

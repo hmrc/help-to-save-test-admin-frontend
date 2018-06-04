@@ -29,11 +29,11 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
   def loginAndGetToken()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Unit]] = {
-    http.post(appConfig.authStubUrl, Json.parse(getRequestBody())).map {
+    http.post(appConfig.authStubUrl, Json.parse(getRequestBody()), Map("Content-Type" -> "application/json")).map {
       response ⇒
         response.status match {
-          case Status.OK =>
-            logger.info(s"Got 200 from auth stub, response headers= ${response.allHeaders} and body=${response.body}")
+          case Status.NO_CONTENT =>
+            logger.info(s"Got 204 from auth stub, response headers= ${response.allHeaders} and body=${response.body}")
             Right(())
           case other: Int => Left(s"unexpected status during auth, got status=$other but 200 expected, response body=${response.body}")
         }
