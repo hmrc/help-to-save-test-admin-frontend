@@ -43,7 +43,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       .build()
 
   def availableEndpoints(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(SeeOther(routes.HelpToSaveApiController.availableEndpoints().url))
+    Future.successful(Ok(views.html.availableEndpoints()))
   }
 
   def getCheckEligibilityPage(): Action[AnyContent] = Action.async { implicit request =>
