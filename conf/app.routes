@@ -5,10 +5,10 @@ POST       /delete-emails                              @uk.gov.hmrc.helptosavete
 
 GET        /forbidden                                  @uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController.forbidden
 
-GET        /auth-login-stub-eligibility-callback       @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authLoginStubEligibilityCallback
+GET        /available-endpoints      @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableEndpoints()
 
-GET        /eligibility-authorize-callback             @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleEligibilityAuthorizeCallback
+GET        /authorize-callback       @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authorizeCallback(code: String)
 
-GET        /auth-login-stub-create-account-callback    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authLoginStubCreateAccountCallback
+GET        /get-check-eligibility-page   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCheckEligibilityPage()
 
-GET        /create-account-authorize-callback          @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleCreateAccountAuthorizeCallback
+GET        /check-eligibility        @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.checkEligibility()

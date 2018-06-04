@@ -16,7 +16,8 @@ val dependencies = Seq(
   "uk.gov.hmrc" %% "play-reactivemongo" % "5.2.0",
   "uk.gov.hmrc" %% "play-whitelist-filter" % "2.0.0",
   "com.github.kxbmap" %% "configs" % "0.4.4",
-  "org.typelevel" %% "cats-core" % "1.1.0"
+  "org.typelevel" %% "cats-core" % "1.1.0",
+  "com.google.guava" % "guava" % "23.0"
 )
 
 def testDependencies(scope: String = "test") = Seq(

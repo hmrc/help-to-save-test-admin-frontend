@@ -28,4 +28,32 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   private def loadConfig(key: String) = runModeConfiguration.getString(key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
   lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
+
+  val clientId: String = getString("microservice.services.oauth-frontend.client_id")
+  val clientSecret: String = getString("microservice.services.oauth-frontend.client_secret")
+
+  val adminFrontendHost: String = getString("microservice.services.host")
+
+  val authorizeCallback: String = s"$adminFrontendHost/help-to-save-test-admin-frontend/authorize-callback"
+
+  val tokenCallback: String = s"$adminFrontendHost/help-to-save-test-admin-frontend/token-callback"
+
+  val apiHost: String = getString("microservice.services.api.host")
+
+  val oauthURL: String = baseUrl("oauth-frontend")
+
+  val authStubUrl: String = s"${baseUrl("auth-login-stub")}/auth-login-stub/gg-sign-in"
+
+  val scopes = "read:help-to-save%20write:help-to-save"
+
+  val authorizeUrl = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=$authorizeCallback"
+
+  def tokenRequest(code: String): String =
+    s"""{
+          "client_secret":"$clientSecret",
+          "client_id":"$clientId",
+          "grant_type":"authorization_code",
+          "redirect_uri":"$tokenCallback",
+          "code":"$code"
+      }"""
 }
