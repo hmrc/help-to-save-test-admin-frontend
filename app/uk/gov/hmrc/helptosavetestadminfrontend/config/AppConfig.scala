@@ -42,7 +42,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   val oauthURL: String = baseUrl("oauth-frontend")
 
-  val authStubUrl: String = s"${baseUrl("auth-login-stub")}/auth-login-stub/gg-sign-in"
+  val authStubUrl: String = s"$adminFrontendHost/auth-login-stub/gg-sign-in"
 
   val scopes = "read:help-to-save%20write:help-to-save"
 
