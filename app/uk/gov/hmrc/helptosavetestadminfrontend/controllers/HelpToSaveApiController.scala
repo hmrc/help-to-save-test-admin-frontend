@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
+import java.io.{BufferedReader, InputStreamReader}
 import java.util.UUID
 
 import com.google.inject.Inject
@@ -40,7 +41,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
 
   val createAccountAuthorizeCallback = s"$adminFrontendHost/help-to-save-test-admin-frontend/create-account-authorize-callback"
 
-  val apiHost: String = appConfig.baseUrl("api")
+  val apiHost: String = appConfig.getString("microservice.services.api.host")
 
   val oauthURL: String = appConfig.baseUrl("oauth-frontend")
 
@@ -82,8 +83,13 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
                    |  }}' "$apiHost/individuals/help-to-save/eligibility/PROVIDE_NINO_HERE"
                    |
                    """.stripMargin
+
               logger.info(s"eligibility URL = $url")
-              logger.info(s"eligibilityResult = ${Runtime.getRuntime.exec(url).getOutputStream.toString}")
+
+              val stdInput = new BufferedReader(new InputStreamReader(Runtime.getRuntime.exec(url).getInputStream))
+              val str = Stream.continually(stdInput.readLine()).takeWhile(_ != null).mkString("\n")
+              logger.info(s"eligibility Result = $str")
+
               Ok(url)
 
             case other: Int =>
