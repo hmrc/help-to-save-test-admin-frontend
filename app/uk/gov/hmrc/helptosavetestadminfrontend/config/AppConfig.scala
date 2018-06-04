@@ -36,7 +36,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   val authorizeCallback: String = s"$adminFrontendHost/help-to-save-test-admin-frontend/authorize-callback"
 
-  val tokenCallback: String = s"$adminFrontendHost/help-to-save-test-admin-frontend/token-callback"
+  val tokenCallback: String = s"$adminFrontendHost/help-to-save-test-admin-frontend/authorize-callback"
 
   val apiHost: String = getString("microservice.services.api.host")
 
