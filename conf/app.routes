@@ -1,15 +1,19 @@
 # microservice specific routes
 
-GET        /                            @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.specifyEmailsToDelete
-POST       /delete-emails               @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.deleteVerifiedEmails
+GET        /                                           @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.specifyEmailsToDelete
+POST       /delete-emails                              @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.deleteVerifiedEmails
 
-GET        /forbidden                   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController.forbidden
+GET        /forbidden                                  @uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController.forbidden
 
-GET        /check-eligibility/:nino           @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.checkEligibility(nino: String)
+GET        /auth-login-stub-eligibility-callback       @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authLoginStubEligibilityCallback
 
-GET        /auth-login-stub-callback        @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authLoginStubCallback
+GET        /eligibility-authorize-callback             @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleEligibilityAuthorizeCallback
 
-GET        /eligibility-authorize-callback   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.eligibilityAuthorizeCallback
+GET        /handle-eligibility-oauth-token-callback    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleEligibilityOauthTokenCallback
 
-GET        /handle-oauth-token-callback    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleOauthTokenCallback
 
+GET        /auth-login-stub-create-account-callback       @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authLoginStubCreateAccountCallback
+
+GET        /create-account-authorize-callback             @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleCreateAccountAuthorizeCallback
+
+GET        /handle-create-account-oauth-token-callback    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleCreateAccountOauthTokenCallback
