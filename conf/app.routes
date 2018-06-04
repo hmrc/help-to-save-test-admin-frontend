@@ -9,11 +9,6 @@ GET        /auth-login-stub-eligibility-callback       @uk.gov.hmrc.helptosavete
 
 GET        /eligibility-authorize-callback             @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleEligibilityAuthorizeCallback
 
-GET        /handle-eligibility-oauth-token-callback    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleEligibilityOauthTokenCallback
+GET        /auth-login-stub-create-account-callback    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authLoginStubCreateAccountCallback
 
-
-GET        /auth-login-stub-create-account-callback       @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authLoginStubCreateAccountCallback
-
-GET        /create-account-authorize-callback             @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleCreateAccountAuthorizeCallback
-
-GET        /handle-create-account-oauth-token-callback    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleCreateAccountOauthTokenCallback
+GET        /create-account-authorize-callback          @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.handleCreateAccountAuthorizeCallback

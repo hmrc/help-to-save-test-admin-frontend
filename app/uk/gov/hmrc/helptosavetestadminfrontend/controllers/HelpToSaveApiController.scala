@@ -49,54 +49,48 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
   val eligibilityScope = "read:help-to-save"
   val createAccountScope = "write:help-to-save"
 
-  var eligibilityAccessToken = ""
-  var createAccountAccessToken = ""
-
   def authLoginStubEligibilityCallback: Action[AnyContent] = Action.async { implicit request =>
     val url = s"/oauth/authorize?client_id=$clientId&response_type=code&scope=$eligibilityScope&redirect_uri=$eligibilityAuthorizeCallback"
     Future.successful(SeeOther(url))
   }
 
   def handleEligibilityAuthorizeCallback: Action[AnyContent] = Action.async { implicit request =>
-    val b = eligibilityBody(request.queryString.get("code"))
-    http.post(s"$oauthURL/oauth/token", Json.parse(b), Map("Content-Type" -> "application/json"))
+    val body = eligibilityBody(request.queryString.get("code"))
+    http.post(s"$oauthURL/oauth/token", Json.parse(body), Map("Content-Type" -> "application/json"))
       .map {
         response =>
           response.status match {
             case OK | CREATED =>
-              eligibilityAccessToken = (response.json \ "access_token").as[String]
-              Ok("saved access_token")
+              val url =
+                s"""
+                   |curl -v -X GET
+                   |-H "Content-Type: application/json"
+                   |-H "Accept: application/vnd.hmrc.2.0+json"
+                   |-H "Gov-Client-User-ID: PROVIDE_NINO"
+                   |-H "Gov-Client-Timezone: UTC"
+                   |-H "Gov-Vendor-Version: 1.3"
+                   |-H "Gov-Vendor-Instance-ID: ${UUID.randomUUID().toString}"
+                   |-H "Authorization: Bearer ${(response.json \ "access_token").as[String]}"
+                   |-H "Cache-Control: no-cache"
+                   |-H "Postman-Token: ${UUID.randomUUID().toString}"
+                   | -d '{
+                   |  "header": {
+                   |    "version": "1.0",
+                   |    "createdTimestamp": "2017-11-22 23:11:09 GMT",
+                   |    "clientCode": "KCOM",
+                   |    "requestCorrelationId": "${UUID.randomUUID().toString}"
+                   |  }}' "$apiHost/individuals/help-to-save/eligibility/PROVIDE_NINO_HERE"
+                   |
+                   """.stripMargin
+              logger.info(s"eligibility URL = $url")
+              logger.info(s"eligibilityResult = ${Runtime.getRuntime.exec(url).getOutputStream.toString}")
+              Ok(url)
+
             case other: Int =>
               logger.warn(s"got $other status during get access_token, body=${response.body}")
               InternalServerError
           }
       }
-  }
-
-  def handleEligibilityOauthTokenCallback(): Action[AnyContent] = Action.async { implicit request =>
-
-    val url =
-      s"""
-         |curl -v -X GET
-         |-H "Content-Type: application/json"
-         |-H "Accept: application/vnd.hmrc.2.0+json"
-         |-H "Gov-Client-User-ID: PROVIDE_NINO"
-         |-H "Gov-Client-Timezone: UTC"
-         |-H "Gov-Vendor-Version: 1.3"
-         |-H "Gov-Vendor-Instance-ID: ${UUID.randomUUID().toString}"
-         |-H "Authorization: Bearer $eligibilityAccessToken"
-         |-H "Cache-Control: no-cache"
-         |-H "Postman-Token: ${UUID.randomUUID().toString}"
-         | -d '{
-         |  "header": {
-         |    "version": "1.0",
-         |    "createdTimestamp": "2017-11-22 23:11:09 GMT",
-         |    "clientCode": "KCOM",
-         |    "requestCorrelationId": "${UUID.randomUUID().toString}"
-         |  }}' "$apiHost/individuals/help-to-save/eligibility/PROVIDE_NINO_HERE"
-         |
-       """.stripMargin
-    Future.successful(Ok(url))
   }
 
   def eligibilityBody(maybeCode: Option[Seq[String]]): String =
@@ -107,8 +101,6 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
           "redirect_uri":"$adminFrontendHost/help-to-save-test-admin-frontend/eligibility-authorize-callback",
           "code":"${maybeCode.getOrElse(Seq("")).head}"
       }"""
-
-
 
 
   def authLoginStubCreateAccountCallback: Action[AnyContent] = Action.async { implicit request =>
@@ -123,52 +115,46 @@ class HelpToSaveApiController @Inject()(http: WSHttp)(implicit override val appC
         response =>
           response.status match {
             case OK | CREATED =>
-              createAccountAccessToken = (response.json \ "access_token").as[String]
-              Ok("saved access_token")
+              val url =
+                s"""
+                   |curl -v -X POST
+                   |-H "Content-Type: application/json"
+                   |-H "Accept: application/vnd.hmrc.1.0+json"
+                   |-H "Gov-Client-User-ID: EL069651A"
+                   |-H "Gov-Client-Timezone: UTC"
+                   |-H "Gov-Vendor-Version: 1.3"
+                   |-H "Gov-Vendor-Instance-ID: ${UUID.randomUUID().toString}"
+                   |-H "Authorization: Bearer ${(response.json \ "access_token").as[String]}"
+                   |-H "Cache-Control: no-cache"
+                   | -d '{
+                   |  "header": {
+                   |     "version": "1.0",
+                   |     "createdTimestamp": "2018-01-22 23:11:09 GMT",
+                   |     "clientCode": "KCOM",
+                   |     "requestCorrelationId": "${UUID.randomUUID().toString}"
+                   |    },
+                   |  "body": {
+                   |     "nino": "PROVIDE_NINO",
+                   |     "forename": "Alex",
+                   |     "surname": "Lillitwinkle",
+                   |     "dateOfBirth": "19920423",
+                   |     "contactDetails": {
+                   |         "address1": "86 Ashopton Road",
+                   |         "address2": "Blackpool",
+                   |         "postcode": "FY43 1FB",
+                   |         "countryCode": "GB",
+                   |         "communicationPreference": "00"
+                   |       },
+                   |     "registrationChannel": "callCentre"
+                   |   }
+                   | }' "$apiHost/individuals/help-to-save/account"
+                   """.stripMargin
+              Ok(url)
             case other: Int =>
               logger.warn(s"got $other status during get access_token for create_account, body=${response.body}")
               InternalServerError
           }
       }
-  }
-
-  def handleCreateAccountOauthTokenCallback(): Action[AnyContent] = Action.async { implicit request =>
-
-    val url =
-      s"""
-         |curl -v -X POST
-         |-H "Content-Type: application/json"
-         |-H "Accept: application/vnd.hmrc.1.0+json"
-         |-H "Gov-Client-User-ID: EL069651A"
-         |-H "Gov-Client-Timezone: UTC"
-         |-H "Gov-Vendor-Version: 1.3"
-         |-H "Gov-Vendor-Instance-ID: ${UUID.randomUUID().toString}"
-         |-H "Authorization: Bearer $createAccountAccessToken"
-         |-H "Cache-Control: no-cache"
-         | -d '{
-         |  "header": {
-         |     "version": "1.0",
-         |     "createdTimestamp": "2018-01-22 23:11:09 GMT",
-         |     "clientCode": "KCOM",
-         |     "requestCorrelationId": "${UUID.randomUUID().toString}"
-         |    },
-         |  "body": {
-         |     "nino": "PROVIDE_NINO",
-         |     "forename": "Alex",
-         |     "surname": "Lillitwinkle",
-         |     "dateOfBirth": "19920423",
-         |     "contactDetails": {
-         |         "address1": "86 Ashopton Road",
-         |         "address2": "Blackpool",
-         |         "postcode": "FY43 1FB",
-         |         "countryCode": "GB",
-         |         "communicationPreference": "00"
-         |       },
-         |     "registrationChannel": "callCentre"
-         |   }
-         | }' "$apiHost/individuals/help-to-save/account"
-       """.stripMargin
-    Future.successful(Ok(url))
   }
 
   def createAccountBody(maybeCode: Option[Seq[String]]): String =
