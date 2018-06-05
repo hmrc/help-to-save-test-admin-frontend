@@ -98,6 +98,10 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
               logger.warn(s"got $other status during get access_token, body=${response.body}")
               internalServerError()
           }
-      }
+      }.recover {
+      case ex ⇒
+        logger.warn(s"error during /oauth/token, error=${ex.getMessage}")
+        internalServerError()
+    }
   }
 }
