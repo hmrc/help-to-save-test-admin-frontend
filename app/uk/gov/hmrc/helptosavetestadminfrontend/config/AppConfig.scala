@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.config
 
+import java.net.URLEncoder
+
 import javax.inject.{Inject, Singleton}
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
@@ -32,11 +34,11 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val clientId: String = getString("microservice.services.oauth-frontend.client_id")
   val clientSecret: String = getString("microservice.services.oauth-frontend.client_secret")
 
-  val adminFrontendHost: String = baseUrl("help-to-save-test-admin-frontend")
+  val adminFrontendHost: String = getString("microservice.services.help-to-save-test-admin-frontend.url")
 
   val authorizeCallback: String = s"$adminFrontendHost/help-to-save-test-admin-frontend/authorize-callback"
 
-  val tokenCallback: String = s"$adminFrontendHost/help-to-save-test-admin-frontend/authorize-callback"
+  val encodedCallback: String = URLEncoder.encode(authorizeCallback, "UTF-8")
 
   val apiHost: String = getString("microservice.services.api.host")
 
@@ -44,16 +46,16 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   val authStubUrl: String = s"${baseUrl("auth-login-stub")}/auth-login-stub/gg-sign-in"
 
-  val scopes = "read:help-to-save%20write:help-to-save"
+  val scopes = "read:help-to-save write:help-to-save"
 
-  val authorizeUrl = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=$authorizeCallback"
+  val authorizeUrl = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=$encodedCallback"
 
   def tokenRequest(code: String): String =
     s"""{
           "client_secret":"$clientSecret",
           "client_id":"$clientId",
           "grant_type":"authorization_code",
-          "redirect_uri":"$tokenCallback",
+          "redirect_uri":"$encodedCallback",
           "code":"$code"
       }"""
 }
