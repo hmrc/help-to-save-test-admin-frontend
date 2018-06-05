@@ -28,13 +28,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
-  def loginAndGetToken()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Unit]] = {
+  def loginAndGetToken()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
     http.post(appConfig.authStubUrl, Json.parse(getRequestBody()), Map("Content-Type" -> "application/json")).map {
       response ⇒
         response.status match {
-          case Status.NO_CONTENT =>
-            logger.info(s"Got 204 from auth stub, response headers= ${response.allHeaders} and body=${response.body}")
-            Right(())
+          case Status.OK =>
+            logger.info(s"Got 200 from auth stub, response headers= ${response.allHeaders} and body=${response.body}")
+            Right(response.body)
           case other: Int => Left(s"unexpected status during auth, got status=$other but 200 expected, response body=${response.body}")
         }
     }.recover {
@@ -44,11 +44,13 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
 
   def getRequestBody(): String =
     s"""{
-         "authorityId":"hts-api",
+         "authorityId":"htsapi",
          "affinityGroup":"Individual",
          "confidenceLevel":200,
          "credentialStrength":"strong",
          "nino":"AE123456C",
+         "credentialRole":"User",
+         "email":"test@user.com",
          "redirectionUrl":"${appConfig.authorizeUrl}"
       }"""
 

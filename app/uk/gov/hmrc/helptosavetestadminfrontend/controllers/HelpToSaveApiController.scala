@@ -18,7 +18,7 @@ package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
 import java.util.concurrent.TimeUnit
 
-import com.google.common.cache.{Cache, CacheBuilder}
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.google.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
@@ -29,37 +29,57 @@ import uk.gov.hmrc.helptosavetestadminfrontend.forms.NinoForm
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.helptosavetestadminfrontend.views
+import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+import scala.util.{Failure, Success, Try}
 
 class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnector)(implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
-  val tokenCache: Cache[String, String] =
-    CacheBuilder
-      .newBuilder
-      .maximumSize(1)
-      .expireAfterWrite(3, TimeUnit.HOURS)
-      .build()
+  var tokenCache: LoadingCache[String, String] = _
+
+  def loadCache(implicit hc: HeaderCarrier): LoadingCache[String, String] = {
+    if (tokenCache == null) {
+      tokenCache =
+        CacheBuilder
+          .newBuilder
+          .maximumSize(1)
+          .expireAfterWrite(3, TimeUnit.HOURS)
+          .build(new CacheLoader[String, String] {
+            override def load(key: String): String = {
+              val result = Await.result(authConnector.loginAndGetToken(), Duration(2, TimeUnit.MINUTES))
+              result match {
+                case Right(token) =>
+                  logger.info(s"Loaded access token from oauth, token=$token")
+                  token
+                case Left(e) => throw new Exception(s"error during retrieving token from oauth, error=$e")
+              }
+            }
+          })
+    }
+
+    tokenCache
+  }
 
   def availableEndpoints(): Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(views.html.availableEndpoints()))
   }
 
   def getCheckEligibilityPage(): Action[AnyContent] = Action.async { implicit request =>
-
-    val maybeToken = Option(tokenCache.getIfPresent("token"))
-
-    maybeToken match {
-      case Some(token) =>  logger.info("token exists in cache, not going through login process")
-      case None =>
-        logger.info("no access token in the cache, getting the token and redirecting to getCheckEligibilityPage")
-        val p = authConnector.loginAndGetToken()
+    Try {
+      loadCache
+      tokenCache.get("token")
+    } match {
+      case Success(token) =>
+        logger.info(s"token exists in cache, token: $token")
+        Future.successful(Ok(views.html.get_check_eligibility_page(NinoForm.ninoForm)))
+      case Failure(e) =>
+        logger.warn(s"error during retrieving access token from oauth, error=${e.getMessage}")
+        Future.successful(internalServerError())
     }
-
-    Future.successful(Ok(views.html.get_check_eligibility_page(NinoForm.ninoForm)))
   }
-
 
   def checkEligibility(): Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok("inside checkEligibility"))
@@ -71,18 +91,12 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
         response =>
           response.status match {
             case OK =>
-
               val accessToken = (response.json \ "access_token").as[String]
-
-              tokenCache.put("token", accessToken)
-
               logger.info(s"updated token cache with token: $accessToken, tokenCache.size()=${tokenCache.size()}")
-
-              NoContent
-
+              Ok(accessToken)
             case other: Int =>
               logger.warn(s"got $other status during get access_token, body=${response.body}")
-              InternalServerError
+              internalServerError()
           }
       }
   }
