@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
   def loginAndGetToken()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
-    http.post(appConfig.authStubUrl, getRequestBody(), Map("Content-Type" -> "application/json")).map {
+    http.post(appConfig.authStubUrl, Json.parse(getRequestBody()).toString(), Map("Content-Type" -> "application/json")).map {
       response ⇒
         response.status match {
           case Status.OK =>
@@ -43,8 +43,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
   }
 
   def getRequestBody(): String =
-    s"""{
-         "authorityId":"htsapi",
+    s"""{"authorityId":"htsapi",
          "affinityGroup":"Individual",
          "confidenceLevel":200,
          "credentialStrength":"strong",
@@ -52,7 +51,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
          "credentialRole":"User",
          "email":"test@user.com",
          "redirectionUrl":"${appConfig.authorizeUrl}"
-      }"""
+        }""".stripMargin
 
 }
 
