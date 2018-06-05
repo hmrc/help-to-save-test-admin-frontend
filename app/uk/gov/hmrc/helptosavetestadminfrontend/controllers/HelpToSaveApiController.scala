@@ -22,7 +22,7 @@ import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.google.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, Request}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.NinoForm
@@ -40,7 +40,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
   var tokenCache: LoadingCache[String, String] = _
 
-  def loadCache(implicit hc: HeaderCarrier): LoadingCache[String, String] = {
+  def loadCache(implicit hc: HeaderCarrier, request: Request[_]): LoadingCache[String, String] = {
     if (tokenCache == null) {
       tokenCache =
         CacheBuilder
@@ -49,7 +49,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
           .expireAfterWrite(3, TimeUnit.HOURS)
           .build(new CacheLoader[String, String] {
             override def load(key: String): String = {
-              val result = Await.result(authConnector.loginAndGetToken(), Duration(2, TimeUnit.MINUTES))
+              val result = Await.result(authConnector.loginAndGetToken(), Duration(1, TimeUnit.MINUTES))
               result match {
                 case Right(token) =>
                   logger.info(s"Loaded access token from oauth, token=$token")

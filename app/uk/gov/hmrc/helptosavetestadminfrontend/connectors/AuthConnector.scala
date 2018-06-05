@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
   def loginAndGetToken()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
-    http.post(appConfig.authStubUrl, Json.parse(getRequestBody()), Map("Content-Type" -> "application/json")).map {
+    http.post(appConfig.authStubUrl, getRequestBody(), Map("Content-Type" -> "application/json")).map {
       response ⇒
         response.status match {
           case Status.OK =>
