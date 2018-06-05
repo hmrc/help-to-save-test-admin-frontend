@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.config
 
-import java.net.URLEncoder
-
 import javax.inject.{Inject, Singleton}
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
@@ -34,15 +32,15 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val clientId: String = getString("microservice.services.oauth-frontend.client_id")
   val clientSecret: String = getString("microservice.services.oauth-frontend.client_secret")
 
-  val adminFrontendUrl: String = getString("microservice.services.help-to-save-test-admin-frontend.url")
+  val adminFrontendUrl: String = baseUrl("help-to-save-test-admin-frontend")
 
   val authorizeCallback: String = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback"
 
   val apiUrl: String = getString("microservice.services.api.url")
 
-  val oauthURL: String = getString("microservice.services.oauth-frontend.url")
+  val oauthURL: String = baseUrl("oauth-frontend")
 
-  val authStubUrl: String = s"${getString("microservice.services.auth-login-stub.url")}/auth-login-stub/gg-sign-in"
+  val authStubUrl: String = s"${baseUrl("auth-login-stub")}/auth-login-stub/gg-sign-in"
 
   val scopes = "read:help-to-save write:help-to-save"
 
