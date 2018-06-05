@@ -30,6 +30,13 @@
     errorMessage = Some(Html(""))
     )
 
+    @helpers.input_text(
+    id = "email",
+    name = "email",
+    label = "Enter Email:",
+    errorMessage = Some(Html(""))
+    )
+
     @helpers.submit('_buttonClass -> "nino-button", 'id → "Enter Nino") { Enter Nino }
 }
 

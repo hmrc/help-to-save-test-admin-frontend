@@ -34,28 +34,26 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val clientId: String = getString("microservice.services.oauth-frontend.client_id")
   val clientSecret: String = getString("microservice.services.oauth-frontend.client_secret")
 
-  val adminFrontendHost: String = getString("microservice.services.help-to-save-test-admin-frontend.url")
+  val adminFrontendUrl: String = getString("microservice.services.help-to-save-test-admin-frontend.url")
 
-  val authorizeCallback: String = s"$adminFrontendHost/help-to-save-test-admin-frontend/authorize-callback"
+  val authorizeCallback: String = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback"
 
-  val encodedCallback: String = URLEncoder.encode(authorizeCallback, "UTF-8")
+  val apiUrl: String = getString("microservice.services.api.url")
 
-  val apiHost: String = getString("microservice.services.api.host")
+  val oauthURL: String = getString("microservice.services.oauth-frontend.url")
 
-  val oauthURL: String = baseUrl("oauth-frontend")
-
-  val authStubUrl: String = s"${baseUrl("auth-login-stub")}/auth-login-stub/gg-sign-in"
+  val authStubUrl: String = s"${getString("microservice.services.auth-login-stub.url")}/auth-login-stub/gg-sign-in"
 
   val scopes = "read:help-to-save write:help-to-save"
 
-  val authorizeUrl = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=$encodedCallback"
+  val authorizeUrl = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=$authorizeCallback"
 
   def tokenRequest(code: String): String =
     s"""{
           "client_secret":"$clientSecret",
           "client_id":"$clientId",
           "grant_type":"authorization_code",
-          "redirect_uri":"$encodedCallback",
+          "redirect_uri":"$authorizeCallback",
           "code":"$code"
       }"""
 }
