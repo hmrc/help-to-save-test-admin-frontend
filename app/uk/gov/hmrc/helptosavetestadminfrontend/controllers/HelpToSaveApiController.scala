@@ -76,7 +76,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
         logger.info(s"token exists in cache, token: $token")
         Future.successful(Ok(views.html.get_check_eligibility_page(NinoForm.ninoForm)))
       case Failure(e) =>
-        logger.warn(s"error during retrieving access token from oauth, error=${e.getMessage}")
+        logger.warn(e.getMessage)
         Future.successful(internalServerError())
     }
   }
@@ -86,7 +86,8 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
   }
 
   def authorizeCallback(code: String): Action[AnyContent] = Action.async { implicit request =>
-    http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(appConfig.tokenRequest(code)), Map("Content-Type" -> "application/json"))
+    logger.info(s"inside authorizeCallback, code=$code")
+    http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(appConfig.tokenRequest(code)))
       .map {
         response =>
           response.status match {
