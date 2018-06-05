@@ -92,7 +92,6 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
           response.status match {
             case OK =>
               val accessToken = (response.json \ "access_token").as[String]
-              logger.info(s"updated token cache with token: $accessToken, tokenCache.size()=${tokenCache.size()}")
               Ok(accessToken)
             case other: Int =>
               logger.warn(s"got $other status during get access_token, body=${response.body}")
