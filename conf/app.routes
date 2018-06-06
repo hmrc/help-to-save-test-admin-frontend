@@ -15,3 +15,7 @@ GET        /authorize-callback       @uk.gov.hmrc.helptosavetestadminfrontend.co
 GET        /get-check-eligibility-page   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCheckEligibilityPage()
 
 POST        /check-eligibility        @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.checkEligibility()
+
+GET        /get-create-account-page   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCreateAccountPage()
+
+POST        /create-account        @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.createAccount()

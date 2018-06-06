@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 import com.google.common.cache._
@@ -30,9 +29,10 @@ import uk.gov.hmrc.helptosavetestadminfrontend.forms.EligibilityRequestForm
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.helptosavetestadminfrontend.views
+import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 @Singleton
 class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnector)(implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
@@ -50,7 +50,14 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       })
       .build(new CacheLoader[String, String] {
         override def load(key: String): String = {
-          UUID.randomUUID().toString
+          implicit val hc: HeaderCarrier = HeaderCarrier()
+          val result = Await.result(authConnector.loginAndGetToken(), Duration(1, TimeUnit.MINUTES))
+          result match {
+            case Right(token) =>
+              logger.info(s"Loaded access token from oauth, token=$token")
+              token
+            case Left(e) => throw new Exception(s"error during retrieving token from oauth, error=$e")
+          }
         }
       })
 
@@ -59,16 +66,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
   }
 
   def getCheckEligibilityPage(): Action[AnyContent] = Action.async { implicit request =>
-    Try {
-      tokenCache.get("token")
-    } match {
-      case Success(token) =>
-        logger.info(s"loaded token from cache, token: $token")
-        Future.successful(Ok(views.html.get_check_eligibility_page(EligibilityRequestForm.eligibilityForm)))
-      case Failure(e) =>
-        logger.warn(e.getMessage)
-        Future.successful(internalServerError())
-    }
+    Future.successful(Ok(views.html.get_check_eligibility_page(EligibilityRequestForm.eligibilityForm)))
   }
 
   def checkEligibility(): Action[AnyContent] = Action.async { implicit request =>
@@ -76,7 +74,6 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
       {
         params =>
-
           val headers =
             Map("Content-Type" -> params.contentType,
               "Accept" -> params.accept,
@@ -125,8 +122,16 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     )
   }
 
+  def getCreateAccountPage(): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(views.html.get_check_eligibility_page(EligibilityRequestForm.eligibilityForm)))
+  }
+
+  def createAccount(): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok("success"))
+  }
+
   def authorizeCallback(code: String): Action[AnyContent] = Action.async { implicit request =>
-    logger.info(s"handling authorizeCallback from oauth")
+    logger.info("handling authorizeCallback from oauth")
     http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(appConfig.tokenRequest(code)))
       .map {
         response =>
