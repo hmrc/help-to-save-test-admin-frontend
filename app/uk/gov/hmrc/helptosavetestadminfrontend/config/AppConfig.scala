@@ -32,7 +32,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val clientId: String = getString("microservice.services.oauth-frontend.client_id")
   val clientSecret: String = getString("microservice.services.oauth-frontend.client_secret")
 
-  val adminFrontendUrl: String = getString("microservice.services.help-to-save-test-admin-frontend.url")
+  val adminFrontendUrl: String = baseUrl("help-to-save-test-admin-frontend")
 
   val apiUrl: String = getString("microservice.services.api.url")
 
