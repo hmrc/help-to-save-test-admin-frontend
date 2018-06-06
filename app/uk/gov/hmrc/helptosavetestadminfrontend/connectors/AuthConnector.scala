@@ -33,7 +33,6 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       response ⇒
         response.status match {
           case Status.OK =>
-            logger.info(s"Got 200 from auth stub, response headers= ${response.allHeaders} and body=${response.body}")
             Right(response.body)
           case other: Int => Left(s"unexpected status during auth, got status=$other but 200 expected, response body=${response.body}")
         }

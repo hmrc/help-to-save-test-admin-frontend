@@ -22,7 +22,7 @@ import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.google.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Request}
+import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.NinoForm
@@ -38,34 +38,23 @@ import scala.util.{Failure, Success, Try}
 class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnector)(implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
-  var tokenCache: LoadingCache[String, String] = _
-
-  def initializeCache(implicit hc: HeaderCarrier, request: Request[_]): LoadingCache[String, String] = {
-    if (tokenCache == null) {
-      logger.info("tokenCache is null, initializing it first time")
-      tokenCache =
-        CacheBuilder
-          .newBuilder
-          .maximumSize(1)
-          .expireAfterWrite(3, TimeUnit.HOURS)
-          .build(new CacheLoader[String, String] {
-            override def load(key: String): String = {
-              val result = Await.result(authConnector.loginAndGetToken(), Duration(1, TimeUnit.MINUTES))
-              result match {
-                case Right(token) =>
-                  logger.info(s"Loaded access token from oauth, token=$token")
-                  token
-                case Left(e) => throw new Exception(s"error during retrieving token from oauth, error=$e")
-              }
-            }
-          })
-
-      tokenCache
-    } else {
-      logger.info("tokenCache is not null, means it was initialized already")
-      tokenCache
-    }
-  }
+  var tokenCache: LoadingCache[String, String] =
+    CacheBuilder
+      .newBuilder
+      .maximumSize(1)
+      .expireAfterWrite(3, TimeUnit.HOURS)
+      .build(new CacheLoader[String, String] {
+        override def load(key: String): String = {
+          implicit val hc: HeaderCarrier = HeaderCarrier()
+          val result = Await.result(authConnector.loginAndGetToken(), Duration(1, TimeUnit.MINUTES))
+          result match {
+            case Right(token) =>
+              logger.info(s"Loaded access token from oauth, token=$token")
+              token
+            case Left(e) => throw new Exception(s"error during retrieving token from oauth, error=$e")
+          }
+        }
+      })
 
   def availableEndpoints(): Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(views.html.availableEndpoints()))
@@ -73,11 +62,10 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
   def getCheckEligibilityPage(): Action[AnyContent] = Action.async { implicit request =>
     Try {
-      initializeCache
       tokenCache.get("token")
     } match {
       case Success(token) =>
-        logger.info(s"token exists in cache, token: $token")
+        logger.info(s"loaded token from cache, token: $token")
         Future.successful(Ok(views.html.get_check_eligibility_page(NinoForm.ninoForm)))
       case Failure(e) =>
         logger.warn(e.getMessage)
