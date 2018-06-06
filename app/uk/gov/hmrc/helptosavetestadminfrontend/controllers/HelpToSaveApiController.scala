@@ -40,8 +40,9 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
   var tokenCache: LoadingCache[String, String] = _
 
-  def loadCache(implicit hc: HeaderCarrier, request: Request[_]): LoadingCache[String, String] = {
+  def initializeCache(implicit hc: HeaderCarrier, request: Request[_]): LoadingCache[String, String] = {
     if (tokenCache == null) {
+      logger.info("tokenCache is null, initializing it first time")
       tokenCache =
         CacheBuilder
           .newBuilder
@@ -58,9 +59,12 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
               }
             }
           })
-    }
 
-    tokenCache
+      tokenCache
+    } else {
+      logger.info("tokenCache is not null, means it was initialized already")
+      tokenCache
+    }
   }
 
   def availableEndpoints(): Action[AnyContent] = Action.async { implicit request =>
@@ -69,7 +73,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
   def getCheckEligibilityPage(): Action[AnyContent] = Action.async { implicit request =>
     Try {
-      loadCache
+      initializeCache
       tokenCache.get("token")
     } match {
       case Success(token) =>
@@ -86,7 +90,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
   }
 
   def authorizeCallback(code: String): Action[AnyContent] = Action.async { implicit request =>
-    logger.info(s"inside authorizeCallback, code=$code")
+    logger.info(s"handling authorizeCallback from oauth")
     http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(appConfig.tokenRequest(code)))
       .map {
         response =>
