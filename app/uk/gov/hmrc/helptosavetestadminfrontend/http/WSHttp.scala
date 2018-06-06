@@ -34,16 +34,16 @@ trait WSHttp extends HttpPost with WSPost with HttpGet with WSGet {
 
   def get(url: String, headers: Map[String, String] = Map.empty[String, String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse]
 
-  def post[A](url:     String,
-              body:    A,
+  def post[A](url: String,
+              body: A,
               headers: Map[String, String] = Map.empty[String, String]
-  )(implicit w: Writes[A], hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse]
+             )(implicit w: Writes[A], hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse]
 }
 
 @Singleton
-class WSHttpExtension @Inject() (val auditConnector:       AuditConnector,
-                                 val runModeConfiguration: Configuration,
-                                 environment:              Environment)
+class WSHttpExtension @Inject()(val auditConnector: AuditConnector,
+                                val runModeConfiguration: Configuration,
+                                environment: Environment)
   extends WSHttp with HttpAuditing with ServicesConfig {
 
   val mode: Mode = environment.mode
@@ -59,15 +59,16 @@ class WSHttpExtension @Inject() (val auditConnector:       AuditConnector,
   override def mapErrors(httpMethod: String, url: String, f: Future[HttpResponse])(implicit ec: ExecutionContext): Future[HttpResponse] = f
 
   /**
-   * Returns a [[Future[HttpResponse]] without throwing exceptions if the status us not `2xx`. Needed
-   * to replace [[GET]] method provided by the hmrc library which will throw exceptions in such cases.
-   */
-  def get(url: String, headers: Map[String, String] = Map.empty[String, String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = super.GET(url)(httpReads, hc, ec)
+    * Returns a [[Future[HttpResponse]] without throwing exceptions if the status us not `2xx`. Needed
+    * to replace [[GET]] method provided by the hmrc library which will throw exceptions in such cases.
+    */
+  def get(url: String, headers: Map[String, String] = Map.empty[String, String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] =
+    super.GET(url)(httpReads, hc.withExtraHeaders(headers.toSeq: _*), ec)
 
-  def post[A](url:     String,
-              body:    A,
+  def post[A](url: String,
+              body: A,
               headers: Map[String, String] = Map.empty[String, String]
-  )(implicit w: Writes[A], hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] =
+             )(implicit w: Writes[A], hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] =
     super.POST(url, body)(w, httpReads, hc.withExtraHeaders(headers.toSeq: _*), ec)
 
 }

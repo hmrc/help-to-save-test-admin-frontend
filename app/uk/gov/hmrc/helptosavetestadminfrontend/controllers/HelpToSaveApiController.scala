@@ -16,23 +16,22 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
+import com.google.common.cache._
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector
-import uk.gov.hmrc.helptosavetestadminfrontend.forms.NinoForm
+import uk.gov.hmrc.helptosavetestadminfrontend.forms.EligibilityRequestForm
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.helptosavetestadminfrontend.views
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 @Singleton
@@ -43,17 +42,15 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     CacheBuilder
       .newBuilder
       .maximumSize(1)
-      .expireAfterWrite(3, TimeUnit.HOURS)
+      .expireAfterWrite(3, TimeUnit.MINUTES)
+      .removalListener(new RemovalListener[String, String] {
+        override def onRemoval(notification: RemovalNotification[String, String]): Unit = {
+          logger.info(s"cache entry: (${notification.getKey}) has been removed due to ${notification.getCause}")
+        }
+      })
       .build(new CacheLoader[String, String] {
         override def load(key: String): String = {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
-          val result = Await.result(authConnector.loginAndGetToken(), Duration(1, TimeUnit.MINUTES))
-          result match {
-            case Right(token) =>
-              logger.info(s"Loaded access token from oauth, token=$token")
-              token
-            case Left(e) => throw new Exception(s"error during retrieving token from oauth, error=$e")
-          }
+          UUID.randomUUID().toString
         }
       })
 
@@ -67,7 +64,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     } match {
       case Success(token) =>
         logger.info(s"loaded token from cache, token: $token")
-        Future.successful(Ok(views.html.get_check_eligibility_page(NinoForm.ninoForm)))
+        Future.successful(Ok(views.html.get_check_eligibility_page(EligibilityRequestForm.eligibilityForm)))
       case Failure(e) =>
         logger.warn(e.getMessage)
         Future.successful(internalServerError())
@@ -75,7 +72,36 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
   }
 
   def checkEligibility(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok("inside checkEligibility"))
+    EligibilityRequestForm.eligibilityForm.bindFromRequest().fold(
+      formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
+      {
+        params =>
+          val headers =
+            Map("Content-Type" -> params.contentType,
+              "Accept" -> params.accept,
+              "Gov-Client-User-ID" -> params.govClientUserId,
+              "Gov-Client-Timezone" -> params.govClientTimezone,
+              "Gov-Vendor-Version" -> params.govVendorVersion,
+              "Gov-Vendor-Instance-ID" -> params.govVendorInstanceId,
+              "Authorization" -> s"Bearer ${tokenCache.get("token")}",
+              "Cache-Control" -> params.cacheControl
+            )
+
+          http.get(s"${appConfig.apiUrl}/individuals/help-to-save/eligibility/${params.nino}", headers)
+            .map {
+              response =>
+                response.status match {
+                  case OK => Ok(response.body)
+                  case other: Int =>
+                    logger.warn(s"got $other status during get eligibility_check, body=${response.body}")
+                    internalServerError()
+                }
+            }.recover {
+            case ex ⇒ logger.warn(s"error during api eligibility call, error=${ex.getMessage}")
+              internalServerError()
+          }
+      }
+    )
   }
 
   def authorizeCallback(code: String): Action[AnyContent] = Action.async { implicit request =>
