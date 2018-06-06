@@ -25,7 +25,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector
-import uk.gov.hmrc.helptosavetestadminfrontend.forms.EligibilityRequestForm
+import uk.gov.hmrc.helptosavetestadminfrontend.forms.{CreateAccountForm, EligibilityRequestForm}
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.helptosavetestadminfrontend.views
@@ -123,11 +123,60 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
   }
 
   def getCreateAccountPage(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok(views.html.get_check_eligibility_page(EligibilityRequestForm.eligibilityForm)))
+    Future.successful(Ok(views.html.get_create_account_page(CreateAccountForm.createAccountForm)))
   }
 
   def createAccount(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok("success"))
+    CreateAccountForm.createAccountForm.bindFromRequest().fold(
+      formWithErrors ⇒ Future.successful(Ok(views.html.get_create_account_page(formWithErrors))),
+      {
+        params =>
+          val headers =
+            Map("Content-Type" -> params.contentType,
+              "Accept" -> params.accept,
+              "Gov-Client-User-ID" -> params.govClientUserId,
+              "Gov-Client-Timezone" -> params.govClientTimezone,
+              "Gov-Vendor-Version" -> params.govVendorVersion,
+              "Gov-Vendor-Instance-ID" -> params.govVendorInstanceId,
+              "Authorization" -> s"Bearer ${tokenCache.get("token")}",
+              "Cache-Control" -> params.cacheControl
+            )
+
+          http.get(s"${appConfig.apiUrl}/individuals/help-to-save/eligibility/${params.nino}", headers)
+            .map {
+              response =>
+                response.status match {
+                  case OK => logger.info(s"eligibility response body= ${response.body}")
+                  case other: Int =>
+                    logger.warn(s"got $other status during get eligibility_check, body=${response.body}")
+                }
+            }.recover {
+            case ex ⇒ logger.warn(s"error during api eligibility call, error=${ex.getMessage}")
+          }
+
+          val url =
+            s"""
+               |curl -v -X GET \
+               |-H "Content-Type: ${params.contentType}" \
+               |-H "Accept: ${params.accept}" \
+               |-H "Gov-Client-User-ID: ${params.govClientUserId}" \
+               |-H "Gov-Client-Timezone: ${params.govClientTimezone}" \
+               |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \
+               |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \
+               |-H "Authorization: Bearer ${tokenCache.get("token")}" \
+               |-H "Cache-Control: ${params.cacheControl}" \
+               | -d '{ \
+               |  "header": { \
+               |    "version": ${params.version}, \
+               |    "createdTimestamp": ${params.createdTimestamp}, \
+               |    "clientCode": ${params.clientCode}, \
+               |    "requestCorrelationId": ${params.requestCorrelationId} \
+               |  }}' "${appConfig.apiUrl}/individuals/help-to-save/eligibility/${params.nino}"
+               |""".stripMargin
+
+          Future.successful(Ok(url))
+      }
+    )
   }
 
   def authorizeCallback(code: String): Action[AnyContent] = Action.async { implicit request =>
