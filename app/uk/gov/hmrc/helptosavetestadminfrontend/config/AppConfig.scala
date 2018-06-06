@@ -34,7 +34,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   val adminFrontendUrl: String = baseUrl("help-to-save-test-admin-frontend")
 
-  val apiUrl: String = getString("microservice.services.api.url")
+  val apiUrl: String = baseUrl("api")
 
   val oauthURL: String = baseUrl("oauth-frontend")
   val scopes = "read:help-to-save write:help-to-save"

@@ -76,6 +76,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
       {
         params =>
+
           val headers =
             Map("Content-Type" -> params.contentType,
               "Accept" -> params.accept,
@@ -91,15 +92,35 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
             .map {
               response =>
                 response.status match {
-                  case OK => Ok(response.body)
+                  case OK => logger.info(s"eligibility response body= ${response.body}")
                   case other: Int =>
                     logger.warn(s"got $other status during get eligibility_check, body=${response.body}")
-                    internalServerError()
                 }
             }.recover {
             case ex ⇒ logger.warn(s"error during api eligibility call, error=${ex.getMessage}")
-              internalServerError()
           }
+
+          val url =
+            s"""
+               |curl -v -X GET \
+               |-H "Content-Type: ${params.contentType}" \
+               |-H "Accept: ${params.accept}" \
+               |-H "Gov-Client-User-ID: ${params.govClientUserId}" \
+               |-H "Gov-Client-Timezone: ${params.govClientTimezone}" \
+               |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \
+               |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \
+               |-H "Authorization: Bearer ${tokenCache.get("token")}" \
+               |-H "Cache-Control: ${params.cacheControl}" \
+               | -d '{ \
+               |  "header": { \
+               |    "version": ${params.version}, \
+               |    "createdTimestamp": ${params.createdTimestamp}, \
+               |    "clientCode": ${params.clientCode}, \
+               |    "requestCorrelationId": ${params.requestCorrelationId} \
+               |  }}' "${appConfig.apiUrl}/individuals/help-to-save/eligibility/${params.nino}"
+               |""".stripMargin
+
+          Future.successful(Ok(url))
       }
     )
   }
