@@ -19,7 +19,7 @@ package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 import java.util.concurrent.TimeUnit
 
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
-import com.google.inject.Inject
+import com.google.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
@@ -35,10 +35,11 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}
 
+@Singleton
 class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnector)(implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
-  var tokenCache: LoadingCache[String, String] =
+  val tokenCache: LoadingCache[String, String] =
     CacheBuilder
       .newBuilder
       .maximumSize(1)
