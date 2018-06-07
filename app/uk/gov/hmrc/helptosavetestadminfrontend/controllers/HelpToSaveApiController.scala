@@ -74,29 +74,6 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
       {
         params =>
-          //          val headers =
-          //            Map("Content-Type" -> params.contentType,
-          //              "Accept" -> params.accept,
-          //              "Gov-Client-User-ID" -> params.govClientUserId,
-          //              "Gov-Client-Timezone" -> params.govClientTimezone,
-          //              "Gov-Vendor-Version" -> params.govVendorVersion,
-          //              "Gov-Vendor-Instance-ID" -> params.govVendorInstanceId,
-          //              "Authorization" -> s"Bearer ${tokenCache.get("token")}",
-          //              "Cache-Control" -> params.cacheControl
-          //            )
-          //
-          //          http.get(s"${appConfig.apiUrl}/individuals/help-to-save/eligibility/${params.nino}", headers)
-          //            .map {
-          //              response =>
-          //                response.status match {
-          //                  case OK => logger.info(s"eligibility response body= ${response.body}")
-          //                  case other: Int =>
-          //                    logger.warn(s"got $other status during get eligibility_check, body=${response.body}")
-          //                }
-          //            }.recover {
-          //            case ex ⇒ logger.warn(s"error during api eligibility call, error=${ex.getMessage}")
-          //          }
-
           val url =
             s"""
                |curl -v -X GET \\
@@ -125,29 +102,6 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       formWithErrors ⇒ Future.successful(Ok(views.html.get_create_account_page(formWithErrors))),
       {
         params =>
-          //          val headers =
-          //            Map("Content-Type" -> params.contentType,
-          //              "Accept" -> params.accept,
-          //              "Gov-Client-User-ID" -> params.govClientUserId,
-          //              "Gov-Client-Timezone" -> params.govClientTimezone,
-          //              "Gov-Vendor-Version" -> params.govVendorVersion,
-          //              "Gov-Vendor-Instance-ID" -> params.govVendorInstanceId,
-          //              "Authorization" -> s"Bearer ${tokenCache.get("token")}",
-          //              "Cache-Control" -> params.cacheControl
-          //            )
-          //
-          //          http.post(s"${appConfig.apiUrl}/individuals/help-to-save/eligibility/${params.nino}", headers)
-          //            .map {
-          //              response =>
-          //                response.status match {
-          //                  case OK => logger.info(s"eligibility response body= ${response.body}")
-          //                  case other: Int =>
-          //                    logger.warn(s"got $other status during get eligibility_check, body=${response.body}")
-          //                }
-          //            }.recover {
-          //            case ex ⇒ logger.warn(s"error during api eligibility call, error=${ex.getMessage}")
-          //          }
-
           val url =
             s"""
                |curl -v -X POST \\
@@ -159,26 +113,26 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
                |-H "Authorization: Bearer ${tokenCache.get(params.nino)}" \\
                |-H "Cache-Control: ${params.cacheControl}" \\
-               | -d '{ \\
-               |  "header": { \\
-               |    "version": ${params.version}, \\
-               |    "createdTimestamp": ${params.createdTimestamp}, \\
-               |    "clientCode": ${params.clientCode}, \\
-               |    "requestCorrelationId": ${params.requestCorrelationId} \\
-               |  }
-               |  "body": { \\
-               |    "nino" : ${params.nino}, \\
-               |    "forename" : ${params.forename}, \\
-               |    "surname" : ${params.surname}, \\
-               |    "dateOfBirth" : ${params.dateOfBirth}, \\
-               |    "contactDetails" : { \\
-               |       "address1" : "${params.address1}, \\
-               |       "address2" : ${params.address2}, \\
-               |       "postcode": ${params.postcode}, \\
-               |       "countryCode" : ${params.countryCode}, \\
-               |       "communicationPreference" : ${params.communicationPreference}, \\
-               |    }, \\
-               |    "registrationChannel" : ${params.registrationChannel}, \\
+               | -d '{
+               |  "header": {
+               |    "version": "${params.version}",
+               |    "createdTimestamp": "${params.createdTimestamp}",
+               |    "clientCode": "${params.clientCode}",
+               |    "requestCorrelationId": "${params.requestCorrelationId}"
+               |  },
+               |  "body": {
+               |    "nino" : "${params.nino}",
+               |    "forename" : "${params.forename}",
+               |    "surname" : "${params.surname}",
+               |    "dateOfBirth" : "${params.dateOfBirth}",
+               |    "contactDetails" : {
+               |       "address1" : "${params.address1}",
+               |       "address2" : "${params.address2}",
+               |       "postcode": "${params.postcode}",
+               |       "countryCode" : "${params.countryCode}",
+               |       "communicationPreference" : "${params.communicationPreference}"
+               |    },
+               |    "registrationChannel" : "${params.registrationChannel}"
                |  }}' "${appConfig.apiUrl}/individuals/help-to-save/account"
                |""".stripMargin
 
