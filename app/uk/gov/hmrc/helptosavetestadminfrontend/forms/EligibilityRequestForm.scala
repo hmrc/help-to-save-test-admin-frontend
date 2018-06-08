@@ -23,24 +23,21 @@ object EligibilityRequestForm {
 
   def eligibilityForm = Form(
     mapping(
-      "contentType" -> nonEmptyText,
       "accept" -> nonEmptyText,
       "govClientUserId" -> nonEmptyText,
       "govClientTimezone" -> nonEmptyText,
       "govVendorVersion" -> nonEmptyText,
       "govVendorInstanceId" -> nonEmptyText,
-      "cacheControl" -> nonEmptyText,
       "nino" -> nonEmptyText
     )(EligibilityParams.apply)(EligibilityParams.unapply)
   )
 
 }
 
-case class EligibilityParams(contentType: String,
-                           accept: String,
-                           govClientUserId: String,
-                           govClientTimezone: String,
-                           govVendorVersion: String,
-                           govVendorInstanceId: String,
-                           cacheControl: String,
-                           nino: String)
+case class EligibilityParams(accept: String,
+                             govClientUserId: String,
+                             govClientTimezone: String,
+                             govVendorVersion: String,
+                             govVendorInstanceId: String,
+                             nino: String
+                            )

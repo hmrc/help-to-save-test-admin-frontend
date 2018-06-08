@@ -21,53 +21,86 @@ import play.api.data._
 
 object CreateAccountForm {
 
-  def createAccountForm = Form(
-    mapping(
-      "contentType" -> nonEmptyText,
-      "accept" -> nonEmptyText,
-      "govClientUserId" -> nonEmptyText,
-      "govClientTimezone" -> nonEmptyText,
-      "govVendorVersion" -> nonEmptyText,
-      "govVendorInstanceId" -> nonEmptyText,
-      "cacheControl" -> nonEmptyText,
-      "version" -> nonEmptyText,
-      "createdTimestamp" -> nonEmptyText,
-      "clientCode" -> nonEmptyText,
-      "requestCorrelationId" -> nonEmptyText,
-      "nino" -> nonEmptyText,
-      "forename" -> nonEmptyText,
-      "surname" -> nonEmptyText,
-      "dateOfBirth" -> nonEmptyText,
+  val httpHeaderMapping = mapping(
+    "contentType" -> nonEmptyText,
+    "accept" -> nonEmptyText,
+    "govClientUserId" -> nonEmptyText,
+    "govClientTimezone" -> nonEmptyText,
+    "govVendorVersion" -> nonEmptyText,
+    "govVendorInstanceId" -> nonEmptyText
+  )(HttpHeaders.apply)(HttpHeaders.unapply)
+
+  val requestHeaderMapping = mapping(
+    "version" -> nonEmptyText,
+    "createdTimestamp" -> nonEmptyText,
+    "clientCode" -> nonEmptyText,
+    "requestCorrelationId" -> nonEmptyText
+  )(RequestHeaders.apply)(RequestHeaders.unapply)
+
+  val requestBodyMapping = mapping(
+    "nino" -> nonEmptyText,
+    "forename" -> nonEmptyText,
+    "surname" -> nonEmptyText,
+    "dateOfBirth" -> nonEmptyText,
+    "contactDetails" -> mapping(
       "address1" -> nonEmptyText,
       "address2" -> nonEmptyText,
+      "address3" -> optional(text),
+      "address4" -> optional(text),
+      "address5" -> optional(text),
       "postcode" -> nonEmptyText,
-      "countryCode" -> nonEmptyText,
+      "countryCode" -> optional(text),
       "communicationPreference" -> nonEmptyText,
-      "registrationChannel" -> nonEmptyText
+      "email" -> optional(text),
+      "phoneNumber" -> optional(text)
+    )(ContactDetails.apply)(ContactDetails.unapply),
+    "registrationChannel" -> nonEmptyText
+  )(RequestBody.apply)(RequestBody.unapply)
+
+  def createAccountForm = Form(
+    mapping(
+      "httpHeaders" -> httpHeaderMapping,
+      "requestHeaders" -> requestHeaderMapping,
+      "requestBody" -> requestBodyMapping
     )(CreateAccountParams.apply)(CreateAccountParams.unapply)
   )
 
 }
 
-case class CreateAccountParams(contentType: String,
-                               accept: String,
-                               govClientUserId: String,
-                               govClientTimezone: String,
-                               govVendorVersion: String,
-                               govVendorInstanceId: String,
-                               cacheControl: String,
-                               version: String,
-                               createdTimestamp: String,
-                               clientCode: String,
-                               requestCorrelationId: String,
-                               nino: String,
-                               forename: String,
-                               surname: String,
-                               dateOfBirth: String,
-                               address1: String,
-                               address2: String,
-                               postcode: String,
-                               countryCode: String,
-                               communicationPreference: String,
-                               registrationChannel: String
+case class CreateAccountParams(httpHeaders: HttpHeaders,
+                               requestHeaders: RequestHeaders,
+                               requestBody: RequestBody
                               )
+
+case class ContactDetails(address1: String,
+                          address2: String,
+                          address3: Option[String],
+                          address4: Option[String],
+                          address5: Option[String],
+                          postcode: String,
+                          countryCode: Option[String],
+                          communicationPreference: String,
+                          email: Option[String],
+                          phoneNumber: Option[String])
+
+case class HttpHeaders(contentType: String,
+                       accept: String,
+                       govClientUserId: String,
+                       govClientTimezone: String,
+                       govVendorVersion: String,
+                       govVendorInstanceId: String
+                      )
+
+case class RequestHeaders(version: String,
+                          createdTimestamp: String,
+                          clientCode: String,
+                          requestCorrelationId: String
+                         )
+
+case class RequestBody(nino: String,
+                       forename: String,
+                       surname: String,
+                       dateOfBirth: String,
+                       contactDetails: ContactDetails,
+                       registrationChannel: String
+                      )

@@ -25,7 +25,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector
-import uk.gov.hmrc.helptosavetestadminfrontend.forms.{CreateAccountForm, EligibilityRequestForm}
+import uk.gov.hmrc.helptosavetestadminfrontend.forms.{ContactDetails, CreateAccountForm, EligibilityRequestForm}
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.helptosavetestadminfrontend.views
@@ -61,8 +61,8 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
         }
       })
 
-  def availableEndpoints(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok(views.html.availableEndpoints()))
+  def availableFunctions(): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(views.html.availableFunctions()))
   }
 
   def getCheckEligibilityPage(): Action[AnyContent] = Action.async { implicit request =>
@@ -77,14 +77,12 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
           val url =
             s"""
                |curl -v -X GET \\
-               |-H "Content-Type: ${params.contentType}" \\
                |-H "Accept: ${params.accept}" \\
                |-H "Gov-Client-User-ID: ${params.govClientUserId}" \\
                |-H "Gov-Client-Timezone: ${params.govClientTimezone}" \\
                |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \\
                |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
                |-H "Authorization: Bearer ${tokenCache.get(params.nino)}" \\
-               |-H "Cache-Control: ${params.cacheControl}" \\
                | "${appConfig.apiUrl}/individuals/help-to-save/eligibility/${params.nino}"
                |""".stripMargin
 
@@ -102,37 +100,78 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       formWithErrors ⇒ Future.successful(Ok(views.html.get_create_account_page(formWithErrors))),
       {
         params =>
+
+          val getContactDetailsJson: String = {
+            val contactDetails = params.requestBody.contactDetails
+
+            val address3 = contactDetails.address3 match {
+              case Some(value) if value.trim.nonEmpty => s""""address3" : "$value","""
+              case _ => ""
+            }
+
+            val address4 = contactDetails.address4 match {
+              case Some(value) if value.trim.nonEmpty => s""""address4" : "$value","""
+              case _ => ""
+            }
+
+            val address5 = contactDetails.address5 match {
+              case Some(value) if value.trim.nonEmpty => s""""address5" : "$value","""
+              case _ => ""
+            }
+
+            val countryCode = contactDetails.countryCode match {
+              case Some(value) if value.trim.nonEmpty => s""""countryCode" : "$value","""
+              case _ => ""
+            }
+
+            val phoneNumber = contactDetails.phoneNumber match {
+              case Some(value) if value.trim.nonEmpty => s""""phoneNumber" : "$value","""
+              case _ => ""
+            }
+
+            val email = contactDetails.email match {
+              case Some(value) if value.trim.nonEmpty => s""""email" : "$value"""
+              case _ => ""
+            }
+
+            s""" {
+              "address1" : "${contactDetails.address1}",
+              "address2" : "${contactDetails.address2}",
+              $address3
+              $address4
+              $address5
+              "postcode" :  "${contactDetails.postcode}",
+              $countryCode
+              $phoneNumber
+              "communicationPreference" : "${contactDetails.communicationPreference}",
+              $email"
+            }""".replaceAll("(?m)^[ \t]*\r?\n", "")
+          }
+
           val url =
             s"""
                |curl -v -X POST \\
-               |-H "Content-Type: ${params.contentType}" \\
-               |-H "Accept: ${params.accept}" \\
-               |-H "Gov-Client-User-ID: ${params.govClientUserId}" \\
-               |-H "Gov-Client-Timezone: ${params.govClientTimezone}" \\
-               |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \\
-               |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
-               |-H "Authorization: Bearer ${tokenCache.get(params.nino)}" \\
-               |-H "Cache-Control: ${params.cacheControl}" \\
+               |-H "Content-Type: ${params.httpHeaders.contentType}" \\
+               |-H "Accept: ${params.httpHeaders.accept}" \\
+               |-H "Gov-Client-User-ID: ${params.httpHeaders.govClientUserId}" \\
+               |-H "Gov-Client-Timezone: ${params.httpHeaders.govClientTimezone}" \\
+               |-H "Gov-Vendor-Version: ${params.httpHeaders.govVendorVersion}" \\
+               |-H "Gov-Vendor-Instance-ID: ${params.httpHeaders.govVendorInstanceId}" \\
+               |-H "Authorization: Bearer ${tokenCache.get(params.requestBody.nino)}" \\
                | -d '{
                |  "header": {
-               |    "version": "${params.version}",
-               |    "createdTimestamp": "${params.createdTimestamp}",
-               |    "clientCode": "${params.clientCode}",
-               |    "requestCorrelationId": "${params.requestCorrelationId}"
+               |    "version": "${params.requestHeaders.version}",
+               |    "createdTimestamp": "${params.requestHeaders.createdTimestamp}",
+               |    "clientCode": "${params.requestHeaders.clientCode}",
+               |    "requestCorrelationId": "${params.requestHeaders.requestCorrelationId}"
                |  },
                |  "body": {
-               |    "nino" : "${params.nino}",
-               |    "forename" : "${params.forename}",
-               |    "surname" : "${params.surname}",
-               |    "dateOfBirth" : "${params.dateOfBirth}",
-               |    "contactDetails" : {
-               |       "address1" : "${params.address1}",
-               |       "address2" : "${params.address2}",
-               |       "postcode": "${params.postcode}",
-               |       "countryCode" : "${params.countryCode}",
-               |       "communicationPreference" : "${params.communicationPreference}"
-               |    },
-               |    "registrationChannel" : "${params.registrationChannel}"
+               |    "nino" : "${params.requestBody.nino}",
+               |    "forename" : "${params.requestBody.forename}",
+               |    "surname" : "${params.requestBody.surname}",
+               |    "dateOfBirth" : "${params.requestBody.dateOfBirth}",
+               |    "contactDetails" : $getContactDetailsJson,
+               |    "registrationChannel" : "${params.requestBody.registrationChannel}"
                |  }}' "${appConfig.apiUrl}/individuals/help-to-save/account"
                |""".stripMargin
 
