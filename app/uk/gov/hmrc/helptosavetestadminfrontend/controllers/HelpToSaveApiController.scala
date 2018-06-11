@@ -25,39 +25,32 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector
-import uk.gov.hmrc.helptosavetestadminfrontend.forms.{ContactDetails, CreateAccountForm, EligibilityRequestForm}
+import uk.gov.hmrc.helptosavetestadminfrontend.forms.{CreateAccountForm, EligibilityRequestForm}
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.helptosavetestadminfrontend.views
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 
 @Singleton
 class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnector)(implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
-  val tokenCache: LoadingCache[String, String] =
+  val tokenCache: LoadingCache[String, Future[Either[String, String]]] =
     CacheBuilder
       .newBuilder
       .maximumSize(1000)
       .expireAfterWrite(3, TimeUnit.HOURS)
-      .removalListener(new RemovalListener[String, String] {
-        override def onRemoval(notification: RemovalNotification[String, String]): Unit = {
+      .removalListener(new RemovalListener[String, Future[Either[String, String]]] {
+        override def onRemoval(notification: RemovalNotification[String, Future[Either[String, String]]]): Unit = {
           logger.info(s"cache entry: (${notification.getKey}) has been removed due to ${notification.getCause}")
         }
       })
-      .build(new CacheLoader[String, String] {
-        override def load(key: String): String = {
+      .build(new CacheLoader[String, Future[Either[String, String]]] {
+        override def load(key: String): Future[Either[String, String]] = {
           implicit val hc: HeaderCarrier = HeaderCarrier()
-          val result = Await.result(authConnector.loginAndGetToken(key), Duration(1, TimeUnit.MINUTES))
-          result match {
-            case Right(token) =>
-              logger.info(s"Loaded access token from oauth, token=$token")
-              token
-            case Left(e) => throw new Exception(s"error during retrieving token from oauth, error=$e")
-          }
+          authConnector.loginAndGetToken(key)
         }
       })
 
@@ -72,21 +65,30 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
   def checkEligibility(): Action[AnyContent] = Action.async { implicit request =>
     EligibilityRequestForm.eligibilityForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
-      {
-        params =>
-          val url =
-            s"""
-               |curl -v -X GET \\
-               |-H "Accept: ${params.accept}" \\
-               |-H "Gov-Client-User-ID: ${params.govClientUserId}" \\
-               |-H "Gov-Client-Timezone: ${params.govClientTimezone}" \\
-               |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \\
-               |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
-               |-H "Authorization: Bearer ${tokenCache.get(params.nino)}" \\
-               | "${appConfig.apiUrl}/individuals/help-to-save/eligibility/${params.nino}"
-               |""".stripMargin
+      { params =>
+        tokenCache.get(params.nino).map {
+          case Right(token) =>
+            logger.info(s"Loaded access token from cache, token=$token")
+            val url =
+              s"""
+                 |curl -v -X GET \\
+                 |-H "Accept: ${params.accept}" \\
+                 |-H "Gov-Client-User-ID: ${params.govClientUserId}" \\
+                 |-H "Gov-Client-Timezone: ${params.govClientTimezone}" \\
+                 |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \\
+                 |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
+                 |-H "Authorization: Bearer $token" \\
+                 | "${appConfig.apiUrl}/individuals/help-to-save/eligibility/${params.nino}"
+                 |""".stripMargin
 
-          Future.successful(Ok(url))
+            Ok(url)
+          case Left(e) =>
+            logger.warn(s"error getting the access token from cache, error=$e")
+            internalServerError()
+        }.recover {
+          case e => logger.warn(s"error getting the access token from cache, error=$e")
+            internalServerError()
+        }
       }
     )
   }
@@ -102,37 +104,25 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
         params =>
 
           val getContactDetailsJson: String = {
+
+            def get(key: String, value: Option[String]): String =
+              value.filter(_.trim.nonEmpty).map(v => s""""$key": "$v",""").getOrElse("")
+
             val contactDetails = params.requestBody.contactDetails
 
-            val address3 = contactDetails.address3 match {
-              case Some(value) if value.trim.nonEmpty => s""""address3" : "$value","""
-              case _ => ""
-            }
+            val address3 = get("address3", contactDetails.address3)
 
-            val address4 = contactDetails.address4 match {
-              case Some(value) if value.trim.nonEmpty => s""""address4" : "$value","""
-              case _ => ""
-            }
+            val address4 = get("address4", contactDetails.address4)
 
-            val address5 = contactDetails.address5 match {
-              case Some(value) if value.trim.nonEmpty => s""""address5" : "$value","""
-              case _ => ""
-            }
+            val address5 = get("address5", contactDetails.address5)
 
-            val countryCode = contactDetails.countryCode match {
-              case Some(value) if value.trim.nonEmpty => s""""countryCode" : "$value","""
-              case _ => ""
-            }
+            val countryCode = get("countryCode", contactDetails.countryCode)
 
-            val phoneNumber = contactDetails.phoneNumber match {
-              case Some(value) if value.trim.nonEmpty => s""""phoneNumber" : "$value","""
-              case _ => ""
-            }
+            val phoneNumber = get("phoneNumber", contactDetails.phoneNumber)
 
-            val email = contactDetails.email match {
-              case Some(value) if value.trim.nonEmpty => s""""email" : "$value"""
-              case _ => ""
-            }
+            val email = get("email", contactDetails.email).replace(",", "")
+
+            val addComma = if (email.nonEmpty) "," else ""
 
             s""" {
               "address1" : "${contactDetails.address1}",
@@ -143,39 +133,49 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
               "postcode" :  "${contactDetails.postcode}",
               $countryCode
               $phoneNumber
-              "communicationPreference" : "${contactDetails.communicationPreference}",
-              $email"
+              "communicationPreference" : "${contactDetails.communicationPreference}"$addComma
+              $email
             }""".replaceAll("(?m)^[ \t]*\r?\n", "")
           }
 
-          val url =
-            s"""
-               |curl -v -X POST \\
-               |-H "Content-Type: ${params.httpHeaders.contentType}" \\
-               |-H "Accept: ${params.httpHeaders.accept}" \\
-               |-H "Gov-Client-User-ID: ${params.httpHeaders.govClientUserId}" \\
-               |-H "Gov-Client-Timezone: ${params.httpHeaders.govClientTimezone}" \\
-               |-H "Gov-Vendor-Version: ${params.httpHeaders.govVendorVersion}" \\
-               |-H "Gov-Vendor-Instance-ID: ${params.httpHeaders.govVendorInstanceId}" \\
-               |-H "Authorization: Bearer ${tokenCache.get(params.requestBody.nino)}" \\
-               | -d '{
-               |  "header": {
-               |    "version": "${params.requestHeaders.version}",
-               |    "createdTimestamp": "${params.requestHeaders.createdTimestamp}",
-               |    "clientCode": "${params.requestHeaders.clientCode}",
-               |    "requestCorrelationId": "${params.requestHeaders.requestCorrelationId}"
-               |  },
-               |  "body": {
-               |    "nino" : "${params.requestBody.nino}",
-               |    "forename" : "${params.requestBody.forename}",
-               |    "surname" : "${params.requestBody.surname}",
-               |    "dateOfBirth" : "${params.requestBody.dateOfBirth}",
-               |    "contactDetails" : $getContactDetailsJson,
-               |    "registrationChannel" : "${params.requestBody.registrationChannel}"
-               |  }}' "${appConfig.apiUrl}/individuals/help-to-save/account"
-               |""".stripMargin
+          tokenCache.get(params.requestBody.nino).map {
+            case Right(token) =>
+              logger.info(s"Loaded access token from cache, token=$token")
+              val url =
+                s"""
+                   |curl -v -X POST \\
+                   |-H "Content-Type: ${params.httpHeaders.contentType}" \\
+                   |-H "Accept: ${params.httpHeaders.accept}" \\
+                   |-H "Gov-Client-User-ID: ${params.httpHeaders.govClientUserId}" \\
+                   |-H "Gov-Client-Timezone: ${params.httpHeaders.govClientTimezone}" \\
+                   |-H "Gov-Vendor-Version: ${params.httpHeaders.govVendorVersion}" \\
+                   |-H "Gov-Vendor-Instance-ID: ${params.httpHeaders.govVendorInstanceId}" \\
+                   |-H "Authorization: Bearer $token" \\
+                   | -d '{
+                   |  "header": {
+                   |    "version": "${params.requestHeaders.version}",
+                   |    "createdTimestamp": "${params.requestHeaders.createdTimestamp}",
+                   |    "clientCode": "${params.requestHeaders.clientCode}",
+                   |    "requestCorrelationId": "${params.requestHeaders.requestCorrelationId}"
+                   |  },
+                   |  "body": {
+                   |    "nino" : "${params.requestBody.nino}",
+                   |    "forename" : "${params.requestBody.forename}",
+                   |    "surname" : "${params.requestBody.surname}",
+                   |    "dateOfBirth" : "${params.requestBody.dateOfBirth}",
+                   |    "contactDetails" : $getContactDetailsJson,
+                   |    "registrationChannel" : "${params.requestBody.registrationChannel}"
+                   |  }}' "${appConfig.apiUrl}/individuals/help-to-save/account"
+                   |""".stripMargin
 
-          Future.successful(Ok(url))
+              Ok(url)
+            case Left(e) =>
+              logger.warn(s"error getting the access token from cache, error=$e")
+              internalServerError()
+          }.recover {
+            case e => logger.warn(s"error getting the access token from cache, error=$e")
+              internalServerError()
+          }
       }
     )
   }
