@@ -1,6 +1,6 @@
 # microservice specific routes
 
-GET        /                           @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableEndpoints()
+GET        /                           @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions()
 
 POST       /delete-emails              @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.deleteVerifiedEmails
 
@@ -8,7 +8,7 @@ GET        /forbidden                 @uk.gov.hmrc.helptosavetestadminfrontend.c
 
 GET        /specify-emails-to-delete  @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.specifyEmailsToDelete
 
-GET        /available-endpoints      @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableEndpoints()
+GET        /available-functions      @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions()
 
 GET        /authorize-callback       @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authorizeCallback(code: String)
 

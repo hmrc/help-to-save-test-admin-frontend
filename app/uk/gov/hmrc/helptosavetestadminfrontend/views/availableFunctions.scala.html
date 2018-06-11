@@ -20,11 +20,11 @@
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @main_template(title = "help-to-save-test-admin-frontend", bodyClasses = None) {
-    <h1>Available Endpoints</h1>
+    <h1>Available Functions</h1>
 
     <ul>
-        <li><a href="@routes.VerifiedEmailsController.specifyEmailsToDelete()">Delete Emails</a></li>
-        <li><a href="@routes.HelpToSaveApiController.getCheckEligibilityPage()">Check Eligibility</a></li>
+        <li><a href="@routes.VerifiedEmailsController.specifyEmailsToDelete()">Delete Emails</a></li><br>
+        <li><a href="@routes.HelpToSaveApiController.getCheckEligibilityPage()">Check Eligibility</a></li><br>
         <li><a href="@routes.HelpToSaveApiController.getCreateAccountPage()">Create Account</a></li>
     </ul>
 }
