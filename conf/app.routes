@@ -4,18 +4,22 @@ GET        /                           @uk.gov.hmrc.helptosavetestadminfrontend.
 
 POST       /delete-emails              @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.deleteVerifiedEmails
 
-GET        /forbidden                 @uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController.forbidden
+GET        /forbidden                  @uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController.forbidden
 
-GET        /specify-emails-to-delete  @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.specifyEmailsToDelete
+GET        /specify-emails-to-delete   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.specifyEmailsToDelete
 
-GET        /available-functions      @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions()
+GET        /available-functions        @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions()
 
-GET        /authorize-callback       @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authorizeCallback(code: String)
+GET        /authorize-callback         @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authorizeCallback(code: String)
 
 GET        /get-check-eligibility-page   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCheckEligibilityPage()
 
-POST        /check-eligibility        @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.checkEligibility()
+POST       /check-eligibility          @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.checkEligibility()
 
-GET        /get-create-account-page   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCreateAccountPage()
+GET        /get-create-account-page    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCreateAccountPage()
 
-POST        /create-account        @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.createAccount()
+POST       /create-account             @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.createAccount()
+
+GET        /get-account-page           @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getAccountPage()
+
+GET        /account                    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getAccount()
