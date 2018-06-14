@@ -25,7 +25,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector
-import uk.gov.hmrc.helptosavetestadminfrontend.forms.{CreateAccountForm, EligibilityRequestForm}
+import uk.gov.hmrc.helptosavetestadminfrontend.forms.{CreateAccountForm, EligibilityRequestForm, GetAccountForm}
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.helptosavetestadminfrontend.views
@@ -199,4 +199,40 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
         internalServerError()
     }
   }
+
+  def getAccountPage(): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(views.html.get_account_page(GetAccountForm.getAccountForm)))
+  }
+
+  def getAccount(): Action[AnyContent] = Action.async { implicit request =>
+    GetAccountForm.getAccountForm.bindFromRequest().fold(
+      formWithErrors ⇒ Future.successful(Ok(views.html.get_account_page(formWithErrors))),
+      { params =>
+        tokenCache.get(params.nino).map {
+          case Right(token) =>
+            logger.info(s"Loaded access token from cache, token=$token")
+            val url =
+              s"""
+                 |curl -v -X GET \\
+                 |-H "Accept: ${params.accept}" \\
+                 |-H "Gov-Client-User-ID: ${params.govClientUserId}" \\
+                 |-H "Gov-Client-Timezone: ${params.govClientTimezone}" \\
+                 |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \\
+                 |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
+                 |-H "Authorization: Bearer $token" \\
+                 | "${appConfig.apiUrl}/account"
+                 |""".stripMargin
+
+            Ok(url)
+          case Left(e) =>
+            logger.warn(s"error getting the access token from cache, error=$e")
+            internalServerError()
+        }.recover {
+          case e => logger.warn(s"error getting the access token from cache, error=$e")
+            internalServerError()
+        }
+      }
+    )
+  }
+
 }
