@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.helptosavetestadminfrontend.forms.GetAccountParams
 @import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers
 @import uk.gov.hmrc.helptosavetestadminfrontend.util.DefaultParameters
+@import java.util.UUID
 
 @(form: Form[GetAccountParams])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
@@ -36,27 +37,27 @@
 
         <div class="form-field">
             <label class="label--inline">Accept:</label>
-            <input type="text" name="accept" size="30" value=DefaultParameters.acceptValue />
+            <input type="text" name="accept" size="30" value=@DefaultParameters.acceptValue />
         </div>
 
         <div class="form-field">
             <label class="label--inline">Gov-Client-User-ID:</label>
-            <input type="text" name="govClientUserId" size="30" value=DefaultParameters.govClientUserId />
+            <input type="text" name="govClientUserId" size="30" value=@DefaultParameters.govClientUserId />
         </div>
 
         <div class="form-field">
             <label class="label--inline">Gov-Client-Timezone:</label>
-            <input type="text" name="govClientTimezone" size="30" value=DefaultParameters.govClientTimezone />
+            <input type="text" name="govClientTimezone" size="30" value=@DefaultParameters.govClientTimezone />
         </div>
 
         <div class="form-field">
             <label class="label--inline">Gov-Vendor-Version:</label>
-            <input type="text" name="govVendorVersion" size="30" value=DefaultParameters.govVendorVersion />
+            <input type="text" name="govVendorVersion" size="30" value=@DefaultParameters.govVendorVersion />
         </div>
 
         <div class="form-field">
             <label class="label--inline">Gov-Vendor-Instance-ID:</label>
-            <input type="text" name="govVendorInstanceId" size="35" value=DefaultParameters.govVendorInstanceId />
+            <input type="text" name="govVendorInstanceId" size="35" value=@DefaultParameters.govVendorInstanceId />
         </div>
 
         <h3>Enter NINO:</h3>
@@ -64,6 +65,16 @@
         <div class="form-field">
             <label class="label--inline">NINO:</label>
             <input type="text" name="nino" size="30" value="AE123456C"/>
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">SystemId:</label>
+            <input type="text" name="systemId" size="30" value="systemId"/>
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">CorrelationId:</label>
+            <input type="text" name="correlationId" size="40" value="@UUID.randomUUID()"/>
         </div>
 
 
