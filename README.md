@@ -8,5 +8,4 @@ we use for testing in ET are not currently verified prior to running the tests w
 verified.
 
 ### License
-
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")
