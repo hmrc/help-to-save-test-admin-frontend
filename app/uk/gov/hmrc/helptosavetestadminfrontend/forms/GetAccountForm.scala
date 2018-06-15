@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.forms
 
-import java.util.UUID
-
 import play.api.data.Forms._
 import play.api.data._
 
@@ -30,9 +28,7 @@ object GetAccountForm {
       "govClientTimezone" -> nonEmptyText,
       "govVendorVersion" -> nonEmptyText,
       "govVendorInstanceId" -> nonEmptyText,
-      "nino" -> nonEmptyText,
-      "systemId" → nonEmptyText,
-      "correlationId" → nonEmptyText
+      "nino" -> nonEmptyText
     )(GetAccountParams.apply)(GetAccountParams.unapply)
   )
 
@@ -43,9 +39,7 @@ case class GetAccountParams(accept: String,
                              govClientTimezone: String,
                              govVendorVersion: String,
                              govVendorInstanceId: String,
-                             nino: String,
-                             systemId: String,
-                             correlationId: String
+                             nino: String
                             )
 
 

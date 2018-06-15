@@ -19,7 +19,6 @@
 @import uk.gov.hmrc.helptosavetestadminfrontend.forms.GetAccountParams
 @import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers
 @import uk.gov.hmrc.helptosavetestadminfrontend.util.DefaultParameters
-@import java.util.UUID
 
 @(form: Form[GetAccountParams])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
@@ -65,16 +64,6 @@
         <div class="form-field">
             <label class="label--inline">NINO:</label>
             <input type="text" name="nino" size="30" value="AE123456C"/>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">SystemId:</label>
-            <input type="text" name="systemId" size="30" value="systemId"/>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">CorrelationId:</label>
-            <input type="text" name="correlationId" size="40" value=@UUID.randomUUID()/>
         </div>
 
 
