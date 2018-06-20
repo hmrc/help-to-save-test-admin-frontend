@@ -78,7 +78,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                  |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \\
                  |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
                  |-H "Authorization: Bearer $token" \\
-                 | "${appConfig.apiUrl}/individuals/help-to-save/eligibility/${params.nino}"
+                 | "${appConfig.apiUrl}/eligibility/${params.nino}"
                  |""".stripMargin
 
             Ok(url)
@@ -165,7 +165,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                    |    "dateOfBirth" : "${params.requestBody.dateOfBirth}",
                    |    "contactDetails" : $getContactDetailsJson,
                    |    "registrationChannel" : "${params.requestBody.registrationChannel}"
-                   |  }}' "${appConfig.apiUrl}/individuals/help-to-save/account"
+                   |  }}' "${appConfig.apiUrl}/account"
                    |""".stripMargin
 
               Ok(url)
