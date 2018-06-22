@@ -39,18 +39,18 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                                        (implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
-  val tokenCache: LoadingCache[(String, AccessType), Future[Either[String, String]]] =
+  val tokenCache: LoadingCache[(Option[String], AccessType), Future[Either[String, String]]] =
     CacheBuilder
       .newBuilder
       .maximumSize(1000)
       .expireAfterWrite(3, TimeUnit.HOURS)
-      .removalListener(new RemovalListener[(String, AccessType), Future[Either[String, String]]] {
-        override def onRemoval(notification: RemovalNotification[(String, AccessType), Future[Either[String, String]]]): Unit = {
+      .removalListener(new RemovalListener[(Option[String], AccessType), Future[Either[String, String]]] {
+        override def onRemoval(notification: RemovalNotification[(Option[String], AccessType), Future[Either[String, String]]]): Unit = {
           logger.info(s"cache entry: (${notification.getKey}) has been removed due to ${notification.getCause}")
         }
       })
-      .build(new CacheLoader[(String, AccessType), Future[Either[String, String]]] {
-        override def load(key: (String, AccessType)): Future[Either[String, String]] = {
+      .build(new CacheLoader[(Option[String], AccessType), Future[Either[String, String]]] {
+        override def load(key: (Option[String], AccessType)): Future[Either[String, String]] = {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           key._2 match {
             case UserRestricted ⇒ authConnector.loginAndGetToken(key._1)
@@ -76,7 +76,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     EligibilityRequestForm.eligibilityForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
       { params =>
-        tokenCache.get(params.nino → params.accessType).map {
+        tokenCache.get(params.authNino → params.accessType).map {
           case Right(token) =>
             logger.info(s"Loaded access token from cache, token=$token")
             val url =
@@ -88,7 +88,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                  |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \\
                  |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
                  |-H "Authorization: Bearer $token" \\
-                 | "${appConfig.apiUrl}/eligibility/${params.nino}"
+                 | "${appConfig.apiUrl}/eligibility/${params.requestNino}"
                  |""".stripMargin
 
             Ok(url)
@@ -148,7 +148,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
             }""".replaceAll("(?m)^[ \t]*\r?\n", "")
           }
 
-          tokenCache.get(params.requestBody.nino → params.requestBody.accessType).map {
+          tokenCache.get(params.requestBody.authNino → params.requestBody.accessType).map {
             case Right(token) =>
               logger.info(s"Loaded access token from cache, token=$token")
               val url =
@@ -169,7 +169,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                    |    "requestCorrelationId": "${params.requestHeaders.requestCorrelationId}"
                    |  },
                    |  "body": {
-                   |    "nino" : "${params.requestBody.nino}",
+                   |    "nino" : "${params.requestBody.requestNino}",
                    |    "forename" : "${params.requestBody.forename}",
                    |    "surname" : "${params.requestBody.surname}",
                    |    "dateOfBirth" : "${params.requestBody.dateOfBirth}",
@@ -210,7 +210,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     GetAccountForm.getAccountForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_account_page(formWithErrors))),
       { params =>
-        tokenCache.get(params.nino → UserRestricted).map {
+        tokenCache.get(params.authNino → UserRestricted).map {
           case Right(token) =>
             logger.info(s"Loaded access token from cache, token=$token")
             val url =

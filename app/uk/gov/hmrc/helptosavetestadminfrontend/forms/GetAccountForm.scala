@@ -28,7 +28,7 @@ object GetAccountForm {
       "govClientTimezone" -> nonEmptyText,
       "govVendorVersion" -> nonEmptyText,
       "govVendorInstanceId" -> nonEmptyText,
-      "nino" -> nonEmptyText
+      "authNino" -> optional(text)
     )(GetAccountParams.apply)(GetAccountParams.unapply)
   )
 
@@ -39,7 +39,5 @@ case class GetAccountParams(accept: String,
                              govClientTimezone: String,
                              govVendorVersion: String,
                              govVendorInstanceId: String,
-                             nino: String
+                             authNino: Option[String]
                             )
-
-

@@ -28,30 +28,32 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
-  def loginAndGetToken(nino: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
+  def loginAndGetToken(nino: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
     http.post(appConfig.authStubUrl, Json.parse(getRequestBody(nino))).map {
       response ⇒
         response.status match {
           case Status.OK =>
+            logger.info(s"Status is OK, response.body is ${response.body}")
             Right(response.body)
-          case other: Int => Left(s"unexpected status during auth, got status=$other but 200 expected, response body=${response.body}")
+          case other: Int =>
+            logger.info(s"Status is $other, response.body is ${response.body}")
+            Left(s"unexpected status during auth, got status=$other but 200 expected, response body=${response.body}")
         }
     }.recover {
       case ex ⇒ Left(s"error during auth, error=${ex.getMessage}")
     }
   }
 
-  def getRequestBody(nino: String): String =
+  def getRequestBody(nino: Option[String]): String =
     s"""{
          "authorityId":"htsapi",
          "affinityGroup":"Individual",
          "confidenceLevel":200,
          "credentialStrength":"strong",
-         "nino":"$nino",
+         "nino": ${nino.fold("null"){n ⇒ "\"n\""}},
          "credentialRole":"User",
          "email":"test@user.com",
          "redirectionUrl":"${appConfig.authorizeUrl}"
         }""".stripMargin
 
 }
-
