@@ -47,8 +47,11 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
     s"""{
           "client_secret":"$clientSecret",
           "client_id":"$clientId",
-          "grant_type":"authorization_code",
+          "grant_type":"client_credentials",
           "redirect_uri":"$authorizeCallback",
           "code":"$code"
       }"""
+
+  val privilegedAccessClientId = getString("privileged-access.client-id")
+  val privilegedAccessTOTPSecret = getString("privileged-access.totp-secret")
 }

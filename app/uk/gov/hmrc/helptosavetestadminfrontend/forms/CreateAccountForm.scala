@@ -18,6 +18,8 @@ package uk.gov.hmrc.helptosavetestadminfrontend.forms
 
 import play.api.data.Forms._
 import play.api.data._
+import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
+import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter._
 
 object CreateAccountForm {
 
@@ -54,9 +56,10 @@ object CreateAccountForm {
       "email" -> optional(text),
       "phoneNumber" -> optional(text)
     )(ContactDetails.apply)(ContactDetails.unapply),
-    "registrationChannel" -> nonEmptyText
+    "registrationChannel" -> nonEmptyText,
+    "accessType" -> of(accessFormatter)
   )(RequestBody.apply)(RequestBody.unapply)
-
+  
   def createAccountForm = Form(
     mapping(
       "httpHeaders" -> httpHeaderMapping,
@@ -102,5 +105,6 @@ case class RequestBody(nino: String,
                        surname: String,
                        dateOfBirth: String,
                        contactDetails: ContactDetails,
-                       registrationChannel: String
+                       registrationChannel: String,
+                       accessType: AccessType
                       )
