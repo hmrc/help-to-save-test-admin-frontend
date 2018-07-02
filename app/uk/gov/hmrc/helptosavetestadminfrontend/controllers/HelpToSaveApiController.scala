@@ -61,7 +61,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
   private def actionPrivilegedAccess()(implicit hc: HeaderCarrier): Future[Either[String, String]] = {
     val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
-    oauthConnector.requestPrivilegedAccess(totpCode.toString)
+    oauthConnector.getAccessToken(totpCode.toString, Privileged)
   }
 
   def availableFunctions(): Action[AnyContent] = Action.async { implicit request =>
@@ -190,23 +190,14 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     )
   }
 
-  def authorizeCallback(code: String): Action[AnyContent] = Action.async { implicit request =>
-    logger.info("handling authorizeCallback from oauth")
-    http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(appConfig.tokenRequest(code)))
-      .map {
-        response =>
-          response.status match {
-            case OK =>
-              val accessToken = (response.json \ "access_token").as[String]
-              Ok(accessToken)
-            case other: Int =>
-              logger.warn(s"got $other status during get access_token, body=${response.body}")
-              internalServerError()
-          }
-      }.recover {
-      case ex ⇒
-        logger.warn(s"error during /oauth/token, error=${ex.getMessage}")
-        internalServerError()
+  def authLoginStubCallback(code: String): Action[AnyContent] = Action.async { implicit request =>
+    logger.info("handling authLoginStubCallback from oauth")
+    oauthConnector.getAccessToken(code, UserRestricted).map{
+      res ⇒
+        res match {
+          case Right(token) ⇒ Ok(token)
+          case Left(error) ⇒ internalServerError()
+        }
     }
   }
 

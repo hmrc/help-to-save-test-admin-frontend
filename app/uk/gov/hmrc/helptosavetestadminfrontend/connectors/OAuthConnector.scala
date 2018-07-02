@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import play.api.libs.json.Json
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
-import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
+import uk.gov.hmrc.helptosavetestadminfrontend.util.{AccessType, Logging}
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.http.Status._
 
@@ -28,13 +28,16 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class OAuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
-  def requestPrivilegedAccess(totpCode: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
-    http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(appConfig.tokenRequest(totpCode))).map {
+  def getAccessToken(totpCode: String, accessType: AccessType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
+    http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(appConfig.tokenRequest(totpCode, accessType)))
+      .map[Either[String, String]]{
       response =>
         response.status match {
           case OK =>
-            val token = (response.json \ "access_token").as[String]
-            Right(token)
+            (response.json \ "access_token").validate[String].fold(
+              errors ⇒ Left("An error occurred during token validation"),
+              token ⇒ Right(token)
+            )
           case other: Int =>
             logger.warn(s"got $other status during get access_token, body=${response.body}")
             Left("An error occurred, a token was not returned")
