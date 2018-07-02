@@ -30,13 +30,14 @@ import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.util._
 import uk.gov.hmrc.helptosavetestadminfrontend.views
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.totp.TotpGenerator
 
 import scala.concurrent.Future
 
 @Singleton
 class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnector, oauthConnector: OAuthConnector)
                                        (implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
-  extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging with TotpGenerator {
+  extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
   val tokenCache: LoadingCache[(String, AccessType), Future[Either[String, String]]] =
     CacheBuilder
@@ -59,7 +60,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       })
 
   private def actionPrivilegedAccess()(implicit hc: HeaderCarrier): Future[Either[String, String]] = {
-    val totpCode = getTotpCode(appConfig.privilegedAccessTOTPSecret)
+    val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
     oauthConnector.requestPrivilegedAccess(totpCode.toString)
   }
 
@@ -173,8 +174,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                    |    "surname" : "${params.requestBody.surname}",
                    |    "dateOfBirth" : "${params.requestBody.dateOfBirth}",
                    |    "contactDetails" : $getContactDetailsJson,
-                   |    "registrationChannel" : "${params.requestBody.registrationChannel}",
-                   |    "accessType" : "${params.requestBody.accessType}"
+                   |    "registrationChannel" : "${params.requestBody.registrationChannel}"
                    |  }}' "${appConfig.apiUrl}/account"
                    |""".stripMargin
 

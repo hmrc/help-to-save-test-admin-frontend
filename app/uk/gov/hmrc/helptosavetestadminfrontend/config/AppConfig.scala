@@ -47,7 +47,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
     s"""{
           "client_secret":"$clientSecret",
           "client_id":"$clientId",
-          "grant_type":"client_credentials",
+          "grant_type":"authorization_code",
           "redirect_uri":"$authorizeCallback",
           "code":"$code"
       }"""
