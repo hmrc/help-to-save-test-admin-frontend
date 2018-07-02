@@ -18,6 +18,8 @@ package uk.gov.hmrc.helptosavetestadminfrontend.forms
 
 import play.api.data.Forms._
 import play.api.data._
+import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
+import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter._
 
 object EligibilityRequestForm {
 
@@ -28,7 +30,8 @@ object EligibilityRequestForm {
       "govClientTimezone" -> nonEmptyText,
       "govVendorVersion" -> nonEmptyText,
       "govVendorInstanceId" -> nonEmptyText,
-      "nino" -> nonEmptyText
+      "nino" -> nonEmptyText,
+      "accessType" -> of(accessFormatter)
     )(EligibilityParams.apply)(EligibilityParams.unapply)
   )
 
@@ -39,5 +42,6 @@ case class EligibilityParams(accept: String,
                              govClientTimezone: String,
                              govVendorVersion: String,
                              govVendorInstanceId: String,
-                             nino: String
+                             nino: String,
+                             accessType: AccessType
                             )
