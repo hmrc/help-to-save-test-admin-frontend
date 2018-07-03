@@ -28,24 +28,22 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class OAuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
-  def getAccessToken(totpCode: String, accessType: AccessType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
-    http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(appConfig.tokenRequest(totpCode, accessType)))
+  def getAccessToken(authorisationCode: String, accessType: AccessType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
+    http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(appConfig.tokenRequest(authorisationCode, accessType)))
       .map[Either[String, String]]{
       response =>
         response.status match {
           case OK =>
             (response.json \ "access_token").validate[String].fold(
-              errors ⇒ Left("An error occurred during token validation"),
+              errors ⇒ Left(s"An error occurred during token validation: $errors"),
               token ⇒ Right(token)
             )
           case other: Int =>
-            logger.warn(s"got $other status during get access_token, body=${response.body}")
-            Left("An error occurred, a token was not returned")
+            Left(s"Got status $other, body was ${response.body}")
         }
     }.recover {
       case ex ⇒
-        logger.warn(s"error during /oauth/token, error=${ex.getMessage}")
-        Left("A server error occurred")
+        Left(ex.getMessage)
     }
   }
 
