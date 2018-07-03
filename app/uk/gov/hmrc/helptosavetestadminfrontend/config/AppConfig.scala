@@ -48,18 +48,24 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val authStubUrl: String = s"${baseUrl("auth-login-stub")}/auth-login-stub/gg-sign-in"
 
   def tokenRequest(code: String, accessType: AccessType): String ={
-    val (id, secret, grantType) = accessType match {
-      case UserRestricted ⇒ (clientId, clientSecret, "authorization_code")
-      case Privileged     ⇒ (privilegedAccessClientId, privilegedAccessTOTPSecret, "client_credentials")
-    }
-
-    s"""{
-          "client_secret":"$secret",
-          "client_id":"$id",
-          "grant_type":"$grantType",
+    accessType match {
+      case UserRestricted ⇒
+        s"""{
+          "client_secret":"$clientSecret",
+          "client_id":"$clientId",
+          "grant_type":"authorization_code",
           "redirect_uri":"$authorizeCallback",
           "code":"$code"
       }"""
+
+      case Privileged     ⇒
+        s"""{
+          "client_secret":"$code",
+          "client_id":"$privilegedAccessClientId",
+          "grant_type":"client_credentials"
+      }"""
+
+    }
   }
 
 
