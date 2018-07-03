@@ -61,7 +61,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
   private def actionPrivilegedAccess()(implicit hc: HeaderCarrier): Future[Either[String, String]] = {
     val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
-    oauthConnector.getAccessToken(totpCode.toString, Privileged)
+    oauthConnector.getAccessToken(totpCode, Privileged)
   }
 
   def availableFunctions(): Action[AnyContent] = Action.async { implicit request =>
@@ -193,11 +193,12 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
   def authLoginStubCallback(code: String): Action[AnyContent] = Action.async { implicit request =>
     logger.info("handling authLoginStubCallback from oauth")
     oauthConnector.getAccessToken(code, UserRestricted).map{
-      res ⇒
-        res match {
-          case Right(token) ⇒ Ok(token)
-          case Left(error) ⇒ internalServerError()
-        }
+      case Right(token) ⇒
+        Ok(token)
+
+      case Left(error) ⇒
+        logger.warn(s"Could not get token: $error")
+        internalServerError()
     }
   }
 

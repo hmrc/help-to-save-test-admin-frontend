@@ -19,7 +19,7 @@ package uk.gov.hmrc.helptosavetestadminfrontend.config
 import javax.inject.{Inject, Singleton}
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.helptosavetestadminfrontend.util.{AccessType, UserRestricted}
+import uk.gov.hmrc.helptosavetestadminfrontend.util.{AccessType, Privileged, UserRestricted}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
@@ -33,6 +33,9 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val clientId: String = getString("microservice.services.oauth-frontend.client_id")
   val clientSecret: String = getString("microservice.services.oauth-frontend.client_secret")
 
+  val privilegedAccessClientId: String = getString("privileged-access.client-id")
+  val privilegedAccessTOTPSecret: String = getString("privileged-access.totp-secret")
+
   val adminFrontendUrl: String = baseUrl("help-to-save-test-admin-frontend")
 
   val apiUrl: String = getString("microservice.services.api.url")
@@ -44,15 +47,20 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   val authStubUrl: String = s"${baseUrl("auth-login-stub")}/auth-login-stub/gg-sign-in"
 
-  def tokenRequest(code: String, accessType: AccessType): String =
+  def tokenRequest(code: String, accessType: AccessType): String ={
+    val (id, secret, grantType) = accessType match {
+      case UserRestricted ⇒ (clientId, clientSecret, "authorization_code")
+      case Privileged     ⇒ (privilegedAccessClientId, privilegedAccessTOTPSecret, "client_credentials")
+    }
+
     s"""{
-          "client_secret":"$clientSecret",
-          "client_id":"$clientId",
-          "grant_type":"${if (accessType == UserRestricted) "authorization_code" else "client_credentials"}",
+          "client_secret":"$secret",
+          "client_id":"$id",
+          "grant_type":"$grantType",
           "redirect_uri":"$authorizeCallback",
           "code":"$code"
       }"""
+  }
 
-  val privilegedAccessClientId = getString("privileged-access.client-id")
-  val privilegedAccessTOTPSecret = getString("privileged-access.totp-secret")
+
 }
