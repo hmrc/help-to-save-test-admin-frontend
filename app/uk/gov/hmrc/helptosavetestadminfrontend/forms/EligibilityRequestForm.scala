@@ -30,7 +30,8 @@ object EligibilityRequestForm {
       "govClientTimezone" -> nonEmptyText,
       "govVendorVersion" -> nonEmptyText,
       "govVendorInstanceId" -> nonEmptyText,
-      "nino" -> nonEmptyText,
+      "authNino" -> optional(text),
+      "requestNino" -> optional(text),
       "accessType" -> of(accessFormatter)
     )(EligibilityParams.apply)(EligibilityParams.unapply)
   )
@@ -42,6 +43,7 @@ case class EligibilityParams(accept: String,
                              govClientTimezone: String,
                              govVendorVersion: String,
                              govVendorInstanceId: String,
-                             nino: String,
+                             authNino: Option[String],
+                             requestNino: Option[String],
                              accessType: AccessType
                             )

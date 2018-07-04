@@ -40,7 +40,8 @@ object CreateAccountForm {
   )(RequestHeaders.apply)(RequestHeaders.unapply)
 
   val requestBodyMapping = mapping(
-    "nino" -> nonEmptyText,
+    "authNino" -> optional(text),
+    "requestNino" -> optional(text),
     "forename" -> nonEmptyText,
     "surname" -> nonEmptyText,
     "dateOfBirth" -> nonEmptyText,
@@ -100,7 +101,8 @@ case class RequestHeaders(version: String,
                           requestCorrelationId: String
                          )
 
-case class RequestBody(nino: String,
+case class RequestBody(authNino: Option[String],
+                       requestNino: Option[String],
                        forename: String,
                        surname: String,
                        dateOfBirth: String,
