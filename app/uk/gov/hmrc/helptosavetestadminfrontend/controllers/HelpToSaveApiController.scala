@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit
 import com.google.common.cache._
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.{AuthConnector, OAuthConnector}
@@ -88,7 +87,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                  |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \\
                  |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
                  |-H "Authorization: Bearer $token" \\
-                 | "${appConfig.apiUrl}/eligibility/${params.requestNino}"
+                 | "${appConfig.apiUrl}/eligibility${params.requestNino.map("/" + _).getOrElse("")}"
                  |""".stripMargin
 
             Ok(url)
@@ -169,7 +168,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                    |    "requestCorrelationId": "${params.requestHeaders.requestCorrelationId}"
                    |  },
                    |  "body": {
-                   |    "nino" : "${params.requestBody.requestNino}",
+                   |    "nino" : "${params.requestBody.requestNino.getOrElse("")}",
                    |    "forename" : "${params.requestBody.forename}",
                    |    "surname" : "${params.requestBody.surname}",
                    |    "dateOfBirth" : "${params.requestBody.dateOfBirth}",
