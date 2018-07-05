@@ -36,8 +36,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val privilegedAccessClientId: String = getString("privileged-access.client-id")
   val privilegedAccessTOTPSecret: String = getString("privileged-access.totp-secret")
 
-  //val adminFrontendUrl: String = baseUrl("help-to-save-test-admin-frontend")
-  val adminFrontendUrl: String = getString("microservice.services.help-to-save-test-admin-frontend.url")
+  val adminFrontendUrl: String = baseUrl("help-to-save-test-admin-frontend")
 
   val apiUrl: String = getString("microservice.services.api.url")
 
