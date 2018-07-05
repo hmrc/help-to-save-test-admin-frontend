@@ -150,6 +150,8 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
           tokenCache.get(params.requestBody.authNino → params.requestBody.accessType).map {
             case Right(token) =>
               logger.info(s"Loaded access token from cache, token=$token")
+
+              val ninoLine = params.requestBody.requestNino.map(n ⇒ s"""""nino": "$n",""" + "\n").getOrElse("")
               val url =
                 s"""
                    |curl -v -X POST \\
@@ -168,8 +170,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                    |    "requestCorrelationId": "${params.requestHeaders.requestCorrelationId}"
                    |  },
                    |  "body": {
-                   |    "nino" : "${params.requestBody.requestNino.getOrElse("")}",
-                   |    "forename" : "${params.requestBody.forename}",
+                   |    $ninoLine"forename" : "${params.requestBody.forename}",
                    |    "surname" : "${params.requestBody.surname}",
                    |    "dateOfBirth" : "${params.requestBody.dateOfBirth}",
                    |    "contactDetails" : $getContactDetailsJson,
