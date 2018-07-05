@@ -38,29 +38,17 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                                        (implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
-  val tokenCache: LoadingCache[(Option[String], AccessType), Future[Either[String, String]]] =
-    CacheBuilder
-      .newBuilder
-      .maximumSize(1000)
-      .expireAfterWrite(3, TimeUnit.HOURS)
-      .removalListener(new RemovalListener[(Option[String], AccessType), Future[Either[String, String]]] {
-        override def onRemoval(notification: RemovalNotification[(Option[String], AccessType), Future[Either[String, String]]]): Unit = {
-          logger.info(s"cache entry: (${notification.getKey}) has been removed due to ${notification.getCause}")
-        }
-      })
-      .build(new CacheLoader[(Option[String], AccessType), Future[Either[String, String]]] {
-        override def load(key: (Option[String], AccessType)): Future[Either[String, String]] = {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
-          key._2 match {
-            case UserRestricted ⇒ authConnector.loginAndGetToken(key._1)
-            case Privileged ⇒ actionPrivilegedAccess()
-          }
-        }
-      })
 
-  private def actionPrivilegedAccess()(implicit hc: HeaderCarrier): Future[Either[String, String]] = {
-    val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
-    oauthConnector.getAccessToken(totpCode, Privileged)
+  def getToken(authNINO: Option[String], accessType: AccessType): Future[Either[String,String]] = {
+    implicit val hc: HeaderCarrier = HeaderCarrier()
+    accessType match {
+      case UserRestricted ⇒
+        authConnector.loginAndGetToken(authNINO)
+
+      case Privileged ⇒
+        val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
+        oauthConnector.getAccessToken(totpCode, Privileged)
+    }
   }
 
   def availableFunctions(): Action[AnyContent] = Action.async { implicit request =>
@@ -75,7 +63,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     EligibilityRequestForm.eligibilityForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
       { params =>
-        tokenCache.get(params.authNino → params.accessType).map {
+        getToken(params.authNino, params.accessType).map {
           case Right(token) =>
             logger.info(s"Loaded access token from cache, token=$token")
             val url =
@@ -147,7 +135,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
             }""".replaceAll("(?m)^[ \t]*\r?\n", "")
           }
 
-          tokenCache.get(params.requestBody.authNino → params.requestBody.accessType).map {
+          getToken(params.requestBody.authNino, params.requestBody.accessType).map {
             case Right(token) =>
               logger.info(s"Loaded access token from cache, token=$token")
 
@@ -210,7 +198,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     GetAccountForm.getAccountForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_account_page(formWithErrors))),
       { params =>
-        tokenCache.get(params.authNino → UserRestricted).map {
+        getToken(params.authNino, UserRestricted).map {
           case Right(token) =>
             logger.info(s"Loaded access token from cache, token=$token")
             val url =
