@@ -151,7 +151,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
             case Right(token) =>
               logger.info(s"Loaded access token from cache, token=$token")
 
-              val ninoLine = params.requestBody.requestNino.map(n ⇒ s"""""nino": "$n",""" + "\n").getOrElse("")
+              val ninoLine = params.requestBody.requestNino.map(n ⇒ s""""nino": "$n",""" + "\n").getOrElse("")
               val url =
                 s"""
                    |curl -v -X POST \\
