@@ -51,7 +51,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       "credentialStrength" → JsString("strong"),
       "credentialRole" → JsString("User"),
       "email" → JsString("test@user.com"),
-      "redirectionUrl" → JsString("${appConfig.authorizeUrl}")
+      "redirectionUrl" → JsString(s"${appConfig.authorizeUrl}")
     ))
     nino.fold(json)(n ⇒ json + ("nino" → JsString(n)))
   }
