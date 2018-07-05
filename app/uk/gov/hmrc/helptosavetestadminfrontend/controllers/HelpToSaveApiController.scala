@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit
 import com.google.common.cache._
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.{AuthConnector, OAuthConnector}
@@ -88,7 +87,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                  |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \\
                  |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
                  |-H "Authorization: Bearer $token" \\
-                 | "${appConfig.apiUrl}/eligibility/${params.requestNino}"
+                 | "${appConfig.apiUrl}/eligibility${params.requestNino.map("/" + _).getOrElse("")}"
                  |""".stripMargin
 
             Ok(url)
@@ -151,6 +150,8 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
           tokenCache.get(params.requestBody.authNino → params.requestBody.accessType).map {
             case Right(token) =>
               logger.info(s"Loaded access token from cache, token=$token")
+
+              val ninoLine = params.requestBody.requestNino.map(n ⇒ s"""""nino": "$n",""" + "\n").getOrElse("")
               val url =
                 s"""
                    |curl -v -X POST \\
@@ -169,8 +170,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                    |    "requestCorrelationId": "${params.requestHeaders.requestCorrelationId}"
                    |  },
                    |  "body": {
-                   |    "nino" : "${params.requestBody.requestNino}",
-                   |    "forename" : "${params.requestBody.forename}",
+                   |    $ninoLine"forename" : "${params.requestBody.forename}",
                    |    "surname" : "${params.requestBody.surname}",
                    |    "dateOfBirth" : "${params.requestBody.dateOfBirth}",
                    |    "contactDetails" : $getContactDetailsJson,
