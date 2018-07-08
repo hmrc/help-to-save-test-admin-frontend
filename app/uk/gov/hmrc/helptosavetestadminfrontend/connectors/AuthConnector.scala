@@ -29,6 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
   def loginAndGetToken(nino: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
+    logger.info(s"Auth nino from the form is = $nino")
     http.post(appConfig.authStubUrl, getRequestBody(nino)).map {
       response ⇒
         response.status match {
