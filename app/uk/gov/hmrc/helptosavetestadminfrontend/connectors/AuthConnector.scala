@@ -25,6 +25,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Random
 
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
@@ -46,7 +47,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
 
   def getRequestBody(nino: Option[String]): JsValue ={
     val json: JsObject = JsObject(Map(
-      "authorityId" → JsString("htsapi"),
+      "authorityId" → JsString(Random.alphanumeric.take(10).mkString),
       "affinityGroup" → JsString("Individual"),
       "confidenceLevel" → JsNumber(200),
       "credentialStrength" → JsString("strong"),
