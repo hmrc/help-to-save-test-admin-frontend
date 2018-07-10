@@ -9,15 +9,14 @@ lazy val appDependencies: Seq[ModuleID] = dependencies ++ testDependencies()
 
 val dependencies = Seq(
   ws,
-  "uk.gov.hmrc" %% "govuk-template" % "5.20.0",
-  "uk.gov.hmrc" %% "play-ui" % "7.14.0",
-  "uk.gov.hmrc" %% "bootstrap-play-25" % "1.5.0",
+  "uk.gov.hmrc" %% "govuk-template" % "5.22.0",
+  "uk.gov.hmrc" %% "play-ui" % "7.17.0",
+  "uk.gov.hmrc" %% "bootstrap-play-25" % "1.7.0",
   "org.mongodb.scala" %% "mongo-scala-driver" % "1.2.1",
-  "uk.gov.hmrc" %% "play-reactivemongo" % "5.2.0",
+  "uk.gov.hmrc" %% "play-reactivemongo" % "6.2.0",
   "uk.gov.hmrc" %% "play-whitelist-filter" % "2.0.0",
   "com.github.kxbmap" %% "configs" % "0.4.4",
   "org.typelevel" %% "cats-core" % "1.1.0",
-  "com.google.guava" % "guava" % "23.0",
   "uk.gov.hmrc" %% "totp-generator" % "0.5.0"
 )
 
@@ -28,7 +27,7 @@ def testDependencies(scope: String = "test") = Seq(
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
   "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % scope,
   "uk.gov.hmrc" %% "stub-data-generator" % "0.5.3" % scope,
-  "uk.gov.hmrc" %% "reactivemongo-test" % "2.0.0" % scope
+  "uk.gov.hmrc" %% "reactivemongo-test" % "3.1.0" % scope
 )
 
 lazy val plugins: Seq[Plugins] = Seq.empty

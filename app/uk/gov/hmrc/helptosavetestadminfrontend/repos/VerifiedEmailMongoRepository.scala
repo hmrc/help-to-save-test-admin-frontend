@@ -48,8 +48,8 @@ class VerifiedEmailMongoRepositoryImpl @Inject()(mongo:   ReactiveMongoComponent
 
     val result: List[Future[Either[String, Unit]]] =  emails.map { email ⇒
       remove("email" -> email).map { res ⇒
-        if (res.hasErrors) {
-          Left(s"An error has occurred while deleting email: $email, error: ${res.errmsg}")
+        if (res.writeErrors.nonEmpty) {
+          Left(s"An error has occurred while deleting email: $email, errors: ${res.writeErrors.map(_.errmsg).mkString(",")}")
         } else {
           Right(())
         }
