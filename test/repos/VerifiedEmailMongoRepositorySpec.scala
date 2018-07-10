@@ -58,10 +58,10 @@ class VerifiedEmailMongoRepositorySpec extends TestSupport with MongoTestSupport
     "return a Left when an error occurs when deleting an email" in {
       inSequence {
         mockDeleteEmail(email1)(Future.successful(Right(())))
-        mockDeleteEmail(email2)(Future.successful(Left(s"An error has occurred while deleting email: $email2")))
+        mockDeleteEmail(email2)(Future.successful(Left("unexpected error")))
       }
 
-      delete(emails) shouldBe Left(List(s"An error has occurred while deleting email: $email2, error: None"))
+      delete(emails) shouldBe Left(List(s"An error has occurred while deleting email: $email2, errors: unexpected error"))
     }
   }
 
