@@ -18,26 +18,28 @@ package uk.gov.hmrc.helptosavetestadminfrontend.forms
 
 import play.api.data.Forms._
 import play.api.data._
+import uk.gov.hmrc.helptosavetestadminfrontend.models.HttpHeaders
 
 object GetAccountForm {
 
   def getAccountForm = Form(
     mapping(
-      "accept" -> nonEmptyText,
-      "govClientUserId" -> nonEmptyText,
-      "govClientTimezone" -> nonEmptyText,
-      "govVendorVersion" -> nonEmptyText,
-      "govVendorInstanceId" -> nonEmptyText,
+      "httpHeaders" → mapping(
+        "accept" -> optional(text),
+        "govClientUserId" -> optional(text),
+        "govClientTimezone" -> optional(text),
+        "govVendorVersion" -> optional(text),
+        "govVendorInstanceId" -> optional(text)
+      ){ case (a, clientId, clientTimeZone, vendorVersion, vendorId) ⇒
+        HttpHeaders(a, None, clientId, clientTimeZone, vendorVersion, vendorId)}{
+        h ⇒ Some((h.accept, h.govClientUserId, h.govClientTimezone, h.govVendorVersion, h.govVendorInstanceId))
+      },
       "authNino" -> optional(text)
     )(GetAccountParams.apply)(GetAccountParams.unapply)
   )
 
 }
 
-case class GetAccountParams(accept: String,
-                             govClientUserId: String,
-                             govClientTimezone: String,
-                             govVendorVersion: String,
-                             govVendorInstanceId: String,
+case class GetAccountParams(httpHeaders: HttpHeaders,
                              authNino: Option[String]
                             )

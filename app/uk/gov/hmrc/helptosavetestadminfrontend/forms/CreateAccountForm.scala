@@ -18,95 +18,85 @@ package uk.gov.hmrc.helptosavetestadminfrontend.forms
 
 import play.api.data.Forms._
 import play.api.data._
+import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, HttpHeaders}
+import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.CreateAccountBody.ContactDetails
+import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.{CreateAccountBody, CreateAccountHeader}
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter._
 
 object CreateAccountForm {
 
   val httpHeaderMapping = mapping(
-    "contentType" -> nonEmptyText,
-    "accept" -> nonEmptyText,
-    "govClientUserId" -> nonEmptyText,
-    "govClientTimezone" -> nonEmptyText,
-    "govVendorVersion" -> nonEmptyText,
-    "govVendorInstanceId" -> nonEmptyText
+    "contentType" -> optional(text),
+    "accept" -> optional(text),
+    "govClientUserId" -> optional(text),
+    "govClientTimezone" -> optional(text),
+    "govVendorVersion" -> optional(text),
+    "govVendorInstanceId" -> optional(text)
   )(HttpHeaders.apply)(HttpHeaders.unapply)
 
   val requestHeaderMapping = mapping(
-    "version" -> nonEmptyText,
-    "createdTimestamp" -> nonEmptyText,
-    "clientCode" -> nonEmptyText,
-    "requestCorrelationId" -> nonEmptyText
-  )(RequestHeaders.apply)(RequestHeaders.unapply)
+    "version" -> optional(text),
+    "createdTimestamp" -> optional(text),
+    "clientCode" -> optional(text),
+    "requestCorrelationId" -> optional(text)
+  )(CreateAccountHeader.apply)(CreateAccountHeader.unapply)
 
   val requestBodyMapping = mapping(
-    "authNino" -> optional(text),
-    "requestNino" -> optional(text),
-    "forename" -> nonEmptyText,
-    "surname" -> nonEmptyText,
-    "dateOfBirth" -> nonEmptyText,
+    "nino" -> optional(text),
+    "forename" -> optional(text),
+    "surname" -> optional(text),
+    "dateOfBirth" -> optional(text),
     "contactDetails" -> mapping(
-      "address1" -> nonEmptyText,
-      "address2" -> nonEmptyText,
+      "address1" -> optional(text),
+      "address2" -> optional(text),
       "address3" -> optional(text),
       "address4" -> optional(text),
       "address5" -> optional(text),
-      "postcode" -> nonEmptyText,
+      "postcode" -> optional(text),
       "countryCode" -> optional(text),
-      "communicationPreference" -> nonEmptyText,
+      "communicationPreference" -> optional(text),
       "email" -> optional(text),
       "phoneNumber" -> optional(text)
     )(ContactDetails.apply)(ContactDetails.unapply),
-    "registrationChannel" -> nonEmptyText,
-    "accessType" -> of(accessFormatter)
-  )(RequestBody.apply)(RequestBody.unapply)
-  
+    "registrationChannel" -> optional(text)
+  )(CreateAccountBody.apply)(CreateAccountBody.unapply)
+
+
+  val authUserDetailsMapping = mapping(
+    "nino" -> optional(text),
+    "forename" -> optional(text),
+    "surname" -> optional(text),
+    "dateOfBirth" -> optional(text),
+    "address1" -> optional(text),
+    "address2" -> optional(text),
+    "address3" -> optional(text),
+    "address4" -> optional(text),
+    "address5" -> optional(text),
+    "postcode" -> optional(text),
+    "countryCode" -> optional(text),
+    "email" -> optional(text)
+  )(AuthUserDetails.apply)(AuthUserDetails.unapply)
+
+
   def createAccountForm = Form(
     mapping(
-      "httpHeaders" -> httpHeaderMapping,
-      "requestHeaders" -> requestHeaderMapping,
-      "requestBody" -> requestBodyMapping
+      "httpHeaders" → httpHeaderMapping,
+      "requestHeaders" → requestHeaderMapping,
+      "requestBody" → requestBodyMapping,
+      "authUserDetails" → authUserDetailsMapping,
+      "accessType" -> of(accessFormatter)
     )(CreateAccountParams.apply)(CreateAccountParams.unapply)
   )
 
 }
 
 case class CreateAccountParams(httpHeaders: HttpHeaders,
-                               requestHeaders: RequestHeaders,
-                               requestBody: RequestBody
+                               requestHeaders: CreateAccountHeader,
+                               requestBody: CreateAccountBody,
+                               authUserDetails: AuthUserDetails,
+                               accessType: AccessType
                               )
 
-case class ContactDetails(address1: String,
-                          address2: String,
-                          address3: Option[String],
-                          address4: Option[String],
-                          address5: Option[String],
-                          postcode: String,
-                          countryCode: Option[String],
-                          communicationPreference: String,
-                          email: Option[String],
-                          phoneNumber: Option[String])
 
-case class HttpHeaders(contentType: String,
-                       accept: String,
-                       govClientUserId: String,
-                       govClientTimezone: String,
-                       govVendorVersion: String,
-                       govVendorInstanceId: String
-                      )
 
-case class RequestHeaders(version: String,
-                          createdTimestamp: String,
-                          clientCode: String,
-                          requestCorrelationId: String
-                         )
-
-case class RequestBody(authNino: Option[String],
-                       requestNino: Option[String],
-                       forename: String,
-                       surname: String,
-                       dateOfBirth: String,
-                       contactDetails: ContactDetails,
-                       registrationChannel: String,
-                       accessType: AccessType
-                      )

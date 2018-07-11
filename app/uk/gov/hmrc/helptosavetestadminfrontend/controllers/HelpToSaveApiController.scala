@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
-import java.util.concurrent.TimeUnit
 
-import com.google.common.cache._
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.{AuthConnector, OAuthConnector}
+import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController._
+import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.TokenRequest.{PrivilegedTokenRequest, UserRestrictedTokenRequest}
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.{CreateAccountForm, EligibilityRequestForm, GetAccountForm}
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
+import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, HttpHeaders}
 import uk.gov.hmrc.helptosavetestadminfrontend.util._
 import uk.gov.hmrc.helptosavetestadminfrontend.views
 import uk.gov.hmrc.http.HeaderCarrier
@@ -38,14 +40,13 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                                        (implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
-
-  def getToken(authNINO: Option[String], accessType: AccessType): Future[Either[String,String]] = {
+  def getToken(tokenRequest: TokenRequest): Future[Either[String,String]] = {
     implicit val hc: HeaderCarrier = HeaderCarrier()
-    accessType match {
-      case UserRestricted ⇒
-        authConnector.loginAndGetToken(authNINO)
+    tokenRequest match {
+      case UserRestrictedTokenRequest(authUserDetails) ⇒
+        authConnector.loginAndGetToken(authUserDetails)
 
-      case Privileged ⇒
+      case PrivilegedTokenRequest() ⇒
         val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
         oauthConnector.getAccessToken(totpCode, Privileged)
     }
@@ -63,22 +64,23 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     EligibilityRequestForm.eligibilityForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
       { params =>
-        getToken(params.authNino, params.accessType).map {
+        val tokenRequest = params.accessType match {
+          case Privileged ⇒ PrivilegedTokenRequest()
+          case UserRestricted => UserRestrictedTokenRequest(None)
+        }
+
+        getToken(tokenRequest).map {
           case Right(token) =>
             logger.info(s"Loaded access token from cache, token=$token")
-            val url =
+            val curlRequest =
               s"""
                  |curl -v -X GET \\
-                 |-H "Accept: ${params.accept}" \\
-                 |-H "Gov-Client-User-ID: ${params.govClientUserId}" \\
-                 |-H "Gov-Client-Timezone: ${params.govClientTimezone}" \\
-                 |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \\
-                 |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
+                 |${toCurlRequestLines(params.httpHeaders)}
                  |-H "Authorization: Bearer $token" \\
                  | "${appConfig.apiUrl}/eligibility${params.requestNino.map("/" + _).getOrElse("")}"
                  |""".stripMargin
 
-            Ok(url)
+            Ok(curlRequest)
           case Left(e) =>
             logger.warn(s"error getting the access token from cache, error=$e")
             internalServerError()
@@ -99,74 +101,25 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       formWithErrors ⇒ Future.successful(Ok(views.html.get_create_account_page(formWithErrors))),
       {
         params =>
-
-          val getContactDetailsJson: String = {
-
-            def get(key: String, value: Option[String]): String =
-              value.filter(_.trim.nonEmpty).map(v => s""""$key": "$v",""").getOrElse("")
-
-            val contactDetails = params.requestBody.contactDetails
-
-            val address3 = get("address3", contactDetails.address3)
-
-            val address4 = get("address4", contactDetails.address4)
-
-            val address5 = get("address5", contactDetails.address5)
-
-            val countryCode = get("countryCode", contactDetails.countryCode)
-
-            val phoneNumber = get("phoneNumber", contactDetails.phoneNumber)
-
-            val email = get("email", contactDetails.email).replace(",", "")
-
-            val addComma = if (email.nonEmpty) "," else ""
-
-            s""" {
-              "address1" : "${contactDetails.address1}",
-              "address2" : "${contactDetails.address2}",
-              $address3
-              $address4
-              $address5
-              "postcode" :  "${contactDetails.postcode}",
-              $countryCode
-              $phoneNumber
-              "communicationPreference" : "${contactDetails.communicationPreference}"$addComma
-              $email
-            }""".replaceAll("(?m)^[ \t]*\r?\n", "")
+          val tokenRequest = params.accessType match {
+            case Privileged ⇒ PrivilegedTokenRequest()
+            case UserRestricted => UserRestrictedTokenRequest(Some(params.authUserDetails))
           }
 
-          getToken(params.requestBody.authNino, params.requestBody.accessType).map {
+          getToken(tokenRequest).map {
             case Right(token) =>
-              logger.info(s"Loaded access token from cache, token=$token")
+              logger.info(s"Generated token for access type ${params.accessType}: $token")
 
-              val ninoLine = params.requestBody.requestNino.map(n ⇒ s""""nino": "$n",""" + "\n").getOrElse("")
-              val url =
+              val curlRequest =
                 s"""
                    |curl -v -X POST \\
-                   |-H "Content-Type: ${params.httpHeaders.contentType}" \\
-                   |-H "Accept: ${params.httpHeaders.accept}" \\
-                   |-H "Gov-Client-User-ID: ${params.httpHeaders.govClientUserId}" \\
-                   |-H "Gov-Client-Timezone: ${params.httpHeaders.govClientTimezone}" \\
-                   |-H "Gov-Vendor-Version: ${params.httpHeaders.govVendorVersion}" \\
-                   |-H "Gov-Vendor-Instance-ID: ${params.httpHeaders.govVendorInstanceId}" \\
+                   |${toCurlRequestLines(params.httpHeaders)}
                    |-H "Authorization: Bearer $token" \\
-                   | -d '{
-                   |  "header": {
-                   |    "version": "${params.requestHeaders.version}",
-                   |    "createdTimestamp": "${params.requestHeaders.createdTimestamp}",
-                   |    "clientCode": "${params.requestHeaders.clientCode}",
-                   |    "requestCorrelationId": "${params.requestHeaders.requestCorrelationId}"
-                   |  },
-                   |  "body": {
-                   |    $ninoLine"forename" : "${params.requestBody.forename}",
-                   |    "surname" : "${params.requestBody.surname}",
-                   |    "dateOfBirth" : "${params.requestBody.dateOfBirth}",
-                   |    "contactDetails" : $getContactDetailsJson,
-                   |    "registrationChannel" : "${params.requestBody.registrationChannel}"
-                   |  }}' "${appConfig.apiUrl}/account"
+                   | -d '${Json.toJson(params.requestBody).toString()}' \\
+                   | "${appConfig.apiUrl}/account"
                    |""".stripMargin
 
-              Ok(url)
+              Ok(curlRequest)
             case Left(e) =>
               logger.warn(s"error getting the access token from cache, error=$e")
               internalServerError()
@@ -198,22 +151,19 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     GetAccountForm.getAccountForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_account_page(formWithErrors))),
       { params =>
-        getToken(params.authNino, UserRestricted).map {
+
+        getToken(UserRestrictedTokenRequest(Some(AuthUserDetails.empty().copy(nino = params.authNino)))).map {
           case Right(token) =>
             logger.info(s"Loaded access token from cache, token=$token")
-            val url =
+            val curlRequest =
               s"""
                  |curl -v -X GET \\
-                 |-H "Accept: ${params.accept}" \\
-                 |-H "Gov-Client-User-ID: ${params.govClientUserId}" \\
-                 |-H "Gov-Client-Timezone: ${params.govClientTimezone}" \\
-                 |-H "Gov-Vendor-Version: ${params.govVendorVersion}" \\
-                 |-H "Gov-Vendor-Instance-ID: ${params.govVendorInstanceId}" \\
+                 |${toCurlRequestLines(params.httpHeaders)}
                  |-H "Authorization: Bearer $token" \\
                  | "${appConfig.apiUrl}/account"
                  |""".stripMargin
 
-            Ok(url)
+            Ok(curlRequest)
           case Left(e) =>
             logger.warn(s"error getting the access token from cache, error=$e")
             internalServerError()
@@ -223,6 +173,38 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
         }
       }
     )
+  }
+
+  private def toCurlRequestLines(httpHeaders: HttpHeaders): String =
+    httpHeaders.toMap().map{ case (k,v) ⇒ s"""-H "$k: $v" \\"""}.mkString("\n")
+
+
+}
+
+object HelpToSaveApiController {
+
+  sealed trait TokenRequest
+
+  object TokenRequest {
+
+    case class UserRestrictedTokenRequest(authUserDetails: Option[AuthUserDetails]) extends TokenRequest
+
+    case class PrivilegedTokenRequest() extends TokenRequest
+
+  }
+
+  implicit class HttpHeadersOps(val h: HttpHeaders) extends AnyVal {
+
+    def toMap(): Map[String,String] =
+      List(
+        "Accept" → h.accept,
+        "Content-Type" → h.contentType,
+        "Gov-Client-User-ID" → h.govClientUserId,
+        "Gov-Client-Timezone" → h.govClientTimezone,
+        "Gov-Vendor-Version" → h.govVendorVersion,
+        "Gov-Vendor-Instance-ID" → h.govVendorInstanceId
+      ).collect{ case (k, Some(v)) ⇒ k → v }.toMap
+
   }
 
 }
