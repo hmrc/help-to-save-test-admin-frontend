@@ -19,8 +19,10 @@ package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 import com.google.inject.Inject
 import play.api.http.Status
 import play.api.libs.json._
+import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
+import uk.gov.hmrc.helptosavetestadminfrontend.models.AuthUserDetails
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -29,9 +31,9 @@ import scala.util.Random
 
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
-  def loginAndGetToken(nino: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
-    logger.info(s"Auth nino from the form is = $nino")
-    http.post(appConfig.authStubUrl, getRequestBody(nino)).map {
+  def loginAndGetToken(authUserDetails: Option[AuthUserDetails])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
+    logger.info(s"Auth user details from the form are = $authUserDetails")
+    http.post(appConfig.authStubUrl, getRequestBody(authUserDetails)).map {
       response ⇒
         response.status match {
           case Status.OK =>
@@ -45,17 +47,39 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       case ex ⇒ Left(s"error during auth, error=${ex.getMessage}")}
   }
 
-  def getRequestBody(nino: Option[String]): JsValue ={
+  def getRequestBody(authUserDetails: Option[AuthUserDetails]): JsValue = {
     val json: JsObject = JsObject(Map(
       "authorityId" → JsString(Random.alphanumeric.take(10).mkString),
       "affinityGroup" → JsString("Individual"),
       "confidenceLevel" → JsNumber(200),
       "credentialStrength" → JsString("strong"),
       "credentialRole" → JsString("User"),
-      "email" → JsString("test@user.com"),
       "redirectionUrl" → JsString(s"${appConfig.authorizeUrl}")
     ))
-    nino.fold(json)(n ⇒ json + ("nino" → JsString(n)))
+
+    json
+      .withField("nino", authUserDetails.flatMap(_.nino.map(JsString)))
+      .withField("itmp.givenName", authUserDetails.flatMap(_.forename.map(JsString)))
+      .withField("itmp.familyName", authUserDetails.flatMap(_.surname.map(JsString)))
+      .withField("itmp.dateOfBirth", authUserDetails.flatMap(_.dateOfBirth.map(JsString)))
+      .withField("itmp.address.line1", authUserDetails.flatMap(_.address1.map(JsString)))
+      .withField("itmp.address.line2", authUserDetails.flatMap(_.address2.map(JsString)))
+      .withField("itmp.address.line3", authUserDetails.flatMap(_.address3.map(JsString)))
+      .withField("itmp.address.line4", authUserDetails.flatMap(_.address4.map(JsString)))
+      .withField("itmp.address.line5", authUserDetails.flatMap(_.address5.map(JsString)))
+      .withField("itmp.address.postCode", authUserDetails.flatMap(_.postcode.map(JsString)))
+      .withField("itmp.address.countryCode", authUserDetails.flatMap(_.countryCode.map(JsString)))
+      .withField("email", authUserDetails.flatMap(_.email.map(JsString)))
+  }
+
+
+}
+
+object AuthConnector {
+
+  implicit class JsObjectOps(val j: JsObject) extends AnyVal {
+    def withField(field: String, value: Option[JsValue]): JsObject =
+      value.fold(j)(v ⇒ j + (field → v))
   }
 
 }

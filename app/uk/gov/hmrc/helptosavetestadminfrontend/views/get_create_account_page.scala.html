@@ -89,13 +89,8 @@
         <h3>Enter Request Body:</h3>
 
         <div class="form-field">
-            <label class="label--inline">Auth NINO:</label>
-            <input type="text" name="requestBody.authNino" size="30" value="AE123456C"/>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">Request NINO:</label>
-            <input type="text" name="requestBody.requestNino" size="30" value="AE123456C"/>
+            <label class="label--inline">NINO:</label>
+            <input type="text" name="requestBody.nino" size="30" value="AE123456C"/>
         </div>
 
         <div class="form-field">
@@ -168,15 +163,81 @@
             <input type="text" name="requestBody.registrationChannel" size="30" value="callCentre">
         </div>
 
+        <h3>Enter Auth Details:</h3>
+
+        <div class="form-field">
+            <label class="label--inline">NINO:</label>
+            <input type="text" name="authUserDetails.nino" size="30" value="AE123456C"/>
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">forename:</label>
+            <input type="text" name="authUserDetails.forename" size="30" value="Alex">
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">surname:</label>
+            <input type="text" name="authUserDetails.surname" size="30" value="Brown">
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">dateOfBirth:</label>
+            <input type="text" name="authUserDetails.dateOfBirth" size="30" value="19920423">
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">address1:</label>
+            <input type="text" name="authUserDetails.address1" size="30" value="44, quicksilver">
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">address2:</label>
+            <input type="text" name="authUserDetails.address2" size="30" value="Blackpool">
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">address3:</label>
+            <input type="text" name="authUserDetails.address3" size="30">
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">address4:</label>
+            <input type="text" name="authUserDetails.address4" size="30">
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">address5:</label>
+            <input type="text" name="authUserDetails.address5" size="30">
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">postcode:</label>
+            <input type="text" name="authUserDetails.postcode" size="30" value="FY43 1FB">
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">countryCode:</label>
+            <input type="text" name="authUserDetails.countryCode" size="30">
+        </div>
+
+        <div class="form-field">
+            <label class="label--inline">email:</label>
+            <input type="text" name="authUserDetails.email" size="30">
+        </div>
+
+
         <div class="form-field">
             <label class="label--inline">accessType:</label>
-            <select name="requestBody.accessType">
+            <select name="accessType">
                 <option value="Privileged" selected>Privileged</option>
                 <option value="UserRestricted">User-restricted</option>
             </select>
         </div>
 
+
         <p><input class="button" type="submit" value="Submit"></p>
+
+
     </div>
 </div>
 }

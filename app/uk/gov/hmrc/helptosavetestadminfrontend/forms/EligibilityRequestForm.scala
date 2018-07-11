@@ -18,6 +18,7 @@ package uk.gov.hmrc.helptosavetestadminfrontend.forms
 
 import play.api.data.Forms._
 import play.api.data._
+import uk.gov.hmrc.helptosavetestadminfrontend.models.HttpHeaders
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter._
 
@@ -25,11 +26,16 @@ object EligibilityRequestForm {
 
   def eligibilityForm = Form(
     mapping(
-      "accept" -> nonEmptyText,
-      "govClientUserId" -> nonEmptyText,
-      "govClientTimezone" -> nonEmptyText,
-      "govVendorVersion" -> nonEmptyText,
-      "govVendorInstanceId" -> nonEmptyText,
+      "httpHeaders" → mapping(
+        "accept" -> optional(text),
+        "govClientUserId" -> optional(text),
+        "govClientTimezone" -> optional(text),
+        "govVendorVersion" -> optional(text),
+        "govVendorInstanceId" -> optional(text)
+      ){ case (a, clientId, clientTimeZone, vendorVersion, vendorId) ⇒
+        HttpHeaders(a, None, clientId, clientTimeZone, vendorVersion, vendorId)}{
+        h ⇒ Some((h.accept, h.govClientUserId, h.govClientTimezone, h.govVendorVersion, h.govVendorInstanceId))
+      },
       "authNino" -> optional(text),
       "requestNino" -> optional(text),
       "accessType" -> of(accessFormatter)
@@ -38,12 +44,9 @@ object EligibilityRequestForm {
 
 }
 
-case class EligibilityParams(accept: String,
-                             govClientUserId: String,
-                             govClientTimezone: String,
-                             govVendorVersion: String,
-                             govVendorInstanceId: String,
-                             authNino: Option[String],
-                             requestNino: Option[String],
-                             accessType: AccessType
+case class EligibilityParams(
+                              httpHeaders: HttpHeaders,
+                              authNino: Option[String],
+                              requestNino: Option[String],
+                              accessType: AccessType
                             )
