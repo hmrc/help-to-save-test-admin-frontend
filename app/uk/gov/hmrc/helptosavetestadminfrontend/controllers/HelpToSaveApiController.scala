@@ -64,12 +64,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     EligibilityRequestForm.eligibilityForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
       { params ⇒
-        val tokenRequest = params.accessType match {
-          case Privileged ⇒ PrivilegedTokenRequest()
-          case UserRestricted ⇒ UserRestrictedTokenRequest(Some(AuthUserDetails.empty().copy(nino = params.authNino)))
-        }
-
-        getToken(tokenRequest).map {
+        getToken(tokenRequest(params.accessType, AuthUserDetails.empty().copy(nino = params.authNino))).map {
           case Right(token) ⇒
             logger.info(s"Loaded access token from cache, token=$token")
             val curlRequest =
@@ -101,12 +96,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       formWithErrors ⇒ Future.successful(Ok(views.html.get_create_account_page(formWithErrors))),
       {
         params ⇒
-          val tokenRequest = params.accessType match {
-            case Privileged ⇒ PrivilegedTokenRequest()
-            case UserRestricted ⇒ UserRestrictedTokenRequest(Some(params.authUserDetails))
-          }
-
-          getToken(tokenRequest).map {
+          getToken(tokenRequest(params.accessType, params.authUserDetails)).map {
             case Right(token) ⇒
               logger.info(s"Generated token for access type ${params.accessType}: $token")
 
@@ -147,13 +137,13 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     Future.successful(Ok(views.html.get_account_page(GetAccountForm.getAccountForm)))
   }
 
+
+
   def getAccount(): Action[AnyContent] = Action.async { implicit request ⇒
     GetAccountForm.getAccountForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_account_page(formWithErrors))),
       { params ⇒
-
-//        getToken(UserRestrictedTokenRequest(Some(AuthUserDetails.empty().copy(nino = params.authNino)))).map {
-          getToken(PrivilegedTokenRequest()).map {
+        getToken(tokenRequest(params.accessType, AuthUserDetails.empty().copy(nino = params.authNino))).map {
           case Right(token) ⇒
             logger.info(s"Loaded access token from cache, token=$token")
             val curlRequest =
@@ -176,6 +166,11 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     )
   }
 
+  private def tokenRequest(accessType: AccessType, authUserDetails: AuthUserDetails): TokenRequest = accessType match {
+    case Privileged ⇒ PrivilegedTokenRequest()
+    case UserRestricted ⇒ UserRestrictedTokenRequest(authUserDetails)
+  }
+
   private def toCurlRequestLines(httpHeaders: HttpHeaders): String =
     httpHeaders.toMap().map{ case (k,v) ⇒ s"""-H "$k: $v" \\"""}.mkString("\n")
 
@@ -188,7 +183,7 @@ object HelpToSaveApiController {
 
   object TokenRequest {
 
-    case class UserRestrictedTokenRequest(authUserDetails: Option[AuthUserDetails]) extends TokenRequest
+    case class UserRestrictedTokenRequest(authUserDetails: AuthUserDetails) extends TokenRequest
 
     case class PrivilegedTokenRequest() extends TokenRequest
 
