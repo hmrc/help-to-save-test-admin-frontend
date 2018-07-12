@@ -27,8 +27,8 @@ import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter._
 object CreateAccountForm {
 
   val httpHeaderMapping = mapping(
-    "contentType" -> optional(text),
     "accept" -> optional(text),
+    "contentType" -> optional(text),
     "govClientUserId" -> optional(text),
     "govClientTimezone" -> optional(text),
     "govVendorVersion" -> optional(text),
