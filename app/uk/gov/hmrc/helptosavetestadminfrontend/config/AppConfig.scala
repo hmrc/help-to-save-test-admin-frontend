@@ -19,7 +19,6 @@ package uk.gov.hmrc.helptosavetestadminfrontend.config
 import javax.inject.{Inject, Singleton}
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.helptosavetestadminfrontend.util.{AccessType, Privileged, UserRestricted}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
@@ -46,27 +45,5 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val authorizeUrl = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=$authorizeCallback"
 
   val authStubUrl: String = s"${baseUrl("auth-login-stub")}/auth-login-stub/gg-sign-in"
-
-  def tokenRequest(code: String, accessType: AccessType): String ={
-    accessType match {
-      case UserRestricted ⇒
-        s"""{
-          "client_secret":"$clientSecret",
-          "client_id":"$clientId",
-          "grant_type":"authorization_code",
-          "redirect_uri":"$authorizeCallback",
-          "code":"$code"
-      }"""
-
-      case Privileged     ⇒
-        s"""{
-          "client_secret":"$code",
-          "client_id":"$privilegedAccessClientId",
-          "grant_type":"client_credentials"
-      }"""
-
-    }
-  }
-
 
 }

@@ -31,7 +31,7 @@ import scala.util.Random
 
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
-  def loginAndGetToken(authUserDetails: Option[AuthUserDetails])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
+  def loginAndGetToken(authUserDetails: AuthUserDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
     logger.info(s"Auth user details from the form are = $authUserDetails")
     http.post(appConfig.authStubUrl, getRequestBody(authUserDetails)).map {
       response ⇒
@@ -47,7 +47,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       case ex ⇒ Left(s"error during auth, error=${ex.getMessage}")}
   }
 
-  def getRequestBody(authUserDetails: Option[AuthUserDetails]): JsValue = {
+  def getRequestBody(authUserDetails: AuthUserDetails): JsValue = {
     val json: JsObject = JsObject(Map(
       "authorityId" → JsString(Random.alphanumeric.take(10).mkString),
       "affinityGroup" → JsString("Individual"),
@@ -58,18 +58,18 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     ))
 
     json
-      .withField("nino", authUserDetails.flatMap(_.nino.map(JsString)))
-      .withField("itmp.givenName", authUserDetails.flatMap(_.forename.map(JsString)))
-      .withField("itmp.familyName", authUserDetails.flatMap(_.surname.map(JsString)))
-      .withField("itmp.dateOfBirth", authUserDetails.flatMap(_.dateOfBirth.map(JsString)))
-      .withField("itmp.address.line1", authUserDetails.flatMap(_.address1.map(JsString)))
-      .withField("itmp.address.line2", authUserDetails.flatMap(_.address2.map(JsString)))
-      .withField("itmp.address.line3", authUserDetails.flatMap(_.address3.map(JsString)))
-      .withField("itmp.address.line4", authUserDetails.flatMap(_.address4.map(JsString)))
-      .withField("itmp.address.line5", authUserDetails.flatMap(_.address5.map(JsString)))
-      .withField("itmp.address.postCode", authUserDetails.flatMap(_.postcode.map(JsString)))
-      .withField("itmp.address.countryCode", authUserDetails.flatMap(_.countryCode.map(JsString)))
-      .withField("email", authUserDetails.flatMap(_.email.map(JsString)))
+      .withField("nino", authUserDetails.nino.map(JsString))
+      .withField("itmp.givenName", authUserDetails.forename.map(JsString))
+      .withField("itmp.familyName", authUserDetails.surname.map(JsString))
+      .withField("itmp.dateOfBirth", authUserDetails.dateOfBirth.map(JsString))
+      .withField("itmp.address.line1", authUserDetails.address1.map(JsString))
+      .withField("itmp.address.line2", authUserDetails.address2.map(JsString))
+      .withField("itmp.address.line3", authUserDetails.address3.map(JsString))
+      .withField("itmp.address.line4", authUserDetails.address4.map(JsString))
+      .withField("itmp.address.line5", authUserDetails.address5.map(JsString))
+      .withField("itmp.address.postCode", authUserDetails.postcode.map(JsString))
+      .withField("itmp.address.countryCode", authUserDetails.countryCode.map(JsString))
+      .withField("email", authUserDetails.email.map(JsString))
   }
 
 

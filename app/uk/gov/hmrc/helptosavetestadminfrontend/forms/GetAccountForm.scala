@@ -19,6 +19,8 @@ package uk.gov.hmrc.helptosavetestadminfrontend.forms
 import play.api.data.Forms._
 import play.api.data._
 import uk.gov.hmrc.helptosavetestadminfrontend.models.HttpHeaders
+import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter.accessFormatter
+import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 
 object GetAccountForm {
 
@@ -34,12 +36,14 @@ object GetAccountForm {
         HttpHeaders(a, None, clientId, clientTimeZone, vendorVersion, vendorId)}{
         h ⇒ Some((h.accept, h.govClientUserId, h.govClientTimezone, h.govVendorVersion, h.govVendorInstanceId))
       },
-      "authNino" -> optional(text)
+      "authNino" -> optional(text),
+      "accessType" -> of(accessFormatter)
     )(GetAccountParams.apply)(GetAccountParams.unapply)
   )
 
 }
 
 case class GetAccountParams(httpHeaders: HttpHeaders,
-                             authNino: Option[String]
-                            )
+                            authNino: Option[String],
+                            accessType: AccessType
+                           )
