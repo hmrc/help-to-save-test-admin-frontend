@@ -49,11 +49,11 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     }.flatMap(identity)
   }
 
-  private def getGrantScopePage(response: HttpResponse)(implicit ec: ExecutionContext): Future[Either[String, String]] = {
+  private def getGrantScopePage(response: HttpResponse)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
     val doc = Jsoup.parse(response.body)
     val oauthGrantScopeUrl = doc.getElementsByClass("button").attr("href")
 
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    logger.info(s"all response headers are = ${response.allHeaders}")
     http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl", response.allHeaders.map(x => (x._1, x._2.headOption.getOrElse("")))).map {
       response ⇒
         response.status match {
