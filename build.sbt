@@ -17,7 +17,8 @@ val dependencies = Seq(
   "uk.gov.hmrc" %% "play-whitelist-filter" % "2.0.0",
   "com.github.kxbmap" %% "configs" % "0.4.4",
   "org.typelevel" %% "cats-core" % "1.1.0",
-  "uk.gov.hmrc" %% "totp-generator" % "0.5.0"
+  "uk.gov.hmrc" %% "totp-generator" % "0.5.0",
+  "org.jsoup" % "jsoup" % "1.11.3"
 )
 
 def testDependencies(scope: String = "test") = Seq(
