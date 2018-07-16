@@ -20,12 +20,12 @@ import com.google.inject.Inject
 import org.jsoup.Jsoup
 import play.api.http.Status
 import play.api.libs.json._
-import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
+import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.models.AuthUserDetails
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
@@ -39,7 +39,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
         response.status match {
           case Status.OK =>
             logger.info(s"Status from Auth is OK, response.body is ${response.body}")
-            getGrantScopePage(response.body)
+            getGrantScopePage(response)
           case other: Int =>
             logger.info(s"Status is $other, response.body is ${response.body}")
             Future.successful(Left(s"unexpected status during auth, got status=$other but 200 expected, response body=${response.body}"))
@@ -49,17 +49,17 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     }.flatMap(identity)
   }
 
-  private def getGrantScopePage(body: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
-    val doc = Jsoup.parse(body)
+  private def getGrantScopePage(response: HttpResponse)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
+    val doc = Jsoup.parse(response.body)
     val oauthGrantScopeUrl = doc.getElementsByClass("button").attr("href")
 
-    http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl").map {
+    http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl", response.allHeaders.map(x => (x._1, x._2.headOption.getOrElse("")))).map {
 
       response ⇒
         response.status match {
           case Status.OK | Status.SEE_OTHER =>
             logger.info(s"oauth grant scope GET is successful, status = ${response.status}, body = ${response.body}")
-            postGrantScope(response.body)
+            postGrantScope(response)
           case other: Int =>
             logger.info(s"oauth grant scope GET is failed,  is $other, response.body is ${response.body}")
             Future.successful(Left(s"oauth grant scope GET is failed, status=$other but 200 expected"))
@@ -69,8 +69,8 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     }.flatMap(identity)
   }
 
-  private def  postGrantScope(body: String)(implicit hc: HeaderCarrier, ec: ExecutionContext) = {
-    val doc = Jsoup.parse(body)
+  private def postGrantScope(response: HttpResponse)(implicit hc: HeaderCarrier, ec: ExecutionContext) = {
+    val doc = Jsoup.parse(response.body)
     val csrfToken = doc.select("input[name=csrfToken]").attr("value")
     val authId = doc.select("input[name=auth_id]").attr("value")
 
@@ -79,10 +79,10 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       "authId" → JsString(authId)
     ))
 
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", json).map{
+    http.post(s"${appConfig.oauthURL}/oauth/grantscope", json, response.allHeaders.map(x => (x._1, x._2.headOption.getOrElse("")))).map {
       response =>
         response.status match {
-          case Status.OK | Status.CREATED |  Status.SEE_OTHER =>
+          case Status.OK | Status.CREATED | Status.SEE_OTHER =>
             logger.info(s"oauth grant scope POST is successful, status = ${response.status}, body = ${response.body}")
             Right(response.body)
           case other: Int =>
