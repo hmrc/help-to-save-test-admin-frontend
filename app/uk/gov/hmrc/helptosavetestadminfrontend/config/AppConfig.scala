@@ -41,8 +41,6 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   val oauthURL: String = baseUrl("oauth-frontend")
 
-  val oauthFrontendSureshurl = getString("microservice.services.oauth-frontend-suresh-url")
-
   val scopes = "read:help-to-save write:help-to-save"
   val authorizeCallback: String = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback"
   val authorizeUrl = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=$authorizeCallback"
