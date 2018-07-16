@@ -53,7 +53,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val doc = Jsoup.parse(body)
     val oauthGrantScopeUrl = doc.getElementsByClass("button").attr("href")
 
-    http.get(s"${appConfig.oauthURL}/$oauthGrantScopeUrl").map {
+    http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl").map {
 
       response ⇒
         response.status match {
