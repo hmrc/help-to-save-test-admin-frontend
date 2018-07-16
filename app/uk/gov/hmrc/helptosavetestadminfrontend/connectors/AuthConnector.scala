@@ -57,13 +57,15 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
 
       response ⇒
         response.status match {
-          case Status.OK =>
-            logger.info(s"oauth grant scope GET is successful, body = ${response.body}")
+          case Status.OK | Status.SEE_OTHER =>
+            logger.info(s"oauth grant scope GET is successful, status = ${response.status}, body = ${response.body}")
             postGrantScope(response.body)
           case other: Int =>
             logger.info(s"oauth grant scope GET is failed,  is $other, response.body is ${response.body}")
             Future.successful(Left(s"oauth grant scope GET is failed, status=$other but 200 expected"))
         }
+    }.recover {
+      case ex ⇒ Future.successful(Left(s"error during getGrantScopePage, error=$ex"))
     }.flatMap(identity)
   }
 
@@ -80,13 +82,15 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     http.post(s"${appConfig.oauthURL}/oauth/grantscope", json).map{
       response =>
         response.status match {
-          case Status.OK | Status.CREATED =>
-            logger.info(s"oauth grant scope POST is successful, body = ${response.body}")
+          case Status.OK | Status.CREATED |  Status.SEE_OTHER =>
+            logger.info(s"oauth grant scope POST is successful, status = ${response.status}, body = ${response.body}")
             Right(response.body)
           case other: Int =>
             logger.info(s"oauth grant scope POST is failed,  is $other, response.body is ${response.body}")
             Left(s"oauth grant scope POST is failed, status=$other but 201 expected")
         }
+    }.recover {
+      case ex ⇒ Left(s"error during postGrantScope, error=${ex}")
     }
   }
 
