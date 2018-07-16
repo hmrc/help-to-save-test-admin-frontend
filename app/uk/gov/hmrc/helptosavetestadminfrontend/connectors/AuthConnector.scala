@@ -53,8 +53,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val doc = Jsoup.parse(response.body)
     val oauthGrantScopeUrl = doc.getElementsByClass("button").attr("href")
 
-    http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl", response.allHeaders.map(x => (x._1, x._2.headOption.getOrElse("")))).map {
-
+    http.get(s"${appConfig.oauthFrontendSureshurl}$oauthGrantScopeUrl", response.allHeaders.map(x => (x._1, x._2.headOption.getOrElse("")))).map {
       response ⇒
         response.status match {
           case Status.OK | Status.SEE_OTHER =>
@@ -79,7 +78,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       "authId" → JsString(authId)
     ))
 
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", json, response.allHeaders.map(x => (x._1, x._2.headOption.getOrElse("")))).map {
+    http.post(s"${appConfig.oauthFrontendSureshurl}/oauth/grantscope", json, response.allHeaders.map(x => (x._1, x._2.headOption.getOrElse("")))).map {
       response =>
         response.status match {
           case Status.OK | Status.CREATED | Status.SEE_OTHER =>
