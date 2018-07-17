@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import org.jsoup.Jsoup
 import play.api.http.Status
 import play.api.libs.json._
-import play.api.mvc.Cookies
+import play.api.mvc.{Cookie, Cookies}
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
@@ -62,13 +62,10 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
         logger.info(s"Set-Cookie entry is $e")
     }
 
-    val mdtpCookie = cookieHeader.find(_.contains("mdtp"))
+    val mdtpCookie = cookieHeader.find(_.contains("mdtp=")).getOrElse(throw new RuntimeException("no mdtp cookie found"))
     logger.info(s"mdtp cookie is $mdtpCookie")
 
-    val cookie = Cookies.fromCookieHeader(mdtpCookie).head
-    logger.info(s"created cookie is $cookie")
-
-    http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl", response.allHeaders.map(x => (x._1, x._2.headOption.getOrElse("")))).map {
+    http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl", Map("COOKIE" -> mdtpCookie, "Cookie" -> mdtpCookie)).map {
       response ⇒
         response.status match {
           case Status.OK | Status.SEE_OTHER =>
