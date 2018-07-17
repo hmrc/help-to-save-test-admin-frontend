@@ -32,6 +32,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.format.Formats._
+import play.api.mvc.AnyContentAsFormUrlEncoded
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
@@ -81,13 +82,11 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     logger.info(s"auth_id is = $authId")
     logger.info(s"csrfToken is = $csrfToken")
 
-    val body = s"auth_id=$authId"
-
     val headers = Map("Cookie" -> getMdtpCookie(response),
       "Csrf-Token" -> csrfToken,
-      "Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8")
+      "Content-Type" -> "application/x-www-form-urlencoded")
 
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", body, headers).map {
+    http.post(s"${appConfig.oauthURL}/oauth/grantscope", AnyContentAsFormUrlEncoded(Map("auth_id" -> Seq(authId))), headers).map {
       response =>
         response.status match {
           case Status.OK | Status.CREATED | Status.SEE_OTHER =>
