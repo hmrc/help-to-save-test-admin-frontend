@@ -45,6 +45,6 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val authorizeCallback: String = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback"
   val authorizeUrl = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=$authorizeCallback"
 
-  val authStubUrl: String = s"${getString("microservice.services.auth-login-stub.url")}/auth-login-stub/gg-sign-in"
+  val authStubUrl: String = s"${baseUrl("auth-login-stub")}/auth-login-stub/gg-sign-in"
 
 }
