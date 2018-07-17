@@ -81,11 +81,13 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     logger.info(s"auth_id is = $authId")
     logger.info(s"csrfToken is = $csrfToken")
 
+    val body = Map("auth_id" -> authId)
+
     val headers = Map("Cookie" -> getMdtpCookie(response),
       "Csrf-Token" -> csrfToken,
       "Content-Type" -> "application/x-www-form-urlencoded")
 
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", s"auth_id=$authId", headers).map {
+    http.post(s"${appConfig.oauthURL}/oauth/grantscope", body, headers).map {
       response =>
         response.status match {
           case Status.OK | Status.CREATED | Status.SEE_OTHER =>
