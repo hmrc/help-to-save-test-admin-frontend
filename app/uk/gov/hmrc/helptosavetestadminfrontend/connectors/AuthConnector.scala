@@ -72,6 +72,8 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val csrfToken = doc.select("input[name=csrfToken]").attr("value")
     val authId = doc.select("input[name=auth_id]").attr("value")
 
+    logger.info(s"auth_id is = $authId")
+
     val body: Map[String, Seq[String]] = Map(
       "csrfToken" → Seq(csrfToken),
       "auth_id" → Seq(authId)
