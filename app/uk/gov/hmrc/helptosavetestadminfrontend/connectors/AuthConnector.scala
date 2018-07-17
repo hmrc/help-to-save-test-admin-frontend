@@ -16,8 +16,11 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
+import java.net.URLEncoder
+
 import com.google.inject.Inject
 import org.jsoup.Jsoup
+import play.api.data.Form
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
@@ -26,6 +29,9 @@ import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.models.AuthUserDetails
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import play.api.data._
+import play.api.data.Forms._
+import play.api.data.format.Formats._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
@@ -73,17 +79,16 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val authId = doc.select("input[name=auth_id]").attr("value")
 
     logger.info(s"auth_id is = $authId")
+    logger.info(s"csrfToken is = $csrfToken")
 
-    val body: Map[String, Seq[String]] = Map(
-      "csrfToken" → Seq(csrfToken),
-      "auth_id" → Seq(authId)
-    )
+    val body =  URLEncoder.encode(s"csrfToken=$csrfToken&auth_id=$authId", "UTF-8")
+    logger.info(s"body is = $body")
 
     val headers = Map("Cookie" -> getMdtpCookie(response),
       "Csrf-Token" -> csrfToken,
-      "Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8")
+      "Content-Type" -> "application/x-www-form-urlencoded")
 
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", s"csrfToken=$csrfToken&auth_id=$authId", headers).map {
+    http.post(s"${appConfig.oauthURL}/oauth/grantscope", body, headers).map {
       response =>
         response.status match {
           case Status.OK | Status.CREATED | Status.SEE_OTHER =>
