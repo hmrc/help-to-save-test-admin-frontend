@@ -86,7 +86,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       "Csrf-Token" -> csrfToken,
       "Content-Type" -> "application/x-www-form-urlencoded")
 
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", Map("auth_id" -> Seq(authId)), headers).map {
+    http.post(s"${appConfig.oauthURL}/oauth/grantscope", s"auth_id=$authId", headers).map {
       response =>
         response.status match {
           case Status.OK | Status.CREATED | Status.SEE_OTHER =>
