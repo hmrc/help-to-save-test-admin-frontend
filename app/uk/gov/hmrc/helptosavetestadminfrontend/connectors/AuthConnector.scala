@@ -54,16 +54,8 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val doc = Jsoup.parse(response.body)
     val oauthGrantScopeUrl = doc.getElementsByClass("button").attr("href")
 
-    logger.info(s"all response headers are = ${response.allHeaders}")
     val cookieHeader = response.allHeaders("Set-Cookie")
-
-    cookieHeader.foreach {
-      e =>
-        logger.info(s"Set-Cookie entry is $e")
-    }
-
     val mdtpCookie = cookieHeader.find(_.contains("mdtp=")).getOrElse(throw new RuntimeException("no mdtp cookie found"))
-    logger.info(s"mdtp cookie is $mdtpCookie")
 
     http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl", Map("COOKIE" -> mdtpCookie, "Cookie" -> mdtpCookie)).map {
       response ⇒
@@ -90,7 +82,10 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       "authId" → JsString(authId)
     ))
 
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", json, response.allHeaders.map(x => (x._1, x._2.headOption.getOrElse("")))).map {
+    val cookieHeader = response.allHeaders("Set-Cookie")
+    val mdtpCookie = cookieHeader.find(_.contains("mdtp=")).getOrElse(throw new RuntimeException("no mdtp cookie found"))
+
+    http.post(s"${appConfig.oauthURL}/oauth/grantscope", json,  Map("COOKIE" -> mdtpCookie, "Cookie" -> mdtpCookie, "csrfToken" -> csrfToken)).map {
       response =>
         response.status match {
           case Status.OK | Status.CREATED | Status.SEE_OTHER =>
