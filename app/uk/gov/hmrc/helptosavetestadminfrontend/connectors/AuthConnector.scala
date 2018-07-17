@@ -85,7 +85,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
 
     val headers = Map("Cookie" -> getMdtpCookie(response),
       "Csrf-Token" -> csrfToken,
-      "Content-Type" -> "application/x-www-form-urlencoded")
+      "Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8")
 
     http.post(s"${appConfig.oauthURL}/oauth/grantscope", body, headers).map {
       response =>
