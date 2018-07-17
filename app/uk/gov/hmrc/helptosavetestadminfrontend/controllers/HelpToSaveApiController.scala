@@ -79,9 +79,14 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                     val doc = Jsoup.parse(x.body)
                     val oauthGrantScopeUrl = doc.getElementsByClass("button").attr("href")
                     val cookieHeader = x.allHeaders("Set-Cookie")
+                    logger.info(s"Set-Cookie header is  $cookieHeader")
+
                     val mdtpCookie = cookieHeader.find(_.contains("mdtp"))
+                    logger.info(s"mdtp cookie is $mdtpCookie")
+
                     val cookie = Cookies.fromCookieHeader(mdtpCookie).head
-                    logger.info(s"mdtp cookie is $cookie")
+                    logger.info(s"created cookie is $cookie")
+
                     SeeOther(s"${appConfig.oauthURL}$oauthGrantScopeUrl").withCookies(cookie)
 
                   case other: Int =>
