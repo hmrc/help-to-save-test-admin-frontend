@@ -20,9 +20,8 @@ import com.google.inject.Inject
 import org.jsoup.Jsoup
 import play.api.http.Status
 import play.api.libs.json._
-import play.api.mvc.{Cookie, Cookies}
-import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
+import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.models.AuthUserDetails
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
@@ -34,7 +33,6 @@ import scala.util.Random
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
   def loginAndGetToken(authUserDetails: AuthUserDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
-    logger.info(s"Auth user details from the form are = $authUserDetails")
     http.post(appConfig.authStubUrl, getRequestBody(authUserDetails)).map {
       response ⇒
         response.status match {
@@ -54,10 +52,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val doc = Jsoup.parse(response.body)
     val oauthGrantScopeUrl = doc.getElementsByClass("button").attr("href")
 
-    val cookieHeader = response.allHeaders("Set-Cookie")
-    val mdtpCookie = cookieHeader.find(_.contains("mdtp=")).getOrElse(throw new RuntimeException("no mdtp cookie found"))
-
-    http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl", Map("COOKIE" -> mdtpCookie, "Cookie" -> mdtpCookie)).map {
+    http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl", Map("Cookie" -> getMdtpCookie((response)))).map {
       response ⇒
         response.status match {
           case Status.OK | Status.SEE_OTHER =>
@@ -77,17 +72,12 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val csrfToken = doc.select("input[name=csrfToken]").attr("value")
     val authId = doc.select("input[name=auth_id]").attr("value")
 
-    logger.info(s"csrfToken is $csrfToken")
+    val form = Map(
+      "csrfToken" → Seq(csrfToken),
+      "authId" → Seq(authId)
+    )
 
-    val json: JsObject = JsObject(Map(
-      "csrfToken" → JsString(csrfToken),
-      "authId" → JsString(authId)
-    ))
-
-    val cookieHeader = response.allHeaders("Set-Cookie")
-    val mdtpCookie = cookieHeader.find(_.contains("mdtp=")).getOrElse(throw new RuntimeException("no mdtp cookie found"))
-
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", json,  Map("COOKIE" -> mdtpCookie, "Cookie" -> mdtpCookie, "Csrf-Token" -> csrfToken)).map {
+    http.post(s"${appConfig.oauthURL}/oauth/grantscope", form, Map("Cookie" -> getMdtpCookie(response), "Csrf-Token" -> csrfToken)).map {
       response =>
         response.status match {
           case Status.OK | Status.CREATED | Status.SEE_OTHER =>
@@ -101,6 +91,9 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       case ex ⇒ Left(s"error during postGrantScope, error=${ex}")
     }
   }
+
+  private def getMdtpCookie(response: HttpResponse) =
+    response.allHeaders("Set-Cookie").find(_.contains("mdtp=")).getOrElse(throw new RuntimeException("no mdtp cookie found"))
 
   def getRequestBody(authUserDetails: AuthUserDetails): JsValue = {
     val json: JsObject = JsObject(Map(
