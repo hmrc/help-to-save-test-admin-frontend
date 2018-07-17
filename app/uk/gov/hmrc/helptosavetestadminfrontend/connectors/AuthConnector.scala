@@ -74,7 +74,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
 
     val body: Map[String, Seq[String]] = Map(
       "csrfToken" → Seq(csrfToken),
-      "authId" → Seq(authId)
+      "auth_id" → Seq(authId)
     )
 
     val headers = Map("Cookie" -> getMdtpCookie(response),
