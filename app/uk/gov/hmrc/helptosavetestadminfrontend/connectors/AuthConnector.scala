@@ -87,7 +87,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val cookieHeader = response.allHeaders("Set-Cookie")
     val mdtpCookie = cookieHeader.find(_.contains("mdtp=")).getOrElse(throw new RuntimeException("no mdtp cookie found"))
 
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", json,  Map("COOKIE" -> mdtpCookie, "Cookie" -> mdtpCookie, "csrfToken" -> csrfToken)).map {
+    http.post(s"${appConfig.oauthURL}/oauth/grantscope", json,  Map("COOKIE" -> mdtpCookie, "Cookie" -> mdtpCookie, "Csrf-Token" -> csrfToken)).map {
       response =>
         response.status match {
           case Status.OK | Status.CREATED | Status.SEE_OTHER =>
