@@ -52,7 +52,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val doc = Jsoup.parse(response.body)
     val oauthGrantScopeUrl = doc.getElementsByClass("button").attr("href")
 
-    http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl", Map("Cookie" -> getMdtpCookie((response)))).map {
+    http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl", Map("Cookie" -> getMdtpCookie(response))).map {
       response ⇒
         response.status match {
           case Status.OK | Status.SEE_OTHER =>
@@ -72,12 +72,16 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val csrfToken = doc.select("input[name=csrfToken]").attr("value")
     val authId = doc.select("input[name=auth_id]").attr("value")
 
-    val form = Map(
+    val body: Map[String, Seq[String]] = Map(
       "csrfToken" → Seq(csrfToken),
       "authId" → Seq(authId)
     )
 
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", form, Map("Cookie" -> getMdtpCookie(response), "Csrf-Token" -> csrfToken)).map {
+    val headers = Map("Cookie" -> getMdtpCookie(response),
+      "Csrf-Token" -> csrfToken,
+      "Content-Type" -> "application/x-www-form-urlencoded")
+
+    http.post(s"${appConfig.oauthURL}/oauth/grantscope", body, headers).map {
       response =>
         response.status match {
           case Status.OK | Status.CREATED | Status.SEE_OTHER =>
@@ -88,7 +92,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
             Left(s"oauth grant scope POST is failed, status=$other but 201 expected")
         }
     }.recover {
-      case ex ⇒ Left(s"error during postGrantScope, error=${ex}")
+      case ex ⇒ Left(s"error during postGrantScope, error=$ex")
     }
   }
 
