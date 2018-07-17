@@ -16,11 +16,8 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
-import java.net.URLEncoder
-
 import com.google.inject.Inject
 import org.jsoup.Jsoup
-import play.api.data.Form
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
@@ -29,10 +26,6 @@ import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.models.AuthUserDetails
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import play.api.data._
-import play.api.data.Forms._
-import play.api.data.format.Formats._
-import play.api.mvc.AnyContentAsFormUrlEncoded
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
@@ -84,7 +77,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
 
     val headers = Map("Cookie" -> getMdtpCookie(response),
       "Csrf-Token" -> csrfToken,
-      "Content-Type" -> "application/x-www-form-urlencoded")
+      "Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8")
 
     http.post(s"${appConfig.oauthURL}/oauth/grantscope", s"auth_id=$authId", headers).map {
       response =>
