@@ -20,15 +20,14 @@ package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Result}
-import play.mvc.Controller
+import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.{AuthConnector, OAuthConnector}
-import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController._
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.TokenRequest.{PrivilegedTokenRequest, UserRestrictedTokenRequest}
+import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController._
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.{CreateAccountForm, EligibilityRequestForm, GetAccountForm}
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
-import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, CreateAccountRequest, HttpHeaders}
+import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util._
 import uk.gov.hmrc.helptosavetestadminfrontend.views
 import uk.gov.hmrc.http.HeaderCarrier
@@ -41,26 +40,15 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                                        (implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
-  sealed trait TokenResponse
-  case class OAuth(playResult: Result) extends TokenResponse
-  case class TotToken(token: String) extends TokenResponse
-
-  def getToken(tokenRequest: TokenRequest): Future[Either[String,TokenResponse]] = {
+  def getToken(tokenRequest: TokenRequest): Future[Either[String, Token]] = {
     implicit val hc: HeaderCarrier = HeaderCarrier()
-    val r = tokenRequest match {
+    tokenRequest match {
       case UserRestrictedTokenRequest(authUserDetails) ⇒
         authConnector.login(authUserDetails)
 
       case PrivilegedTokenRequest() ⇒
         val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
         oauthConnector.getAccessToken(totpCode, Privileged)
-    }
-
-    r.map {
-      case Left(e) => Left(e)
-      case Right(x: Result) => Right(OAuth(x))
-      case Right(t: String) => Right(TotToken(t))
-      case _ => Left("un known blah")
     }
   }
 
@@ -77,7 +65,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
       { params ⇒
         getToken(tokenRequest(params.accessType, AuthUserDetails.empty().copy(nino = params.authNino))).map {
-          case Right(TotToken(token)) ⇒
+          case Right(AccessToken(token)) ⇒
             logger.info(s"Loaded access token from cache, token=$token")
             val curlRequest =
               s"""
@@ -89,7 +77,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
             Ok(curlRequest)
 
-          case Right(OAuth(result)) =>
+          case Right(BearerToken(token)) =>
 
             val curlRequest =
               s"""
@@ -99,8 +87,8 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                  | "${appConfig.apiUrl}/eligibility${params.requestNino.map("/" + _).getOrElse("")}"
                  |""".stripMargin
 
-            request.session. +(("url", curlRequest))
-            result
+            request.session.+(("url", curlRequest))
+            SeeOther(appConfig.authorizeUrl).withHeaders(("Authorization", token))
           case Left(e) ⇒
             logger.warn(s"error getting the access token from cache, error=$e")
             internalServerError()
@@ -148,8 +136,8 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
   def authLoginStubCallback(code: String): Action[AnyContent] = Action.async { implicit request ⇒
     logger.info("handling authLoginStubCallback from oauth")
-    oauthConnector.getAccessToken(code, UserRestricted).map{
-      case Right(token) ⇒
+    oauthConnector.getAccessToken(code, UserRestricted).map {
+      case Right(AccessToken(token)) ⇒
         val url = request.session.get("url").getOrElse(throw new RuntimeException("no url found in the session"))
         Ok(url.replace("REPLACE", token))
 
@@ -162,7 +150,6 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
   def getAccountPage(): Action[AnyContent] = Action.async { implicit request ⇒
     Future.successful(Ok(views.html.get_account_page(GetAccountForm.getAccountForm)))
   }
-
 
 
   def getAccount(): Action[AnyContent] = Action.async { implicit request ⇒
@@ -198,7 +185,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
   }
 
   private def toCurlRequestLines(httpHeaders: HttpHeaders): String =
-    httpHeaders.toMap().map{ case (k,v) ⇒ s"""-H "$k: $v" \\"""}.mkString("\n")
+    httpHeaders.toMap().map { case (k, v) ⇒ s"""-H "$k: $v" \\""" }.mkString("\n")
 
 
 }
@@ -217,7 +204,7 @@ object HelpToSaveApiController {
 
   implicit class HttpHeadersOps(val h: HttpHeaders) extends AnyVal {
 
-    def toMap(): Map[String,String] =
+    def toMap(): Map[String, String] =
       List(
         "Accept" → h.accept,
         "Content-Type" → h.contentType,
@@ -225,7 +212,7 @@ object HelpToSaveApiController {
         "Gov-Client-Timezone" → h.govClientTimezone,
         "Gov-Vendor-Version" → h.govVendorVersion,
         "Gov-Vendor-Instance-ID" → h.govVendorInstanceId
-      ).collect{ case (k, Some(v)) ⇒ k → v }.toMap
+      ).collect { case (k, Some(v)) ⇒ k → v }.toMap
 
   }
 

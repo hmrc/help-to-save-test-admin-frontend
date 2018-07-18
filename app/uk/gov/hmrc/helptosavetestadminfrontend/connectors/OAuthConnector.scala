@@ -23,20 +23,21 @@ import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.util.{AccessType, Logging, Privileged, UserRestricted}
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.http.Status._
+import uk.gov.hmrc.helptosavetestadminfrontend.models.AccessToken
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class OAuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
-  def getAccessToken(authorisationCode: String, accessType: AccessType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
+  def getAccessToken(authorisationCode: String, accessType: AccessType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
     http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(tokenRequest(authorisationCode, accessType)))
-      .map[Either[String, String]]{
+      .map[Either[String, AccessToken]]{
       response =>
         response.status match {
           case OK =>
             (response.json \ "access_token").validate[String].fold(
               errors ⇒ Left(s"An error occurred during token validation: $errors"),
-              token ⇒ Right(token)
+              token ⇒ Right(AccessToken(token))
             )
           case other: Int =>
             Left(s"Got status $other, body was ${response.body}")

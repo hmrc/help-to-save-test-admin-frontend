@@ -17,51 +17,34 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
 import com.google.inject.Inject
-import org.jsoup.Jsoup
-import play.api.http.Status
 import play.api.libs.json._
-import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
-import uk.gov.hmrc.helptosavetestadminfrontend.models.AuthUserDetails
+import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, BearerToken, Token}
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
-  def login(authUserDetails: AuthUserDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Result]] = {
-    http.post(appConfig.authStubUrl, getRequestBody(authUserDetails)).map {
+  def login(authUserDetails: AuthUserDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Token]] = {
+    http.post(appConfig.authLoginApiUrl, getRequestBody(authUserDetails)).map {
       response ⇒
-        response.status match {
-          case Status.OK =>
-            logger.info(s"Status from Auth is OK, response.body is ${response.body}")
-            Right(redirectToGrantScopePage(response))
-          case other: Int =>
-            logger.info(s"Status is $other, response.body is ${response.body}")
-            Left(s"unexpected status during auth, got status=$other but 200 expected, response body=${response.body}")
+        response.header("authorization") match {
+          case Some(bearerToken) ⇒ Right(BearerToken(bearerToken))
+          case None ⇒ Left(s"error during login, response from auth = ${response.body}")
         }
     }.recover {
       case ex ⇒ Left(s"error during auth, error=${ex.getMessage}")
     }
   }
 
-  private def redirectToGrantScopePage(response: HttpResponse)(implicit hc: HeaderCarrier, ec: ExecutionContext): Result = {
-    val doc = Jsoup.parse(response.body)
-    val oauthGrantScopeUrl = doc.getElementsByClass("button").attr("href")
-
-    Results.SeeOther(s"${appConfig.oauthURL}$oauthGrantScopeUrl").withHeaders("Cookie" -> getMdtpCookie(response))
-  }
-
-  private def getMdtpCookie(response: HttpResponse) =
-    response.allHeaders("Set-Cookie").find(_.contains("mdtp=")).getOrElse(throw new RuntimeException("no mdtp cookie found"))
-
   def getRequestBody(authUserDetails: AuthUserDetails): JsValue = {
     val json: JsObject = JsObject(Map(
-      "authorityId" → JsString(Random.alphanumeric.take(10).mkString),
+      "credId" → JsString(Random.alphanumeric.take(10).mkString),
       "affinityGroup" → JsString("Individual"),
       "confidenceLevel" → JsNumber(200),
       "credentialStrength" → JsString("strong"),
