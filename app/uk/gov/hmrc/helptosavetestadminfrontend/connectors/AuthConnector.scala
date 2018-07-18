@@ -65,7 +65,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       .withField("itmp.address.postCode", authUserDetails.postcode.map(JsString))
       .withField("itmp.address.countryCode", authUserDetails.countryCode.map(JsString))
       .withField("email", authUserDetails.email.map(JsString))
-      .withField("enrolments", None)
+      .withField("enrolments", Some(JsArray()))
   }
 
 
