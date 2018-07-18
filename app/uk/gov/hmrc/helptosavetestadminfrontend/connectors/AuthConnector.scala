@@ -16,10 +16,14 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
+import java.net.URLEncoder
+
 import com.google.inject.Inject
 import org.jsoup.Jsoup
 import play.api.http.Status
 import play.api.libs.json._
+import play.core.parsers.FormUrlEncodedParser
+import play.mvc.BodyParser.FormUrlEncoded
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
@@ -79,7 +83,11 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       "Csrf-Token" -> csrfToken,
       "Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8")
 
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", s"auth_id=$authId", headers).map {
+    val encodedForm = URLEncoder.encode(s"auth_id=$authId", "utf-8")
+
+    logger.info(s"encodedForm is = $encodedForm")
+
+    http.post(s"${appConfig.oauthURL}/oauth/grantscope", encodedForm, headers).map {
       response =>
         response.status match {
           case Status.OK | Status.CREATED | Status.SEE_OTHER =>
