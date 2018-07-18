@@ -89,7 +89,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                  | "${appConfig.apiUrl}/eligibility${params.requestNino.map("/" + _).getOrElse("")}"
                  |""".stripMargin
 
-            SeeOther(appConfig.authorizeUrl).withSession(session.+(("url", curlRequest)))
+            SeeOther(appConfig.authorizeUrl).withSession(session + "url" -> curlRequest).flashing("url" -> curlRequest)
           case Left(e) ⇒
             logger.warn(s"error getting the access token from cache, error=$e")
             internalServerError()
