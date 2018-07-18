@@ -29,8 +29,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class OAuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
-  def getAccessToken(authorisationCode: String, accessType: AccessType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
-    http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(tokenRequest(authorisationCode, accessType)))
+  def getAccessToken(authorisationCode: String, accessType: AccessType, extraHeaders: Map[String, String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
+    http.post(s"${appConfig.oauthURL}/oauth/token", Json.parse(tokenRequest(authorisationCode, accessType)), extraHeaders)
       .map[Either[String, AccessToken]]{
       response =>
         response.status match {

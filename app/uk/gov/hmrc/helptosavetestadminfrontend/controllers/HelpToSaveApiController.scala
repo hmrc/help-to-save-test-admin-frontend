@@ -142,13 +142,9 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     logger.info(s"request.headers = ${request.headers.toMap}")
     logger.info(s"request.cookies = ${request.cookies.toList}")
 
-    val extraHeaders = request.headers.headers.map(h => h._1 -> h._2)
-
     val mdtpCookie = request.cookies.find(c => c.name === "mdtp").getOrElse(throw new RuntimeException("no mdtp cookie founnd"))
 
-    implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = extraHeaders ++ List("COOKIE" -> s"${mdtpCookie.name}=${mdtpCookie.value}"))
-
-    oauthConnector.getAccessToken(code, UserRestricted).map {
+    oauthConnector.getAccessToken(code, UserRestricted, Map("Cookie" -> s"${mdtpCookie.name}=${mdtpCookie.value}")).map {
       case Right(AccessToken(token)) ⇒
         val url = request.session.get("url").getOrElse(throw new RuntimeException("no url found in the session"))
         Ok(url.replace("REPLACE", token))
