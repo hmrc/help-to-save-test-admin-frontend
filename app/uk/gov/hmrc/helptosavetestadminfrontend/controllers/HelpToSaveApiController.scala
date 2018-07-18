@@ -50,7 +50,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
       case PrivilegedTokenRequest() ⇒
         val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
-        oauthConnector.getAccessToken(totpCode, Privileged)
+        oauthConnector.getAccessToken(totpCode, Privileged, Map.empty)
     }
   }
 
