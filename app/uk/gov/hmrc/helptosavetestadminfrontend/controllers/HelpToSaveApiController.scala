@@ -32,6 +32,8 @@ import uk.gov.hmrc.helptosavetestadminfrontend.util._
 import uk.gov.hmrc.helptosavetestadminfrontend.views
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.totp.TotpGenerator
+import cats.instances.string._
+import cats.syntax.eq._
 
 import scala.concurrent.Future
 
@@ -142,7 +144,9 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
     val extraHeaders = request.headers.headers.map(h => h._1 -> h._2)
 
-    implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = extraHeaders)
+    val mdtpCookie = request.cookies.find(c => c.name === "mdtp").getOrElse(throw new RuntimeException("no mdtp cookie founnd"))
+
+    implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = extraHeaders ++ List("COOKIE" -> s"${mdtpCookie.name}=${mdtpCookie.value}"))
 
     oauthConnector.getAccessToken(code, UserRestricted).map {
       case Right(AccessToken(token)) ⇒
