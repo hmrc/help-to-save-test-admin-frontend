@@ -87,8 +87,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                  | "${appConfig.apiUrl}/eligibility${params.requestNino.map("/" + _).getOrElse("")}"
                  |""".stripMargin
 
-            request.session.+(("url", curlRequest))
-            SeeOther(appConfig.authorizeUrl).withSession(session)
+            SeeOther(appConfig.authorizeUrl).withSession(session.+(("url", curlRequest)))
           case Left(e) ⇒
             logger.warn(s"error getting the access token from cache, error=$e")
             internalServerError()
@@ -136,6 +135,15 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
   def authLoginStubCallback(code: String): Action[AnyContent] = Action.async { implicit request ⇒
     logger.info("handling authLoginStubCallback from oauth")
+
+    logger.info(s"request.session = ${request.session}")
+    logger.info(s"request.headers = ${request.headers.toMap}")
+    logger.info(s"request.cookies = ${request.cookies.toList}")
+
+    val extraHeaders = request.headers.headers.map(h => h._1 -> h._2)
+
+    implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = extraHeaders)
+
     oauthConnector.getAccessToken(code, UserRestricted).map {
       case Right(AccessToken(token)) ⇒
         val url = request.session.get("url").getOrElse(throw new RuntimeException("no url found in the session"))
