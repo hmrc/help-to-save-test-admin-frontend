@@ -83,11 +83,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       "Csrf-Token" -> csrfToken,
       "Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8")
 
-    val encodedForm = URLEncoder.encode(s"auth_id=$authId", "utf-8")
-
-    logger.info(s"encodedForm is = $encodedForm")
-
-    http.post(s"${appConfig.oauthURL}/oauth/grantscope", encodedForm, headers).map {
+    http.doFormPost(s"${appConfig.oauthURL}/oauth/grantscope", Map("auth_id" -> Seq(authId)))(hc.withExtraHeaders(headers.toSeq: _*)).map {
       response =>
         response.status match {
           case Status.OK | Status.CREATED | Status.SEE_OTHER =>
