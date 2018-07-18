@@ -35,7 +35,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val privilegedAccessClientId: String = getString("privileged-access.client-id")
   val privilegedAccessTOTPSecret: String = getString("privileged-access.totp-secret")
 
-  val adminFrontendUrl: String = baseUrl("help-to-save-test-admin-frontend")
+  val adminFrontendUrl: String = getString("microservice.services.help-to-save-test-admin-frontend.url")
 
   val apiUrl: String = getString("microservice.services.api.url")
 
@@ -44,6 +44,6 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val authorizeCallback: String = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback"
   val authorizeUrl = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=$authorizeCallback"
 
-  val authLoginApiUrl: String = s"${getString("microservice.services.auth-login-api")}/government-gateway/session/login"
+  val authLoginApiUrl: String = s"${getString("microservice.services.auth-login-api.url")}/government-gateway/session/login"
 
 }
