@@ -17,6 +17,7 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
 import com.google.inject.Inject
+import org.jsoup.Jsoup
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
@@ -24,7 +25,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.models.AuthUserDetails
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
@@ -32,20 +33,66 @@ import scala.util.Random
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
   def loginAndGetToken(authUserDetails: AuthUserDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
-    logger.info(s"Auth user details from the form are = $authUserDetails")
     http.post(appConfig.authStubUrl, getRequestBody(authUserDetails)).map {
       response ⇒
         response.status match {
           case Status.OK =>
-            logger.info(s"Status is OK, response.body is ${response.body}")
-            Right(response.body)
+            logger.info(s"Status from Auth is OK, response.body is ${response.body}")
+            getGrantScopePage(response)
           case other: Int =>
             logger.info(s"Status is $other, response.body is ${response.body}")
-            Left(s"unexpected status during auth, got status=$other but 200 expected, response body=${response.body}")
+            Future.successful(Left(s"unexpected status during auth, got status=$other but 200 expected, response body=${response.body}"))
         }
     }.recover {
-      case ex ⇒ Left(s"error during auth, error=${ex.getMessage}")}
+      case ex ⇒ Future.successful(Left(s"error during auth, error=${ex.getMessage}"))
+    }.flatMap(identity)
   }
+
+  private def getGrantScopePage(response: HttpResponse)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, String]] = {
+    val doc = Jsoup.parse(response.body)
+    val oauthGrantScopeUrl = doc.getElementsByClass("button").attr("href")
+
+    http.get(s"${appConfig.oauthURL}$oauthGrantScopeUrl", Map("Cookie" -> getMdtpCookie(response))).map {
+      response ⇒
+        response.status match {
+          case Status.OK =>
+            logger.info(s"oauth grant scope GET is successful, status = ${response.status}")
+            postGrantScope(response)
+          case other: Int =>
+            logger.info(s"oauth grant scope GET is failed,  is $other, response.body is ${response.body}")
+            Future.successful(Left(s"oauth grant scope GET is failed, status=$other but 200 expected"))
+        }
+    }.recover {
+      case ex ⇒ Future.successful(Left(s"error during getGrantScopePage, error=$ex"))
+    }.flatMap(identity)
+  }
+
+  private def postGrantScope(response: HttpResponse)(implicit hc: HeaderCarrier, ec: ExecutionContext) = {
+    val doc = Jsoup.parse(response.body)
+    val csrfToken = doc.select("input[name=csrfToken]").attr("value")
+    val authId = doc.select("input[name=auth_id]").attr("value")
+
+    val headers = Map("Cookie" -> getMdtpCookie(response),
+      "Csrf-Token" -> csrfToken,
+      "Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8")
+
+    http.doFormPost(s"${appConfig.oauthURL}/oauth/grantscope", Map("auth_id" -> Seq(authId)))(hc.withExtraHeaders(headers.toSeq: _*)).map {
+      response =>
+        response.status match {
+          case Status.OK =>
+            logger.info(s"oauth grant scope POST is successful, status = ${response.status}, body = ${response.body}")
+            Right(response.body)
+          case other: Int =>
+            logger.info(s"oauth grant scope POST is failed,  is $other, response.body is ${response.body}")
+            Left(s"oauth grant scope POST is failed, status=$other but 200 expected")
+        }
+    }.recover {
+      case ex ⇒ Left(s"error during postGrantScope, error=$ex")
+    }
+  }
+
+  private def getMdtpCookie(response: HttpResponse) =
+    response.allHeaders("Set-Cookie").find(_.contains("mdtp=")).getOrElse(throw new RuntimeException("no mdtp cookie found"))
 
   def getRequestBody(authUserDetails: AuthUserDetails): JsValue = {
     val json: JsObject = JsObject(Map(
