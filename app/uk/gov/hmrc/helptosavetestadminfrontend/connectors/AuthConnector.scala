@@ -16,14 +16,20 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
+import java.util.UUID
+
 import com.google.inject.Inject
+import org.joda.time.DateTime
+import play.api.http.HeaderNames
 import play.api.libs.json._
+import play.api.mvc.Session
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
-import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, BearerToken, Token}
+import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, BearerTokenStuff, Token}
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
@@ -31,20 +37,43 @@ import scala.util.Random
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
   def login(authUserDetails: AuthUserDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Token]] = {
-    http.post(appConfig.authLoginApiUrl, getRequestBody(authUserDetails)).map {
+    val credId = Random.alphanumeric.take(10).mkString
+    http.post(appConfig.authLoginApiUrl, getRequestBody(authUserDetails, credId)).map {
       response ⇒
-        response.header("authorization") match {
-          case Some(bearerToken) ⇒ Right(BearerToken(bearerToken))
-          case None ⇒ Left(s"error during login, response from auth = ${response.body}")
+        logger.info(s"all headers = ${response.allHeaders}")
+        if (response.status == 201) {
+          (
+            response.header(HeaderNames.AUTHORIZATION),
+            response.header(HeaderNames.LOCATION),
+            (response.json \ "gatewayToken").asOpt[String]
+          ) match {
+            case (Some(token), Some(sessionUri), Some(receivedGatewayToken)) =>
+
+              val session = Session(Map(
+                SessionKeys.sessionId -> SessionId(s"session-${UUID.randomUUID}").value,
+                SessionKeys.authProvider -> "GGW",
+                SessionKeys.userId -> sessionUri,
+                SessionKeys.authToken -> token,
+                SessionKeys.lastRequestTimestamp -> DateTime.now.getMillis.toString,
+                SessionKeys.token -> receivedGatewayToken,
+                SessionKeys.affinityGroup -> "Individual",
+                SessionKeys.name -> credId
+              ))
+
+              Right(BearerTokenStuff(session))
+            case _ => Left("Internal Error, missing headers or gatewayToken in response from auth-login-api")
+          }
+        } else {
+          Left(s"failed calling auth-login-api , expected, but got ${response.status}, body: ${response.body}")
         }
     }.recover {
       case ex ⇒ Left(s"error during auth, error=${ex.getMessage}")
     }
   }
 
-  def getRequestBody(authUserDetails: AuthUserDetails): JsValue = {
+  def getRequestBody(authUserDetails: AuthUserDetails, credId: String): JsValue = {
     val json: JsObject = JsObject(Map(
-      "credId" → JsString(Random.alphanumeric.take(10).mkString),
+      "credId" → JsString(credId),
       "affinityGroup" → JsString("Individual"),
       "confidenceLevel" → JsNumber(200),
       "credentialStrength" → JsString("strong"),

@@ -77,7 +77,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
             Ok(curlRequest)
 
-          case Right(BearerToken(token)) =>
+          case Right(BearerTokenStuff(session)) =>
 
             val curlRequest =
               s"""
@@ -88,7 +88,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                  |""".stripMargin
 
             request.session.+(("url", curlRequest))
-            SeeOther(appConfig.authorizeUrl).withHeaders(("Authorization", token))
+            SeeOther(appConfig.authorizeUrl).withSession(session)
           case Left(e) ⇒
             logger.warn(s"error getting the access token from cache, error=$e")
             internalServerError()
