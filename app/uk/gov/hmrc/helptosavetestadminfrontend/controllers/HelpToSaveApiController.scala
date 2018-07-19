@@ -17,6 +17,9 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
 
+import java.util.concurrent.TimeUnit
+
+import com.google.common.cache._
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
@@ -33,7 +36,6 @@ import uk.gov.hmrc.helptosavetestadminfrontend.views
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.totp.TotpGenerator
 
-import scala.collection.mutable
 import scala.concurrent.Future
 
 @Singleton
@@ -41,7 +43,16 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                                        (implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
-  val urlMap = mutable.Map.empty[String, String]
+  val userIdCache: Cache[String, String] =
+    CacheBuilder
+      .newBuilder
+      .maximumSize(100)
+      .expireAfterWrite(2, TimeUnit.MINUTES)
+      .removalListener(new RemovalListener[String, String] {
+        override def onRemoval(notification: RemovalNotification[String, String]): Unit = {
+          logger.info(s"cache entry: (${notification.getKey}) has been removed due to ${notification.getCause}")
+        }
+      }).build()
 
   private def getToken(tokenRequest: TokenRequest): Future[Either[String, Token]] = {
     implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -62,7 +73,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
       case Right(SessionToken(session)) =>
         val userId = session.get(SessionKeys.userId).getOrElse(throw new RuntimeException("no userId found in the session"))
-        urlMap.put(userId, curl("REPLACE"))
+        userIdCache.put(userId, curl("REPLACE"))
         SeeOther(appConfig.authorizeUrl(userId)).withSession(session)
 
       case Left(e) ⇒
@@ -135,7 +146,12 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     oauthConnector.getAccessToken(code, userId, UserRestricted, Map("Cookie" -> cookies)).map {
       case Right(AccessToken(token)) ⇒
         val userIdKey = userId.getOrElse(throw new RuntimeException("no userId found in the oAuthCallback request"))
-        Ok(urlMap.getOrElse(userIdKey, throw new RuntimeException("no userId found in the urlMap")).replace("REPLACE", token))
+        val curl =
+          Option(userIdCache.getIfPresent(userIdKey))
+            .getOrElse(throw new RuntimeException("no userId found in the urlMap"))
+            .replace("REPLACE", token)
+
+        Ok(curl)
 
       case Left(error) ⇒
         logger.warn(s"Could not get token: $error")

@@ -40,7 +40,6 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val credId = Random.alphanumeric.take(10).mkString // scalastyle:ignore magic.number
     http.post(appConfig.authLoginApiUrl, getRequestBody(authUserDetails, credId)).map {
       response ⇒
-        logger.info(s"all headers = ${response.allHeaders}")
         if (response.status == 201) {
           (
             response.header(HeaderNames.AUTHORIZATION),
