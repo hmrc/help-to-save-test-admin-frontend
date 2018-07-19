@@ -20,7 +20,7 @@ package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, Request}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.{AuthConnector, OAuthConnector}
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.TokenRequest.{PrivilegedTokenRequest, UserRestrictedTokenRequest}
@@ -55,7 +55,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     }
   }
 
-  private def handleTokenResult(tokenResult: Future[Either[String, Token]])(curl: String => String) = {
+  private def handleTokenResult(tokenResult: Future[Either[String, Token]])(curl: String => String)(implicit request: Request[_]) = {
     tokenResult.map {
       case Right(AccessToken(token)) ⇒
         Ok(curl(token))
