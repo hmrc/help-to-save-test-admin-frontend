@@ -43,7 +43,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
   val urlMap = mutable.Map.empty[String, String]
 
-  def getToken(tokenRequest: TokenRequest): Future[Either[String, Token]] = {
+  private def getToken(tokenRequest: TokenRequest): Future[Either[String, Token]] = {
     implicit val hc: HeaderCarrier = HeaderCarrier()
     tokenRequest match {
       case UserRestrictedTokenRequest(authUserDetails) ⇒
@@ -52,6 +52,25 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       case PrivilegedTokenRequest() ⇒
         val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
         oauthConnector.getAccessToken(totpCode, None, Privileged, Map.empty)
+    }
+  }
+
+  private def handleTokenResult(tokenResult: Future[Either[String, Token]])(curl: String => String) = {
+    tokenResult.map {
+      case Right(AccessToken(token)) ⇒
+        Ok(curl(token))
+
+      case Right(SessionToken(session)) =>
+        val userId = session.get(SessionKeys.userId).getOrElse(throw new RuntimeException("no userId found in the session"))
+        urlMap.put(userId, curl("REPLACE"))
+        SeeOther(appConfig.authorizeUrl(userId)).withSession(session)
+
+      case Left(e) ⇒
+        logger.warn(s"error getting the access token, error=$e")
+        internalServerError()
+    }.recover {
+      case e ⇒ logger.warn(s"error getting the access token, error=$e")
+        internalServerError()
     }
   }
 
@@ -67,40 +86,16 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     EligibilityRequestForm.eligibilityForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
       { params ⇒
-        getToken(tokenRequest(params.accessType, AuthUserDetails.empty().copy(nino = params.authNino))).map {
-          case Right(AccessToken(token)) ⇒
-            logger.info(s"Loaded access token from cache, token=$token")
-            val curlRequest =
-              s"""
-                 |curl -v -X GET \\
-                 |${toCurlRequestLines(params.httpHeaders)}
-                 |-H "Authorization: Bearer $token" \\
-                 | "${appConfig.apiUrl}/eligibility${params.requestNino.map("/" + _).getOrElse("")}"
-                 |""".stripMargin
+        def url(token: String) =
+          s"""
+             |curl -v -X GET \\
+             |${toCurlRequestLines(params.httpHeaders)}
+             |-H "Authorization: Bearer $token" \\
+             | "${appConfig.apiUrl}/eligibility${params.requestNino.map("/" + _).getOrElse("")}"
+             |""".stripMargin
 
-            Ok(curlRequest)
-
-          case Right(BearerTokenStuff(session)) =>
-
-            val curlRequest =
-              s"""
-                 |curl -v -X GET \\
-                 |${toCurlRequestLines(params.httpHeaders)}
-                 |-H "Authorization: Bearer REPLACE" \\
-                 | "${appConfig.apiUrl}/eligibility${params.requestNino.map("/" + _).getOrElse("")}"
-                 |""".stripMargin
-
-            val userId = session.get(SessionKeys.userId).getOrElse(throw new RuntimeException("no userId found in the session"))
-            urlMap.put(userId, curlRequest)
-
-            SeeOther(appConfig.authorizeUrl(userId)).withSession(session)
-          case Left(e) ⇒
-            logger.warn(s"error getting the access token from cache, error=$e")
-            internalServerError()
-        }.recover {
-          case e ⇒ logger.warn(s"error getting the access token from cache, error=$e")
-            internalServerError()
-        }
+        val tokenResult = getToken(tokenRequest(params.accessType, AuthUserDetails.empty().copy(nino = params.authNino)))
+        handleTokenResult(tokenResult)(url)
       }
     )
   }
@@ -114,27 +109,18 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
       formWithErrors ⇒ Future.successful(Ok(views.html.get_create_account_page(formWithErrors))),
       {
         params ⇒
-          getToken(tokenRequest(params.accessType, params.authUserDetails)).map {
-            case Right(token) ⇒
-              logger.info(s"Generated token for access type ${params.accessType}: $token")
-
-              val json = Json.toJson(CreateAccountRequest(params.requestHeaders, params.requestBody))
-              val curlRequest =
-                s"""
-                   |curl -v \\
-                   |${toCurlRequestLines(params.httpHeaders)}
-                   |-H "Authorization: Bearer $token" \\
-                   |-d '${json.toString}' "${appConfig.apiUrl}/account"
-                   |""".stripMargin
-
-              Ok(curlRequest)
-            case Left(e) ⇒
-              logger.warn(s"error getting the access token from cache, error=$e")
-              internalServerError()
-          }.recover {
-            case e ⇒ logger.warn(s"error getting the access token from cache, error=$e")
-              internalServerError()
+          def url(token: String) = {
+            val json = Json.toJson(CreateAccountRequest(params.requestHeaders, params.requestBody))
+            s"""
+               |curl -v \\
+               |${toCurlRequestLines(params.httpHeaders)}
+               |-H "Authorization: Bearer $token" \\
+               |-d '${json.toString}' "${appConfig.apiUrl}/account"
+               |""".stripMargin
           }
+
+          val tokenResult = getToken(tokenRequest(params.accessType, params.authUserDetails))
+          handleTokenResult(tokenResult)(url)
       }
     )
   }
@@ -142,18 +128,14 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
   def oAuthCallback(code: String, userId: Option[String]): Action[AnyContent] = Action.async { implicit request ⇒
     logger.info("handling authLoginStubCallback from oauth")
 
-    logger.info(s"request.session = ${request.session}")
-    logger.info(s"request.headers = ${request.headers.toMap}")
-    logger.info(s"request.cookies = ${request.cookies.toList}")
-
     val cookies = request.headers.toMap.get("Cookie").flatMap(_.headOption).getOrElse(throw new RuntimeException("no Cookie found in the headers"))
 
     logger.info(s"cookies = $cookies")
 
     oauthConnector.getAccessToken(code, userId, UserRestricted, Map("Cookie" -> cookies)).map {
       case Right(AccessToken(token)) ⇒
-        val userIdKey = userId.getOrElse(throw new RuntimeException("no userId found in the request"))
-        Ok(urlMap.getOrElse(userIdKey, throw new RuntimeException("no userId found in the request")).replace("REPLACE", token))
+        val userIdKey = userId.getOrElse(throw new RuntimeException("no userId found in the oAuthCallback request"))
+        Ok(urlMap.getOrElse(userIdKey, throw new RuntimeException("no userId found in the urlMap")).replace("REPLACE", token))
 
       case Left(error) ⇒
         logger.warn(s"Could not get token: $error")
@@ -165,30 +147,21 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     Future.successful(Ok(views.html.get_account_page(GetAccountForm.getAccountForm)))
   }
 
-
   def getAccount(): Action[AnyContent] = Action.async { implicit request ⇒
     GetAccountForm.getAccountForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_account_page(formWithErrors))),
       { params ⇒
-        getToken(tokenRequest(params.accessType, AuthUserDetails.empty().copy(nino = params.authNino))).map {
-          case Right(token) ⇒
-            logger.info(s"Loaded access token from cache, token=$token")
-            val curlRequest =
-              s"""
-                 |curl -v -X GET \\
-                 |${toCurlRequestLines(params.httpHeaders)}
-                 |-H "Authorization: Bearer $token" \\
-                 | "${appConfig.apiUrl}/account"
-                 |""".stripMargin
 
-            Ok(curlRequest)
-          case Left(e) ⇒
-            logger.warn(s"error getting the access token from cache, error=$e")
-            internalServerError()
-        }.recover {
-          case e ⇒ logger.warn(s"error getting the access token from cache, error=$e")
-            internalServerError()
-        }
+        def url(token: String) =
+          s"""
+             |curl -v -X GET \\
+             |${toCurlRequestLines(params.httpHeaders)}
+             |-H "Authorization: Bearer $token" \\
+             | "${appConfig.apiUrl}/account"
+             |""".stripMargin
+
+        val tokenResult = getToken(tokenRequest(params.accessType, AuthUserDetails.empty().copy(nino = params.authNino)))
+        handleTokenResult(tokenResult)(url)
       }
     )
   }

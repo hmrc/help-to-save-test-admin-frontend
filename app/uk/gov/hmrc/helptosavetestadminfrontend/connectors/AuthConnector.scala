@@ -26,7 +26,7 @@ import play.api.mvc.Session
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
-import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, BearerTokenStuff, Token}
+import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, SessionToken, Token}
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
@@ -37,7 +37,7 @@ import scala.util.Random
 class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
   def login(authUserDetails: AuthUserDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Token]] = {
-    val credId = Random.alphanumeric.take(10).mkString
+    val credId = Random.alphanumeric.take(10).mkString // scalastyle:ignore magic.number
     http.post(appConfig.authLoginApiUrl, getRequestBody(authUserDetails, credId)).map {
       response ⇒
         logger.info(s"all headers = ${response.allHeaders}")
@@ -60,11 +60,11 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
                 SessionKeys.name -> credId
               ))
 
-              Right(BearerTokenStuff(session))
+              Right(SessionToken(session))
             case _ => Left("Internal Error, missing headers or gatewayToken in response from auth-login-api")
           }
         } else {
-          Left(s"failed calling auth-login-api , expected, but got ${response.status}, body: ${response.body}")
+          Left(s"failed calling auth-login-api, got status ${response.status}, body: ${response.body}")
         }
     }.recover {
       case ex ⇒ Left(s"error during auth, error=${ex.getMessage}")
@@ -75,7 +75,7 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
     val json: JsObject = JsObject(Map(
       "credId" → JsString(credId),
       "affinityGroup" → JsString("Individual"),
-      "confidenceLevel" → JsNumber(200),
+      "confidenceLevel" → JsNumber(200), // scalastyle:ignore magic.number
       "credentialStrength" → JsString("strong"),
       "credentialRole" → JsString("User"))
     )

@@ -19,6 +19,6 @@ package uk.gov.hmrc.helptosavetestadminfrontend.models
 import play.api.mvc.Session
 
 sealed trait Token
-case class BearerTokenStuff(session: Session) extends Token
+case class SessionToken(session: Session) extends Token
 case class AccessToken(token: String) extends Token
 
