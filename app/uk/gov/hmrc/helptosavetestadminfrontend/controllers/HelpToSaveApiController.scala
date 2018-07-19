@@ -139,7 +139,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     )
   }
 
-  def authLoginStubCallback(code: String, userId: Option[String]): Action[AnyContent] = Action.async { implicit request ⇒
+  def oAuthCallback(code: String, userId: Option[String]): Action[AnyContent] = Action.async { implicit request ⇒
     logger.info("handling authLoginStubCallback from oauth")
 
     logger.info(s"request.session = ${request.session}")
@@ -150,7 +150,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
     logger.info(s"cookies = $cookies")
 
-    oauthConnector.getAccessToken(code, UserRestricted, Map("Cookie" -> cookies)).map {
+    oauthConnector.getAccessToken(code, userId, UserRestricted, Map("Cookie" -> cookies)).map {
       case Right(AccessToken(token)) ⇒
         val userIdKey = userId.getOrElse(throw new RuntimeException("no userId found in the request"))
         Ok(urlMap.getOrElse(userIdKey, throw new RuntimeException("no userId found in the request")).replace("REPLACE", token))
