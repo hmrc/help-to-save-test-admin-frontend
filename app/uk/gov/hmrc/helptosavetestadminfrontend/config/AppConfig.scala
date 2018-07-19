@@ -41,8 +41,8 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   val oauthURL: String = getString("microservice.services.oauth-frontend.url")
   val scopes = "read:help-to-save write:help-to-save"
-  val authorizeCallback: String = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback"
-  val authorizeUrl = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=$authorizeCallback"
+  def authorizeCallback(userId: Option[String] = None): String = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback?userId=${userId.getOrElse("")}"
+  def authorizeUrl(userId: String) = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=${authorizeCallback(Some(userId))}"
 
   val authLoginApiUrl: String = s"${getString("microservice.services.auth-login-api.url")}/government-gateway/session/login"
 

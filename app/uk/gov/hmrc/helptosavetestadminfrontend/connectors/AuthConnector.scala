@@ -77,9 +77,8 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
       "affinityGroup" → JsString("Individual"),
       "confidenceLevel" → JsNumber(200),
       "credentialStrength" → JsString("strong"),
-      "credentialRole" → JsString("User"),
-      "redirectionUrl" → JsString(s"${appConfig.authorizeUrl}")
-    ))
+      "credentialRole" → JsString("User"))
+    )
 
     json
       .withField("nino", authUserDetails.nino.map(JsString))

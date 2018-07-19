@@ -55,7 +55,7 @@ class OAuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggi
           "client_secret":"${appConfig.clientSecret}",
           "client_id":"${appConfig.clientId}",
           "grant_type":"authorization_code",
-          "redirect_uri":"${appConfig.authorizeCallback}",
+          "redirect_uri":"${appConfig.authorizeCallback()}",
           "code":"$code"
       }"""
 

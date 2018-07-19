@@ -30,17 +30,18 @@ import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util._
 import uk.gov.hmrc.helptosavetestadminfrontend.views
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.totp.TotpGenerator
-import cats.instances.string._
-import cats.syntax.eq._
 
+import scala.collection.mutable
 import scala.concurrent.Future
 
 @Singleton
 class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnector, oauthConnector: OAuthConnector)
                                        (implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
+
+  val urlMap = mutable.Map.empty[String, String]
 
   def getToken(tokenRequest: TokenRequest): Future[Either[String, Token]] = {
     implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -89,7 +90,10 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
                  | "${appConfig.apiUrl}/eligibility${params.requestNino.map("/" + _).getOrElse("")}"
                  |""".stripMargin
 
-            SeeOther(appConfig.authorizeUrl).withSession(session + "url" -> curlRequest).flashing("url" -> curlRequest)
+            val userId = session.get(SessionKeys.userId).getOrElse(throw new RuntimeException("no userId found in the session"))
+            urlMap.put(userId, curlRequest)
+
+            SeeOther(appConfig.authorizeUrl(userId)).withSession(session)
           case Left(e) ⇒
             logger.warn(s"error getting the access token from cache, error=$e")
             internalServerError()
@@ -135,7 +139,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     )
   }
 
-  def authLoginStubCallback(code: String): Action[AnyContent] = Action.async { implicit request ⇒
+  def authLoginStubCallback(code: String, userId: Option[String]): Action[AnyContent] = Action.async { implicit request ⇒
     logger.info("handling authLoginStubCallback from oauth")
 
     logger.info(s"request.session = ${request.session}")
@@ -148,8 +152,8 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
     oauthConnector.getAccessToken(code, UserRestricted, Map("Cookie" -> cookies)).map {
       case Right(AccessToken(token)) ⇒
-        val url = request.session.get("url").getOrElse(throw new RuntimeException("no url found in the session"))
-        Ok(url.replace("REPLACE", token))
+        val userIdKey = userId.getOrElse(throw new RuntimeException("no userId found in the request"))
+        Ok(urlMap.getOrElse(userIdKey, throw new RuntimeException("no userId found in the request")).replace("REPLACE", token))
 
       case Left(error) ⇒
         logger.warn(s"Could not get token: $error")
