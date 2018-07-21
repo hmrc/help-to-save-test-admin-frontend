@@ -60,6 +60,9 @@ class OAuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggi
       }"""
 
       case Privileged     ⇒
+
+        logger.info(s"privilegedAccessClientId = ${appConfig.privilegedAccessClientId}")
+        logger.info(s"privilegedAccessTOTPSecret = ${appConfig.privilegedAccessTOTPSecret}")
         s"""{
           "client_secret":"$code",
           "client_id":"${appConfig.privilegedAccessClientId}",

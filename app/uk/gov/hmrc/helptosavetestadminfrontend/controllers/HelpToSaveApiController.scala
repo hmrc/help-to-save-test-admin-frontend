@@ -141,8 +141,6 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
     val cookies = request.headers.toMap.get("Cookie").flatMap(_.headOption).getOrElse(throw new RuntimeException("no Cookie found in the headers"))
 
-    logger.info(s"cookies = $cookies")
-
     oauthConnector.getAccessToken(code, userId, UserRestricted, Map("Cookie" -> cookies)).map {
       case Right(AccessToken(token)) ⇒
         val userIdKey = userId.getOrElse(throw new RuntimeException("no userId found in the oAuthCallback request"))
