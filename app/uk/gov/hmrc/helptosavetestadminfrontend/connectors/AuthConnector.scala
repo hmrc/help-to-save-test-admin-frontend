@@ -44,8 +44,8 @@ class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggin
           (
             response.header(HeaderNames.AUTHORIZATION),
             response.header(HeaderNames.LOCATION),
-            (response.json \ "gatewayToken").asOpt[String]
-          ) match {
+            (response.json \ "gatewayToken").asOpt[String])
+          match {
             case (Some(token), Some(sessionUri), Some(receivedGatewayToken)) =>
 
               val session = Session(Map(

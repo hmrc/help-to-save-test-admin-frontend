@@ -157,6 +157,18 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     }
   }
 
+  def authLoginStubCallback(code: String): Action[AnyContent] = Action.async { implicit request ⇒
+    logger.info("handling authLoginStubCallback from oauth")
+    oauthConnector.getAccessToken(code, None, UserRestricted, Map.empty).map{
+      case Right(token) ⇒
+        Ok(token)
+
+      case Left(error) ⇒
+        logger.warn(s"Could not get token: $error")
+        internalServerError()
+    }
+  }
+
   def getAccountPage(): Action[AnyContent] = Action.async { implicit request ⇒
     Future.successful(Ok(views.html.get_account_page(GetAccountForm.getAccountForm)))
   }
