@@ -161,7 +161,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     logger.info("handling authLoginStubCallback from oauth")
     oauthConnector.getAccessToken(code, None, UserRestricted, Map.empty).map{
       case Right(token) ⇒
-        Ok(token)
+        Ok(token.token)
 
       case Left(error) ⇒
         logger.warn(s"Could not get token: $error")
