@@ -17,6 +17,7 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
 
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 import com.google.common.cache._
@@ -42,54 +43,22 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
                                        (implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
-  val userIdCache: Cache[String, String] =
+  val userIdCache: Cache[UUID, String] =
     CacheBuilder
       .newBuilder
       .maximumSize(100)
       .expireAfterWrite(2, TimeUnit.MINUTES)
-      .removalListener(new RemovalListener[String, String] {
-        override def onRemoval(notification: RemovalNotification[String, String]): Unit = {
+      .removalListener(new RemovalListener[UUID, String] {
+        override def onRemoval(notification: RemovalNotification[UUID, String]): Unit = {
           logger.info(s"cache entry: (${notification.getKey}) has been removed due to ${notification.getCause}")
         }
       }).build()
 
-  private def getToken(tokenRequest: TokenRequest): Future[Either[String, Token]] = {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
-    tokenRequest match {
-      case UserRestrictedTokenRequest(authUserDetails) ⇒
-        authConnector.login(authUserDetails)
-
-      case PrivilegedTokenRequest() ⇒
-        if(appConfig.runLocal){
-          authConnector.getPrivilegedToken()
-        } else {
-          val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
-          oauthConnector.getAccessToken(totpCode, None, Privileged, Map.empty)
-        }
-    }
-  }
-
-  private def handleTokenResult(tokenResult: Future[Either[String, Token]])(curl: String => String)(implicit request: Request[_]) = {
-    tokenResult.map {
-      case Right(AccessToken(token)) ⇒
-        Ok(curl(token.stripPrefix("Bearer ")))
-
-      case Right(SessionToken(session)) =>
-        if(appConfig.runLocal){
-          Ok(curl(session.get(SessionKeys.authToken).map(_.stripPrefix("Bearer ")).getOrElse(sys.error("Could not find auth token"))))
-        } else {
-          val userId = session.get(SessionKeys.userId).getOrElse(sys.error("no userId found in the session"))
-          userIdCache.put(userId, curl("REPLACE"))
-          SeeOther(appConfig.authorizeUrl(userId)).withSession(session)
-        }
-
-      case Left(e) ⇒
-        logger.warn(s"error getting the access token, error=$e")
-        internalServerError()
-    }.recover {
-      case e ⇒ logger.warn(s"error getting the access token, error=$e")
-        internalServerError()
-    }
+  def getCurlRequestIsPage(id: UUID): Action[AnyContent] = Action { implicit request ⇒
+    Option(userIdCache.getIfPresent(id)).fold{
+      logger.warn(s"Could not find curl request for id: $id")
+      internalServerError()
+    }{ curl ⇒ Ok(views.html.curl_result(curl)) }
   }
 
   def availableFunctions(): Action[AnyContent] = Action.async { implicit request ⇒
@@ -113,7 +82,7 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
              |""".stripMargin
 
         val tokenResult = getToken(tokenRequest(params.accessType, AuthUserDetails.empty().copy(nino = params.authNino)))
-        handleTokenResult(tokenResult)(curlRequest)
+        handleTokenResult(tokenResult, newId())(curlRequest)
       }
     )
   }
@@ -138,21 +107,20 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
           }
 
           val tokenResult = getToken(tokenRequest(params.accessType, params.authUserDetails))
-          handleTokenResult(tokenResult)(curlRequest)
+          handleTokenResult(tokenResult, newId())(curlRequest)
       }
     )
   }
 
-  def oAuthCallback(code: String, userId: Option[String]): Action[AnyContent] = Action.async { implicit request ⇒
+  def oAuthCallback(code: String, id: UUID): Action[AnyContent] = Action.async { implicit request ⇒
     logger.info("handling oAuthCallback from oauth")
 
     val cookies = request.headers.toMap.get("Cookie").flatMap(_.headOption).getOrElse(throw new RuntimeException("no Cookie found in the headers"))
 
-    oauthConnector.getAccessToken(code, userId, UserRestricted, Map("Cookie" -> cookies)).map {
+    oauthConnector.getAccessTokenUserRestricted(code, id, Map("Cookie" -> cookies)).map {
       case Right(AccessToken(token)) ⇒
-        val userIdKey = userId.getOrElse(throw new RuntimeException("no userId found in the oAuthCallback request"))
         val curl =
-          Option(userIdCache.getIfPresent(userIdKey))
+          Option(userIdCache.getIfPresent(id))
             .getOrElse(throw new RuntimeException("no userId found in the urlMap"))
             .replace("REPLACE", token)
 
@@ -169,7 +137,7 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
 
     val cookies = request.headers.toMap.get("Cookie").flatMap(_.headOption).getOrElse(throw new RuntimeException("no Cookie found in the headers"))
 
-    oauthConnector.getAccessToken(code, None, UserRestricted, Map("Cookie" -> cookies)).map {
+    oauthConnector.getAccessTokenUserRestricted(code, UUID.randomUUID(), Map("Cookie" -> cookies)).map {
       case Right(AccessToken(token)) ⇒
         Ok(token)
 
@@ -197,9 +165,66 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
              |""".stripMargin
 
         val tokenResult = getToken(tokenRequest(params.accessType, AuthUserDetails.empty().copy(nino = params.authNino)))
-        handleTokenResult(tokenResult)(curlRequest)
+        handleTokenResult(tokenResult, newId())(curlRequest)
       }
     )
+  }
+
+  private def getToken(tokenRequest: TokenRequest): Future[Either[String, Token]] = {
+    implicit val hc: HeaderCarrier = HeaderCarrier()
+    tokenRequest match {
+      case UserRestrictedTokenRequest(authUserDetails) ⇒
+        authConnector.login(authUserDetails)
+
+      case PrivilegedTokenRequest() ⇒
+        if(appConfig.runLocal){
+          authConnector.getPrivilegedToken()
+        } else {
+          val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
+          oauthConnector.getAccessTokenPrivileged(totpCode, Map.empty)
+        }
+    }
+  }
+
+  private def handleTokenResult(tokenResult: Future[Either[String, Token]], id: UUID)(curl: String => String)(implicit request: Request[_]) = {
+    tokenResult.map {
+      case Right(AccessToken(token)) ⇒
+        if(appConfig.runLocal) {
+          sys.error("Generated privileged access token whilst running locally")
+        } else {
+          userIdCache.put(id, curl(token.stripPrefix("Bearer ")))
+          SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url)
+        }
+
+
+      case Right(LocalPrivilegedToken(token)) ⇒
+        if(appConfig.runLocal){
+            userIdCache.put(id, curl(token.stripPrefix("Bearer ")))
+            SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url)
+          } else {
+          sys.error("Generated local privileged token but not running locally")
+        }
+
+      case Right(SessionToken(session)) ⇒
+        if(appConfig.runLocal){
+          session.get(SessionKeys.authToken).map(_.stripPrefix("Bearer ")).fold(
+            sys.error("Could not find auth token")
+          ){ t ⇒
+            userIdCache.put(id, curl(t))
+            SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url)
+          }
+        } else {
+          userIdCache.put(id, curl("REPLACE"))
+          SeeOther(appConfig.authorizeUrl(id)).withSession(session)
+        }
+
+      case Left(e) ⇒
+        logger.warn(s"error getting the access token, error=$e")
+        internalServerError()
+    }.recover {
+      case e ⇒ logger.warn(s"error getting the access token, error=$e")
+        internalServerError()
+    }
   }
 
   private def tokenRequest(accessType: AccessType, authUserDetails: AuthUserDetails): TokenRequest = accessType match {
@@ -210,6 +235,7 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
   private def toCurlRequestLines(httpHeaders: HttpHeaders): String =
     httpHeaders.toMap().map { case (k, v) ⇒ s"""-H "$k: $v" \\""" }.mkString("\n")
 
+  private def newId(): UUID = UUID.randomUUID()
 
 }
 

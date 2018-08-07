@@ -27,7 +27,7 @@ import play.api.mvc.Session
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
-import uk.gov.hmrc.helptosavetestadminfrontend.models.{AccessToken, AuthUserDetails, SessionToken, Token}
+import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
@@ -74,11 +74,11 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
     }
   }
 
-  def getPrivilegedToken()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
+  def getPrivilegedToken()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, LocalPrivilegedToken]] = {
     http.post(s"${appConfig.authUrl}/auth/sessions", privilegedRequestBody).map{ response ⇒
-      response.header(HeaderNames.AUTHORIZATION).fold[Either[String,AccessToken]](
+      response.header(HeaderNames.AUTHORIZATION).fold[Either[String,LocalPrivilegedToken]](
         Left("Could not find Authorization header in response")
-      )(t ⇒ Right(AccessToken(t)))
+      )(t ⇒ Right(LocalPrivilegedToken(t)))
     }
   }
 

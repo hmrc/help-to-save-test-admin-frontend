@@ -10,7 +10,7 @@ GET        /specify-emails-to-delete   @uk.gov.hmrc.helptosavetestadminfrontend.
 
 GET        /available-functions        @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions()
 
-GET        /authorize-callback         @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.oAuthCallback(code: String, userId: Option[String])
+GET        /authorize-callback         @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.oAuthCallback(code: String, id: java.util.UUID)
 
 GET        /authorize-callback-for-itests     @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.oAuthCallbackForITests(code: String)
 
@@ -25,3 +25,5 @@ POST       /create-account             @uk.gov.hmrc.helptosavetestadminfrontend.
 GET        /get-account-page           @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getAccountPage()
 
 GET        /account                    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getAccount()
+
+GET        /curl-result                @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCurlRequestIsPage(id: java.util.UUID)

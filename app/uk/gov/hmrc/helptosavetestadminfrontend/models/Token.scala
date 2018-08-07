@@ -21,4 +21,5 @@ import play.api.mvc.Session
 sealed trait Token
 case class SessionToken(session: Session) extends Token
 case class AccessToken(token: String) extends Token
+case class LocalPrivilegedToken(token: String) extends Token
 

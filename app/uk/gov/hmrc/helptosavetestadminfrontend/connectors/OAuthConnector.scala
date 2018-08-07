@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
+import java.util.UUID
+
 import com.google.inject.Inject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
-import uk.gov.hmrc.helptosavetestadminfrontend.util.{AccessType, Logging, Privileged, UserRestricted}
+import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.http.Status._
 import uk.gov.hmrc.helptosavetestadminfrontend.models.AccessToken
@@ -30,12 +32,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class OAuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
 
-  def getAccessToken(authorisationCode: String,
-                     userId: Option[String],
-                     accessType: AccessType,
+  private def getAccessToken(body: JsValue,
                      extraHeaders: Map[String, String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
 
-    http.post("http://oauth-frontend.public.mdtp:80/oauth/token", Json.parse(tokenRequest(authorisationCode, accessType, userId)), extraHeaders)
+    http.post("http://oauth-frontend.public.mdtp:80/oauth/token", body, extraHeaders)
       .map[Either[String, AccessToken]]{
       response =>
         response.status match {
@@ -53,35 +53,36 @@ class OAuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends L
     }
   }
 
-  def tokenRequest(code: String, accessType: AccessType, userId: Option[String]): String ={
-    accessType match {
-      case UserRestricted ⇒
-
-        val callback = userId match {
-          case Some(_) => appConfig.authorizeCallback(userId)
-          case None => appConfig.authorizeCallbackForITests
-        }
-
+  def getAccessTokenUserRestricted(authorisationCode: String,
+                                   id: UUID,
+                                   extraHeaders: Map[String, String]
+                                  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
+    val json =
+      Json.parse(
         s"""{
           "client_secret":"${appConfig.clientSecret}",
           "client_id":"${appConfig.clientId}",
           "grant_type":"authorization_code",
-          "redirect_uri":"$callback",
-          "code":"$code"
-      }"""
+          "redirect_uri":"${appConfig.authorizeCallback(id)}",
+          "code":"$authorisationCode"
+      }""")
+    getAccessToken(json, extraHeaders)
+  }
 
-      case Privileged     ⇒
 
-        logger.info(s"privilegedAccessClientId = ${appConfig.privilegedAccessClientId}")
-        logger.info(s"privilegedAccessTOTPSecret = ${appConfig.privilegedAccessTOTPSecret}")
+  def getAccessTokenPrivileged(totpCode: String,
+                               extraHeaders: Map[String, String]
+                              )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
+    val json =
+      Json.parse(
         s"""{
-          "client_secret":"$code",
+          "client_secret":"$totpCode",
           "client_id":"${appConfig.privilegedAccessClientId}",
           "grant_type":"client_credentials"
-      }"""
-
-    }
+      }""")
+    getAccessToken(json, extraHeaders)
   }
+
 
 
 }
