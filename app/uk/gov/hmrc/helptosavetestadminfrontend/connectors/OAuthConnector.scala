@@ -49,20 +49,23 @@ class OAuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggi
   }
 
   def tokenRequest(code: String, accessType: AccessType, userId: Option[String]): String ={
+
+    val redirectUri = userId match {
+      case Some("ITest") => appConfig.authorizeCallbackForITests
+      case _ => appConfig.authorizeCallback(userId)
+    }
+
     accessType match {
       case UserRestricted ⇒
         s"""{
           "client_secret":"${appConfig.clientSecret}",
           "client_id":"${appConfig.clientId}",
           "grant_type":"authorization_code",
-          "redirect_uri":"${appConfig.authorizeCallback(userId)}",
+          "redirect_uri":"$redirectUri",
           "code":"$code"
       }"""
 
       case Privileged     ⇒
-
-        logger.info(s"privilegedAccessClientId = ${appConfig.privilegedAccessClientId}")
-        logger.info(s"privilegedAccessTOTPSecret = ${appConfig.privilegedAccessTOTPSecret}")
         s"""{
           "client_secret":"$code",
           "client_id":"${appConfig.privilegedAccessClientId}",
