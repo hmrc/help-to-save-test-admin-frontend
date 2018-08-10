@@ -44,7 +44,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   def authorizeCallback(userId: Option[String] = None): String = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback?userId=${userId.getOrElse("")}"
 
-  val authorizeCallbackForITests = s"$adminFrontendUrl/help-to-save-test-admin-frontend/oauth-callback-for-itests"
+  val authorizeCallbackForITests = s"http://help-to-save-test-admin-frontend.public.mdtp:80/help-to-save-test-admin-frontend/oauth-callback-for-itests"
 
   def authorizeUrl(userId: String) = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=${authorizeCallback(Some(userId))}"
 
