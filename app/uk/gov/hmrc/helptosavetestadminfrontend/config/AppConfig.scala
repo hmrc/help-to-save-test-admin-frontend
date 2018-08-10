@@ -52,6 +52,6 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   val authLoginApiUrl: String = s"${getString("microservice.services.auth-login-api.url")}/government-gateway/session/login"
 
-  val authLoginStubUrlForITests: String = "https://www.qa.tax.service.gov.uk/auth-login-stub/gg-sign-in"
+  val authLoginStubUrlForITests: String = "http://auth-login-stub.public.mdtp:80/auth-login-stub/gg-sign-in"
 
 }
