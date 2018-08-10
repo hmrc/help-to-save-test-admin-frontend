@@ -101,7 +101,7 @@ class AuthConnectorForITests @Inject()(http: WSHttp, appConfig: AppConfig) exten
       "confidenceLevel" → JsNumber(200),
       "credentialStrength" → JsString("strong"),
       "credentialRole" → JsString("User"),
-      "redirectionUrl" → JsString(s"${appConfig.authorizeUrl("blah")}")
+      "redirectionUrl" → JsString(s"http://oauth-frontend.public.mdtp:80/oauth/authorize?client_id=${appConfig.clientId}&response_type=code&scope=${appConfig.scopes}&redirect_uri=${appConfig.authorizeCallbackForITests}")
     ))
 
     json
@@ -118,7 +118,6 @@ class AuthConnectorForITests @Inject()(http: WSHttp, appConfig: AppConfig) exten
       .withField("itmp.address.countryCode", authUserDetails.countryCode.map(JsString))
       .withField("email", authUserDetails.email.map(JsString))
   }
-
 
 }
 
