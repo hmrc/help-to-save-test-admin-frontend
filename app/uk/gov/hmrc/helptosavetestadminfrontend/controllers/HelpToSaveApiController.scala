@@ -29,7 +29,6 @@ import uk.gov.hmrc.helptosavetestadminfrontend.connectors.{AuthConnector, AuthCo
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.TokenRequest.{PrivilegedTokenRequest, UserRestrictedTokenRequest}
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController._
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.{CreateAccountForm, EligibilityRequestForm, GetAccountForm}
-import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util._
 import uk.gov.hmrc.helptosavetestadminfrontend.views
@@ -39,7 +38,7 @@ import uk.gov.hmrc.totp.TotpGenerator
 import scala.concurrent.Future
 
 @Singleton
-class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnector, oauthConnector: OAuthConnector, authConnectorForITests: AuthConnectorForITests)
+class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConnector: OAuthConnector, authConnectorForITests: AuthConnectorForITests)
                                        (implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
@@ -157,20 +156,6 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
     }
   }
 
-  def oAuthCallbackForITests(code: String): Action[AnyContent] = Action.async { implicit request ⇒
-    logger.info("handling oAuthCallbackForITests from oauth")
-
-    val cookies = request.headers.toMap.get("Cookie").flatMap(_.headOption).getOrElse(throw new RuntimeException("no Cookie found in the headers"))
-
-    oauthConnector.getAccessToken(code, Some("ITest"), UserRestricted, Map("Cookie" -> cookies)).map {
-      case Right(AccessToken(token)) ⇒
-        Ok(token)
-      case Left(error) ⇒
-        logger.warn(s"Could not get token: $error")
-        internalServerError()
-    }
-  }
-
   def authLoginStubCallback(code: String): Action[AnyContent] = Action.async { implicit request ⇒
     logger.info("handling authLoginStubCallback from oauth")
     oauthConnector.getAccessToken(code, None, UserRestricted, Map.empty).map {
@@ -213,17 +198,6 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
 
   private def toCurlRequestLines(httpHeaders: HttpHeaders): String =
     httpHeaders.toMap().map { case (k, v) ⇒ s"""-H "$k: $v" \\""" }.mkString("\n")
-
-  def generateOAuthTokenForITests(nino: String): Action[AnyContent] = Action.async { implicit request ⇒
-    authConnectorForITests.loginAndGetToken(AuthUserDetails(Some(nino), Some("forename"), Some("surname"), Some("1992-04-23"), None, None, None, None, None, None, None, None))
-      .map {
-        case Right(token) ⇒
-          Ok(token)
-        case Left(error) ⇒
-          logger.warn(s"Could not get token: $error")
-          internalServerError()
-      }
-  }
 }
 
 object HelpToSaveApiController {
