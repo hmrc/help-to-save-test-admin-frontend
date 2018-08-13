@@ -17,6 +17,7 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
 import com.google.inject.Inject
+import play.api.mvc.{Cookies, Session}
 import play.mvc.Http.Status
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
@@ -31,14 +32,18 @@ import scala.concurrent.{ExecutionContext, Future}
 class HelpToSaveApiConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
   def checkEligibility(nino: String, accessToken: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, ApiEligibilityResponse]] = {
+
+    val cookie = Cookies.encodeCookieHeader(Seq(Session.encodeAsCookie(Session(Map("Accept" → s"application/vnd.hmrc.2.0+json")))))
+
     val validHttpHeaders = Seq(
       "Gov-Client-User-ID" → "blah",
       "Gov-Client-Timezone" → "blah",
       "Gov-Vendor-Version" → "blah",
       "Gov-Vendor-Instance-ID" → "blah",
-      "Accept" → "application/vnd.hmrc.2.0+json")
+      "Accept" → s"application/vnd.hmrc.2.0+json",
+      "Cookie" -> cookie)
 
-    http.get(s"${appConfig.apiUrl}/eligibility/$nino")(hc.copy(authorization = Some(Authorization(s"Bearer $accessToken"))), ec).map { response ⇒
+    http.get(s"${appConfig.apiUrl}/eligibility/$nino", validHttpHeaders.toMap)(hc.copy(authorization = Some(Authorization(s"Bearer $accessToken"))), ec).map { response ⇒
       logger.info(s"checking eligibility for nino=$nino, returned status=${response.status}")
       if (response.status == Status.OK) {
         response.parseJSON[ApiEligibilityResponse](None)
