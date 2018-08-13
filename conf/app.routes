@@ -22,6 +22,8 @@ GET        /get-check-eligibility-page   @uk.gov.hmrc.helptosavetestadminfronten
 
 POST       /check-eligibility          @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.checkEligibility()
 
+GET        /get-eligibility-for-itests @uk.gov.hmrc.helptosavetestadminfrontend.controllers.ApiIntegrationTestController.getEligibilityForITests(nino: String)
+
 GET        /get-create-account-page    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCreateAccountPage()
 
 POST       /create-account             @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.createAccount()
