@@ -12,6 +12,8 @@ GET        /available-functions        @uk.gov.hmrc.helptosavetestadminfrontend.
 
 GET        /authorize-callback         @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.oAuthCallback(code: String, userId: Option[String])
 
+GET        /authorize-callback-for-itests     @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.oAuthCallbackForITests(code: String)
+
 GET        /auth-login-stub-callback   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.authLoginStubCallback(code: String)
 
 GET        /get-check-eligibility-page   @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCheckEligibilityPage()
