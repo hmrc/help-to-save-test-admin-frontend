@@ -137,7 +137,7 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
   }
 
   def oAuthCallback(code: String, userId: Option[String]): Action[AnyContent] = Action.async { implicit request ⇒
-    logger.info("handling authLoginStubCallback from oauth")
+    logger.info("handling oAuthCallback from oauth")
 
     val cookies = request.headers.toMap.get("Cookie").flatMap(_.headOption).getOrElse(throw new RuntimeException("no Cookie found in the headers"))
 
@@ -152,19 +152,22 @@ class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnect
         Ok(curl)
 
       case Left(error) ⇒
-        logger.warn(s"Could not get token: $error")
+        logger.warn(s"Could not get access_token for code ($code) -  $error")
         internalServerError()
     }
   }
 
-  def authLoginStubCallback(code: String): Action[AnyContent] = Action.async { implicit request ⇒
-    logger.info("handling authLoginStubCallback from oauth")
-    oauthConnector.getAccessToken(code, None, UserRestricted, Map.empty).map{
-      case Right(token) ⇒
-        Ok(token.token)
+  def oAuthCallbackForITests(code: String): Action[AnyContent] = Action.async { implicit request ⇒
+    logger.info("handling oAuthCallbackForITests from oauth")
+
+    val cookies = request.headers.toMap.get("Cookie").flatMap(_.headOption).getOrElse(throw new RuntimeException("no Cookie found in the headers"))
+
+    oauthConnector.getAccessToken(code, None, UserRestricted, Map("Cookie" -> cookies)).map {
+      case Right(AccessToken(token)) ⇒
+        Ok(token)
 
       case Left(error) ⇒
-        logger.warn(s"Could not get token: $error")
+        logger.warn(s"Could not get access_token for code ($code) -  $error")
         internalServerError()
     }
   }

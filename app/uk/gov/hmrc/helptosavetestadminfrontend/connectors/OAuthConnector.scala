@@ -29,7 +29,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class OAuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
 
-  def getAccessToken(authorisationCode: String, userId: Option[String], accessType: AccessType, extraHeaders: Map[String, String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
+  def getAccessToken(authorisationCode: String,
+                     userId: Option[String],
+                     accessType: AccessType,
+                     extraHeaders: Map[String, String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
+
     http.post("http://oauth-frontend.public.mdtp:80/oauth/token", Json.parse(tokenRequest(authorisationCode, accessType, userId)), extraHeaders)
       .map[Either[String, AccessToken]]{
       response =>
@@ -51,11 +55,17 @@ class OAuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Loggi
   def tokenRequest(code: String, accessType: AccessType, userId: Option[String]): String ={
     accessType match {
       case UserRestricted ⇒
+
+        val callback = userId match {
+          case Some(_) => appConfig.authorizeCallback(userId)
+          case None => appConfig.authorizeCallbackForITests
+        }
+
         s"""{
           "client_secret":"${appConfig.clientSecret}",
           "client_id":"${appConfig.clientId}",
           "grant_type":"authorization_code",
-          "redirect_uri":"${appConfig.authorizeCallback(userId)}",
+          "redirect_uri":"$callback",
           "code":"$code"
       }"""
 
