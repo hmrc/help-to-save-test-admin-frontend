@@ -29,7 +29,6 @@ import uk.gov.hmrc.helptosavetestadminfrontend.connectors.{AuthConnector, OAuthC
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.TokenRequest.{PrivilegedTokenRequest, UserRestrictedTokenRequest}
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController._
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.{CreateAccountForm, EligibilityRequestForm, GetAccountForm}
-import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
 import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util._
 import uk.gov.hmrc.helptosavetestadminfrontend.views
@@ -39,7 +38,7 @@ import uk.gov.hmrc.totp.TotpGenerator
 import scala.concurrent.Future
 
 @Singleton
-class HelpToSaveApiController @Inject()(http: WSHttp, authConnector: AuthConnector, oauthConnector: OAuthConnector)
+class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConnector: OAuthConnector)
                                        (implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 

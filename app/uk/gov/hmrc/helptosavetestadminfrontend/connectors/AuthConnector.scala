@@ -26,17 +26,18 @@ import play.api.libs.json._
 import play.api.mvc.Session
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
-import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
+import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
 import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, SessionToken, Token}
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-class AuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
+class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
 
   def login(authUserDetails: AuthUserDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Token]] = {
     val credId = Random.alphanumeric.take(10).mkString // scalastyle:ignore magic.number
