@@ -19,15 +19,16 @@ package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 import com.google.inject.Inject
 import play.api.libs.json.Json
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
-import uk.gov.hmrc.helptosavetestadminfrontend.http.WSHttp
+import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
 import uk.gov.hmrc.helptosavetestadminfrontend.util.{AccessType, Logging, Privileged, UserRestricted}
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.http.Status._
 import uk.gov.hmrc.helptosavetestadminfrontend.models.AccessToken
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OAuthConnector @Inject()(http: WSHttp, appConfig: AppConfig) extends Logging {
+class OAuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
 
   def getAccessToken(authorisationCode: String,
                      userId: Option[String],
