@@ -19,7 +19,7 @@ package uk.gov.hmrc.helptosavetestadminfrontend.forms
 import play.api.data.Forms._
 import play.api.data._
 import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, HttpHeaders}
-import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.CreateAccountBody.ContactDetails
+import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.CreateAccountBody.{BankDetails, ContactDetails}
 import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.{CreateAccountBody, CreateAccountHeader}
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter._
@@ -59,7 +59,13 @@ object CreateAccountForm {
       "email" -> optional(text),
       "phoneNumber" -> optional(text)
     )(ContactDetails.apply)(ContactDetails.unapply),
-    "registrationChannel" -> optional(text)
+    "registrationChannel" -> optional(text),
+    "bankDetails" → mapping(
+      "sortCode" → optional(text),
+      "accountNumber" → optional(text),
+      "rollNumber" → optional(text),
+      "accountName" → optional(text)
+    )(BankDetails.apply)(BankDetails.unapply)
   )(CreateAccountBody.apply)(CreateAccountBody.unapply)
 
 
