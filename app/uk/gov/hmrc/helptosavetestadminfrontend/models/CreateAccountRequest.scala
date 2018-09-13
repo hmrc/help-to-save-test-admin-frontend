@@ -17,7 +17,7 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.models
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.CreateAccountBody.ContactDetails
+import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.CreateAccountBody.{BankDetails, ContactDetails}
 import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.{CreateAccountBody, CreateAccountHeader}
 
 case class CreateAccountRequest(header: CreateAccountHeader, body: CreateAccountBody)
@@ -34,7 +34,8 @@ object CreateAccountRequest {
                                surname: Option[String],
                                dateOfBirth: Option[String],
                                contactDetails: ContactDetails,
-                               registrationChannel: Option[String])
+                               registrationChannel: Option[String],
+                               nbaDetails: BankDetails)
 
   object CreateAccountBody {
 
@@ -48,10 +49,17 @@ object CreateAccountRequest {
                               communicationPreference: Option[String],
                               email: Option[String],
                               phoneNumber: Option[String])
+
+    case class BankDetails(sortCode: Option[String],
+                           accountNumber: Option[String],
+                           rollNumber: Option[String],
+                           accountName: Option[String])
+
   }
 
   implicit val headerFormat: Format[CreateAccountHeader] = Json.format[CreateAccountHeader]
   implicit val contactDetailsFormat: Format[ContactDetails] = Json.format[ContactDetails]
+  implicit val bankDetailsFormat: Format[BankDetails] = Json.format[BankDetails]
   implicit val bodyFormat: Format[CreateAccountBody] = Json.format[CreateAccountBody]
   implicit val requestFormat: Format[CreateAccountRequest] = Json.format[CreateAccountRequest]
 
