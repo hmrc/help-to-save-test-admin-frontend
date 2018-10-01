@@ -1,6 +1,6 @@
 import play.core.PlayVersion
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
-import uk.gov.hmrc.{SbtAutoBuildPlugin, _}
+import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin, _}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "help-to-save-test-admin-frontend"
@@ -48,9 +48,10 @@ lazy val scoverageSettings = {
 
 lazy val microservice = Project(appName, file("."))
   .settings(addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.17"))
-  .enablePlugins(Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin) ++ plugins: _*)
+  .enablePlugins(Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
   .settings(playSettings ++ scoverageSettings: _*)
   .settings(scalaSettings: _*)
+  .settings(majorVersion := 2)
   .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
   .settings(PlayKeys.playDefaultPort := 7007)
