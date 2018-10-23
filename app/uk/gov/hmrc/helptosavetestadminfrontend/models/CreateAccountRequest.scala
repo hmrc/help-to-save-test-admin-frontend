@@ -35,7 +35,7 @@ object CreateAccountRequest {
                                dateOfBirth: Option[String],
                                contactDetails: ContactDetails,
                                registrationChannel: Option[String],
-                               nbaDetails: BankDetails)
+                               bankDetails: BankDetails)
 
   object CreateAccountBody {
 
