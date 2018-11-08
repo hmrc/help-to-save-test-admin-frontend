@@ -27,7 +27,7 @@ import play.api.mvc.Session
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
-import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, SessionToken, Token}
+import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
@@ -39,10 +39,10 @@ import scala.util.Random
 
 class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
 
-  def login(authUserDetails: AuthUserDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Token]] = {
+  def login(authUserDetails: AuthUserDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, SessionToken]] = {
     val credId = Random.alphanumeric.take(10).mkString // scalastyle:ignore magic.number
-    val json = getRequestBody(authUserDetails, credId)
-    http.post(appConfig.authLoginApiUrl, json).map {
+    val json = getGGRequestBody(authUserDetails, credId)
+    http.post(s"${appConfig.authLoginApiUrl}/government-gateway/session/login", json).map {
       response ⇒
         if (response.status == 201) {
           (
@@ -74,7 +74,22 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
     }
   }
 
-  def getRequestBody(authUserDetails: AuthUserDetails, credId: String): JsValue = {
+  def getPrivilegedToken()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, LocalPrivilegedToken]] = {
+    http.post(s"${appConfig.authUrl}/auth/sessions", privilegedRequestBody).map{ response ⇒
+      response.header(HeaderNames.AUTHORIZATION).fold[Either[String,LocalPrivilegedToken]](
+        Left("Could not find Authorization header in response")
+      )(t ⇒ Right(LocalPrivilegedToken(t)))
+    }
+  }
+
+
+  val privilegedRequestBody: JsValue = JsObject(Map(
+    "clientId" → JsString("id"),
+    "enrolments" → JsArray(),
+    "ttl" → JsNumber(1200)
+  ))
+
+  def getGGRequestBody(authUserDetails: AuthUserDetails, credId: String): JsValue = {
     val json: JsObject = JsObject(Map(
       "credId" → JsString(credId),
       "affinityGroup" → JsString("Individual"),
