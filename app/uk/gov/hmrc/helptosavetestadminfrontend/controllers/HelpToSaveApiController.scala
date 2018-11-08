@@ -117,7 +117,7 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
 
     val cookies = request.headers.toMap.get("Cookie").flatMap(_.headOption).getOrElse(throw new RuntimeException("no Cookie found in the headers"))
 
-    oauthConnector.getAccessTokenUserRestricted(code, id, Map("Cookie" -> cookies)).map {
+    oauthConnector.getAccessTokenUserRestricted(code, Some(id), Map("Cookie" -> cookies)).map {
       case Right(AccessToken(token)) ⇒
         val curl =
           Option(userIdCache.getIfPresent(id))
@@ -137,7 +137,7 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
 
     val cookies = request.headers.toMap.get("Cookie").flatMap(_.headOption).getOrElse(throw new RuntimeException("no Cookie found in the headers"))
 
-    oauthConnector.getAccessTokenUserRestricted(code, UUID.randomUUID(), Map("Cookie" -> cookies)).map {
+    oauthConnector.getAccessTokenUserRestricted(code, None, Map("Cookie" -> cookies)).map {
       case Right(AccessToken(token)) ⇒
         Ok(token)
 

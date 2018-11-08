@@ -54,7 +54,7 @@ class OAuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends L
   }
 
   def getAccessTokenUserRestricted(authorisationCode: String,
-                                   id: UUID,
+                                   id: Option[UUID],
                                    extraHeaders: Map[String, String]
                                   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
     val json =

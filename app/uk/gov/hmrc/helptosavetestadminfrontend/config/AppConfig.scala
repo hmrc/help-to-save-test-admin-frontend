@@ -47,7 +47,10 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   val scopes = "read:help-to-save write:help-to-save"
 
   val authorizeCallbackForITests = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback-for-itests"
-  def authorizeCallback(id: UUID): String = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback?id=${id.toString}"
+  def authorizeCallback(id: Option[UUID]): String =
+    s"$adminFrontendUrl/help-to-save-test-admin-frontend/" +
+    id.fold("authorize-callback-for-itests")(i ⇒s"authorize-callback?id=${i.toString}")
+
   def authorizeUrl(id: UUID) = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=${authorizeCallback(id)}"
 
   val authLoginApiUrl: String = getString("microservice.services.auth-login-api.url")
