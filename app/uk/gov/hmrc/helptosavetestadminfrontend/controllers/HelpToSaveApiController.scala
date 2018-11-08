@@ -124,7 +124,8 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
             .getOrElse(throw new RuntimeException("no userId found in the urlMap"))
             .replace("REPLACE", token)
 
-        Ok(curl)
+        userIdCache.put(id, curl)
+        SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url)
 
       case Left(error) ⇒
         logger.warn(s"Could not get access_token for code ($code) -  $error")
