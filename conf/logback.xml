@@ -53,11 +53,16 @@
 
     <logger name="uk.gov" level="INFO"/>
 
+    <logger name="uk.gov.hmrc.play.bootstrap.audit.DefaultAuditConnector" level="WARN"/>
+
     <logger name="application" level="DEBUG"/>
+
 
     <logger name="connector" level="TRACE">
         <appender-ref ref="STDOUT"/>
     </logger>
+
+
 
     <root level="INFO">
         <appender-ref ref="FILE"/>

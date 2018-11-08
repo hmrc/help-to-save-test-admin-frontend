@@ -60,20 +60,28 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
         authConnector.login(authUserDetails)
 
       case PrivilegedTokenRequest() ⇒
-        val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
-        oauthConnector.getAccessToken(totpCode, None, Privileged, Map.empty)
+        if(appConfig.runLocal){
+          authConnector.getPrivilegedToken()
+        } else {
+          val totpCode = TotpGenerator.getTotpCode(appConfig.privilegedAccessTOTPSecret)
+          oauthConnector.getAccessToken(totpCode, None, Privileged, Map.empty)
+        }
     }
   }
 
   private def handleTokenResult(tokenResult: Future[Either[String, Token]])(curl: String => String)(implicit request: Request[_]) = {
     tokenResult.map {
       case Right(AccessToken(token)) ⇒
-        Ok(curl(token))
+        Ok(curl(token.stripPrefix("Bearer ")))
 
       case Right(SessionToken(session)) =>
-        val userId = session.get(SessionKeys.userId).getOrElse(throw new RuntimeException("no userId found in the session"))
-        userIdCache.put(userId, curl("REPLACE"))
-        SeeOther(appConfig.authorizeUrl(userId)).withSession(session)
+        if(appConfig.runLocal){
+          Ok(curl(session.get(SessionKeys.authToken).map(_.stripPrefix("Bearer ")).getOrElse(sys.error("Could not find auth token"))))
+        } else {
+          val userId = session.get(SessionKeys.userId).getOrElse(sys.error("no userId found in the session"))
+          userIdCache.put(userId, curl("REPLACE"))
+          SeeOther(appConfig.authorizeUrl(userId)).withSession(session)
+        }
 
       case Left(e) ⇒
         logger.warn(s"error getting the access token, error=$e")
@@ -96,7 +104,7 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
     EligibilityRequestForm.eligibilityForm.bindFromRequest().fold(
       formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
       { params ⇒
-        def url(token: String) =
+        def curlRequest(token: String) =
           s"""
              |curl -v -X GET \\
              |${toCurlRequestLines(params.httpHeaders)}
@@ -105,7 +113,7 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
              |""".stripMargin
 
         val tokenResult = getToken(tokenRequest(params.accessType, AuthUserDetails.empty().copy(nino = params.authNino)))
-        handleTokenResult(tokenResult)(url)
+        handleTokenResult(tokenResult)(curlRequest)
       }
     )
   }
@@ -119,7 +127,7 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
       formWithErrors ⇒ Future.successful(Ok(views.html.get_create_account_page(formWithErrors))),
       {
         params ⇒
-          def url(token: String) = {
+          def curlRequest(token: String) = {
             val json = Json.toJson(CreateAccountRequest(params.requestHeaders, params.requestBody))
             s"""
                |curl -v \\
@@ -130,7 +138,7 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
           }
 
           val tokenResult = getToken(tokenRequest(params.accessType, params.authUserDetails))
-          handleTokenResult(tokenResult)(url)
+          handleTokenResult(tokenResult)(curlRequest)
       }
     )
   }
@@ -180,7 +188,7 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
       formWithErrors ⇒ Future.successful(Ok(views.html.get_account_page(formWithErrors))),
       { params ⇒
 
-        def url(token: String) =
+        def curlRequest(token: String) =
           s"""
              |curl -v -X GET \\
              |${toCurlRequestLines(params.httpHeaders)}
@@ -189,7 +197,7 @@ class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConne
              |""".stripMargin
 
         val tokenResult = getToken(tokenRequest(params.accessType, AuthUserDetails.empty().copy(nino = params.authNino)))
-        handleTokenResult(tokenResult)(url)
+        handleTokenResult(tokenResult)(curlRequest)
       }
     )
   }

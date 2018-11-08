@@ -29,6 +29,8 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
 
+  val runLocal: Boolean = getBoolean("run-local")
+
   val clientId: String = getString("microservice.services.oauth-frontend.client_id")
   val clientSecret: String = getString("microservice.services.oauth-frontend.client_secret")
 
@@ -46,6 +48,8 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   def authorizeCallback(userId: Option[String] = None): String = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback?userId=${userId.getOrElse("")}"
   def authorizeUrl(userId: String) = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=${authorizeCallback(Some(userId))}"
 
-  val authLoginApiUrl: String = s"${getString("microservice.services.auth-login-api.url")}/government-gateway/session/login"
+  val authLoginApiUrl: String = getString("microservice.services.auth-login-api.url")
+
+  val authUrl: String = getString("microservice.services.auth.url")
 
 }
