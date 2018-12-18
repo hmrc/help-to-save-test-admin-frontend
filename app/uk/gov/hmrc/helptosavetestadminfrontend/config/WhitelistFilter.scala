@@ -31,7 +31,7 @@ class WhitelistFilter @Inject()(configuration: Configuration, val mat: Materiali
 
   override def whitelist: Seq[String] =
     configuration.underlying.get[List[String]]("http-header-ip-whitelist").value
-
+q
   override def excludedPaths: Seq[Call] = Seq(forbiddenCall, healthCheckCall)
 
   // This is the `Call` used in the `Redirect` when an IP is present in the header
@@ -46,7 +46,7 @@ class WhitelistFilter @Inject()(configuration: Configuration, val mat: Materiali
 
   val forbiddenCall: Call = Call("GET", routes.ForbiddenController.forbidden().url)
 
-  val healthCheckCall: Call = Call("GET", uk.gov.hmrc.play.health.routes.AdminController.ping().url)
+  val healthCheckCall: Call = Call("GET", uk.gov.hmrc.play.health.routes.HealthController.ping().url)
 
   override def apply(f: (RequestHeader) ⇒ Future[Result])(rh: RequestHeader): Future[Result] = {
     rh.headers.get(trueClient).foreach{ ip ⇒
