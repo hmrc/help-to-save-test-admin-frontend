@@ -9,8 +9,8 @@ lazy val appDependencies: Seq[ModuleID] = dependencies ++ testDependencies()
 
 val dependencies = Seq(
   ws,
-  "uk.gov.hmrc" %% "govuk-template" % "5.22.0",
-  "uk.gov.hmrc" %% "play-ui" % "7.27.0-play-25",
+  "uk.gov.hmrc" %% "govuk-template" % "5.27.0-play-25",
+  "uk.gov.hmrc" %% "play-ui" % "7.31.0-play-25",
   "uk.gov.hmrc" %% "bootstrap-play-25" % "4.8.0",
   "org.mongodb.scala" %% "mongo-scala-driver" % "1.2.1",
   "uk.gov.hmrc" %% "play-reactivemongo" % "6.2.0",
@@ -22,7 +22,7 @@ val dependencies = Seq(
 )
 
 def testDependencies(scope: String = "test") = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.3.0" % scope,
+  "uk.gov.hmrc" %% "hmrctest" % "3.4.0-play-25" % scope,
   "uk.gov.hmrc" %% "domain" % "5.3.0" % scope,
   "org.scalatest" %% "scalatest" % "3.0.5" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
