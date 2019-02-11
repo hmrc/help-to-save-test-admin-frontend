@@ -27,5 +27,3 @@ GET        /get-account-page           @uk.gov.hmrc.helptosavetestadminfrontend.
 GET        /account                    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getAccount()
 
 GET        /curl-result                @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCurlRequestIsPage(id: java.util.UUID)
-
-GET        /set-cookie                 @uk.gov.hmrc.helptosavetestadminfrontend.controllers.MDTPCookieSetterController.setMDTPCookie(continueAbsoluteURL: String)
