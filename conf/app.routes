@@ -1,6 +1,7 @@
 # microservice specific routes
 
 GET        /                           @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions()
+->         /dummy-pages                dummyPages.Routes
 
 POST       /delete-emails              @uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.deleteVerifiedEmails
 
@@ -27,3 +28,5 @@ GET        /get-account-page           @uk.gov.hmrc.helptosavetestadminfrontend.
 GET        /account                    @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getAccount()
 
 GET        /curl-result                @uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCurlRequestIsPage(id: java.util.UUID)
+
+
