@@ -14,15 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
-@import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers
+@import scala.util.Random
 
-@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
-
-@main_template(title = "Pay In", bodyClasses = None) {
-  <h1>Pay In</h1>
-  <p>This is a dummy page</p>
-
-  @helpers.random_cat()
-
-}
+@()
+<img class="img-thumbnail" src=@{s"https://cataas.com/cat/cute?dummy=${Random.nextLong()}"} alt="cool picture">
