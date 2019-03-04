@@ -24,10 +24,11 @@ import uk.gov.hmrc.helptosavetestadminfrontend.forms.EmailsForm
 import uk.gov.hmrc.helptosavetestadminfrontend.repos.VerifiedEmailMongoRepository
 import uk.gov.hmrc.helptosavetestadminfrontend.views
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class VerifiedEmailsController @Inject()(verifiedEmailRepo: VerifiedEmailMongoRepository)(implicit override val appConfig: AppConfig,
-                                                                                          val messageApi: MessagesApi
+                                                                                          val messageApi: MessagesApi,
+                                                                                          ec: ExecutionContext
                                                  ) extends AdminFrontendController(messageApi, appConfig) with I18nSupport {
 
 

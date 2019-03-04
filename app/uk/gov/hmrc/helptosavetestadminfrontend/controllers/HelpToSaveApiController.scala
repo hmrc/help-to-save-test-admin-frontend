@@ -36,11 +36,11 @@ import uk.gov.hmrc.helptosavetestadminfrontend.views
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.totp.TotpGenerator
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConnector: OAuthConnector)
-                                       (implicit override val appConfig: AppConfig, val messageApi: MessagesApi)
+                                       (implicit override val appConfig: AppConfig, val messageApi: MessagesApi, ec: ExecutionContext)
   extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
 
   val userIdCache: Cache[UUID, String] =

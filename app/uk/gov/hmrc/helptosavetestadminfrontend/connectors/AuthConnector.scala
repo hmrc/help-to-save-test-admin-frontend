@@ -121,7 +121,7 @@ object AuthConnector {
 
   implicit class JsObjectOps(val j: JsObject) extends AnyVal {
     def withField(path: NonEmptyList[String], value: Option[JsValue]): JsObject =
-      value.fold(j)(v ⇒ j.deepMerge(jsObject(path,v)))
+      value.fold(j)(v ⇒ j.deepMerge(jsObject(path → v)))
 
     def withField(fieldName: String, value: Option[JsValue]): JsObject =
       withField(NonEmptyList.one(fieldName), value)

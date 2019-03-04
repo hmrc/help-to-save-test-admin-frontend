@@ -20,12 +20,12 @@ import com.google.inject.{Inject, Singleton}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
-import uk.gov.hmrc.play.bootstrap.controller.{ActionWithMdc, BaseController}
+import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
 @Singleton
 class ForbiddenController @Inject()(implicit messagesApi: MessagesApi, appConfig: AppConfig) extends BaseController {
 
-  def forbidden: Action[AnyContent] = ActionWithMdc {
+  def forbidden: Action[AnyContent] = Action {
     Forbidden("Please ask the HtS Dev team for permissions to access this site")
   }
 
