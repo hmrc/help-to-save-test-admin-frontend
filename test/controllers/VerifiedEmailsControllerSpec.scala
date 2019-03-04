@@ -27,7 +27,7 @@ class VerifiedEmailsControllerSpec extends TestSupport with CSRFSupport {
 
   val store = mock[VerifiedEmailMongoRepository]
 
-  val controller = new VerifiedEmailsController(store)(appConfig, messagesApi)
+  val controller = new VerifiedEmailsController(store)(appConfig, messagesApi, ec)
 
   def mockDeleteEmails(emails: List[String])(result: Future[Either[List[String], Unit]]): Unit =
     (store.deleteEmails(_: List[String])(_: ExecutionContext))

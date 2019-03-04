@@ -28,7 +28,7 @@
     id = "emails",
     name = "emails",
     label = "Specify the emails you wish to delete from email-verification:",
-    errorMessage = Some(Html(""))
+    errorMessage = if (form.errors.isEmpty) None else Some(Html(form.errors.mkString("\n")))
   )
 
   @helpers.submit('_buttonClass -> "delete-button", 'id → "Delete Emails") { Delete Emails }
