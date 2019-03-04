@@ -15,13 +15,14 @@
  *@
 
 @import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
+@import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers
 
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @main_template(title = "Account Homepage", bodyClasses = None) {
-    <h1>Account Homepage</h1>
-    <p>This is a dummy page</p>
+  <h1>Account Homepage</h1>
+  <p>This is a dummy page</p>
 
-  <img class="img-thumbnail" src="https://cataas.com/cat/cute" alt="cool picture">
+  @helpers.random_cat()
 
 }
