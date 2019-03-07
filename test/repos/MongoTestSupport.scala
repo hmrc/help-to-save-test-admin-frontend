@@ -20,7 +20,6 @@ import org.scalamock.scalatest.MockFactory
 import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.{DefaultWriteResult, WriteError, WriteResult}
-import reactivemongo.api.DefaultDB
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.mongo.{MongoConnector, ReactiveRepository}
 
@@ -42,9 +41,9 @@ trait MongoTestSupport[Data, Repo <: ReactiveRepository[Data, BSONObjectID]] {
 
   lazy val mongoStore: Repo = {
     val connector = mock[MongoConnector]
-    val db = stub[DefaultDB]
     (mockMongo.mongoConnector _).expects().returning(connector)
-    (connector.db _).expects().returning(() ⇒ db)
+    // we are using null as the constructor of DefaultDB is private
+    (connector.db _).expects().returning(() ⇒ null)
     newMongoStore()
   }
 

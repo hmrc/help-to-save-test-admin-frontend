@@ -1,4 +1,0 @@
-
-GET        /account-homepage @uk.gov.hmrc.helptosavetestadminfrontend.controllers.DummyPagesController.accountHomepage
-
-GET        /pay-in           @uk.gov.hmrc.helptosavetestadminfrontend.controllers.DummyPagesController.payIn
