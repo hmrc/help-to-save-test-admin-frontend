@@ -51,7 +51,7 @@ trait MongoTestSupport[Data, Repo <: ReactiveRepository[Data, BSONObjectID]] {
     (mockDBFunctions.remove _)
     .expects(query)
     .returning(result.map{
-      case Left(error) ⇒ new DefaultWriteResult(false, 1, Seq(WriteError(1, 400, error)), None, None, None)
-      case Right(()) ⇒ new DefaultWriteResult(true, 1, Seq.empty, None, None, None)
+      case Left(error) ⇒ DefaultWriteResult(false, 1, Seq(WriteError(1, 400, error)), None, None, None)
+      case Right(()) ⇒ DefaultWriteResult(true, 1, Seq.empty, None, None, None)
     })
 }
