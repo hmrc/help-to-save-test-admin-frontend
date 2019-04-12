@@ -8,6 +8,7 @@ three main functions:
   correct access type (user restricted or privileged) and configurable user info where appropriate.
 - provides an oauth callback URL that can be used in API integration tests to provide a bearer token
 
+
 Table of Contents
 =================
 * [About Help to Save](#about-help-to-save)
