@@ -11,7 +11,7 @@ val dependencies = Seq(
   ws,
   "uk.gov.hmrc" %% "govuk-template" % "5.27.0-play-25",
   "uk.gov.hmrc" %% "play-ui" % "7.31.0-play-25",
-  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.8.0",
+  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.11.0",
   "org.mongodb.scala" %% "mongo-scala-driver" % "1.2.1",
   "uk.gov.hmrc" %% "simple-reactivemongo" % "7.12.0-play-25",
   "uk.gov.hmrc" %% "play-whitelist-filter" % "2.0.0",
