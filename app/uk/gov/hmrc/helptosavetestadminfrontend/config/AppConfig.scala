@@ -21,29 +21,32 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: Environment) extends ServicesConfig {
-  override protected def mode: Mode = environment.mode
+class AppConfig @Inject()(val runModeConfiguration: Configuration,
+                          environment:              Environment,
+                          servicesConfig:           ServicesConfig) {
+
+  protected def mode: Mode = environment.mode
 
   private def loadConfig(key: String) = runModeConfiguration.getString(key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
   lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
 
-  val runLocal: Boolean = getBoolean("run-local")
+  val runLocal: Boolean = servicesConfig.getBoolean("run-local")
 
-  val clientId: String = getString("microservice.services.oauth-frontend.client_id")
-  val clientSecret: String = getString("microservice.services.oauth-frontend.client_secret")
+  val clientId: String = servicesConfig.getString("microservice.services.oauth-frontend.client_id")
+  val clientSecret: String = servicesConfig.getString("microservice.services.oauth-frontend.client_secret")
 
-  val privilegedAccessClientId: String = getString("privileged-access.client-id")
-  val privilegedAccessTOTPSecret: String = getString("privileged-access.totp-secret")
+  val privilegedAccessClientId: String = servicesConfig.getString("privileged-access.client-id")
+  val privilegedAccessTOTPSecret: String = servicesConfig.getString("privileged-access.totp-secret")
 
-  val adminFrontendUrl: String = getString("microservice.services.help-to-save-test-admin-frontend.url")
+  val adminFrontendUrl: String = servicesConfig.getString("microservice.services.help-to-save-test-admin-frontend.url")
 
-  val apiUrl: String = getString("microservice.services.api.url")
+  val apiUrl: String = servicesConfig.getString("microservice.services.api.url")
 
-  val oauthURL: String = getString("microservice.services.oauth-frontend.url")
+  val oauthURL: String = servicesConfig.getString("microservice.services.oauth-frontend.url")
   val scopes = "read:help-to-save write:help-to-save"
 
   val authorizeCallbackForITests = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback-for-itests"
@@ -53,7 +56,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
 
   def authorizeUrl(id: UUID) = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=${authorizeCallback(Some(id))}"
 
-  val authLoginApiUrl: String = getString("microservice.services.auth-login-api.url")
-  val authUrl: String = getString("microservice.services.auth.url")
+  val authLoginApiUrl: String = servicesConfig.getString("microservice.services.auth-login-api.url")
+  val authUrl: String = servicesConfig.getString("microservice.services.auth.url")
 
 }

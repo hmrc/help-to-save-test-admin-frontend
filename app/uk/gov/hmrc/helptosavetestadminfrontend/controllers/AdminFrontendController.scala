@@ -17,16 +17,17 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
 import com.google.inject.Singleton
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 @Singleton
-class AdminFrontendController (messagesApi: MessagesApi, appConfig: AppConfig)
-  extends ErrorHandler(messagesApi, appConfig) with BaseController {
+class AdminFrontendController (appConfig: AppConfig,
+                               mcc: MessagesControllerComponents,
+                               errorHandler: ErrorHandler)
+  extends FrontendController(mcc) {
 
   def internalServerError()(implicit request: Request[_]): Result =
-    InternalServerError(internalServerErrorTemplate(request))
+    InternalServerError(errorHandler.internalServerErrorTemplate(request))
 
 }

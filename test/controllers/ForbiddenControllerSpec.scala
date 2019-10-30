@@ -25,7 +25,7 @@ class ForbiddenControllerSpec extends TestSupport {
 
   "The ForbiddenController" must {
 
-    val controller = new ForbiddenController
+    val controller = new ForbiddenController(testMCC)
 
     "return a forbidden status" in {
       val result = controller.forbidden(FakeRequest())

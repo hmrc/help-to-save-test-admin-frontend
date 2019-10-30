@@ -24,7 +24,7 @@ import play.api.mvc.EssentialFilter
 import play.filters.csrf.CSRFFilter
 import play.filters.headers.SecurityHeadersFilter
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{Filters, WhitelistFilter}
-import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.CookieCryptoFilter
+import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.bootstrap.filters.frontend.deviceid.DeviceIdFilter
 import uk.gov.hmrc.play.bootstrap.filters.frontend.{FrontendAuditFilter, HeadersFilter, SessionTimeoutFilter}
 import uk.gov.hmrc.play.bootstrap.filters._
@@ -34,9 +34,9 @@ class FiltersSpec extends TestSupport {
   // can't use scalamock for CacheControlFilter since a logging statement during class
   // construction requires a parameter from the CacheControlConfig. Using scalamock
   // reuslts in a NullPointerException since no CacheControlConfig is there
-  val mockCacheControlerFilter = new CacheControlFilter(CacheControlConfig(), mock[Materializer])
+  val mockCacheControllerFilter = new CacheControlFilter(CacheControlConfig(), mock[Materializer])
 
-  val mockMDCFilter = new MDCFilter(fakeApplication.materializer, fakeApplication.configuration)
+  val mockMDCFilter = new MDCFilter(fakeApplication.materializer, fakeApplication.configuration, "")
 
   class TestableFrontendFilters extends FrontendFilters(
     stub[Configuration],
@@ -47,9 +47,9 @@ class FiltersSpec extends TestSupport {
     stub[MetricsFilter],
     stub[DeviceIdFilter],
     stub[CSRFFilter],
-    stub[CookieCryptoFilter],
+    stub[SessionCookieCryptoFilter],
     stub[SessionTimeoutFilter],
-    mockCacheControlerFilter,
+    mockCacheControllerFilter,
     mockMDCFilter
   ) {
     override lazy val enableSecurityHeaderFilter: Boolean = false

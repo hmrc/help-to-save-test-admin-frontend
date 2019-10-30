@@ -17,14 +17,14 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
 import com.google.inject.{Inject, Singleton}
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import uk.gov.hmrc.helptosavetestadminfrontend.views
 
 @Singleton
-class DummyPagesController @Inject() (implicit val messagesApi: MessagesApi, appConfig: AppConfig) extends FrontendController with I18nSupport {
+class DummyPagesController @Inject() (mcc: MessagesControllerComponents)(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
   def accountHomepage: Action[AnyContent] = Action { implicit request ⇒
     Ok(views.html.account_homepage())

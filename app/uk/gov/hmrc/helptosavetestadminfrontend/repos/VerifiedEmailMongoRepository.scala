@@ -39,7 +39,7 @@ class VerifiedEmailMongoRepositoryImpl @Inject()(mongo:   ReactiveMongoComponent
   extends ReactiveRepository[Email, BSONObjectID](
     collectionName = "verifiedEmail",
     mongo = mongo.mongoConnector.db,
-    domainFormat = Json.format[Email],
+    domainFormat = Email.emailFormats,
     idFormat = ReactiveMongoFormats.objectIdFormats
   ) with VerifiedEmailMongoRepository {
 
