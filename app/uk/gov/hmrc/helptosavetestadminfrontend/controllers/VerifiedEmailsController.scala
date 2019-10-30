@@ -26,10 +26,10 @@ import uk.gov.hmrc.helptosavetestadminfrontend.views
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class VerifiedEmailsController @Inject()(verifiedEmailRepo: VerifiedEmailMongoRepository)(implicit override val appConfig: AppConfig,
-                                                                                          val messageApi: MessagesApi,
+class VerifiedEmailsController @Inject()(verifiedEmailRepo: VerifiedEmailMongoRepository,
+                                         mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig,
                                                                                           ec: ExecutionContext
-                                                 ) extends AdminFrontendController(messageApi, appConfig) with I18nSupport {
+                                                 ) extends AdminFrontendController(appConfig, mcc) with I18nSupport {
 
 
   def deleteVerifiedEmails: Action[AnyContent] = Action.async { implicit request ⇒

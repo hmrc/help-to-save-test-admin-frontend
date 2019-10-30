@@ -9,26 +9,27 @@ lazy val appDependencies: Seq[ModuleID] = dependencies ++ testDependencies()
 
 val dependencies = Seq(
   ws,
-  "uk.gov.hmrc" %% "govuk-template" % "5.27.0-play-25",
-  "uk.gov.hmrc" %% "play-ui" % "7.31.0-play-25",
-  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.11.0",
+  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.1.0",
+  "uk.gov.hmrc" %% "govuk-template" % "5.40.0-play-26",
+  "uk.gov.hmrc" %% "play-ui" % "8.1.0-play-26",
   "org.mongodb.scala" %% "mongo-scala-driver" % "1.2.1",
-  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.12.0-play-25",
+  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.20.0-play-26",
   "uk.gov.hmrc" %% "play-whitelist-filter" % "2.0.0",
   "com.github.kxbmap" %% "configs" % "0.4.4",
-  "org.typelevel" %% "cats-core" % "1.5.0",
+  "org.typelevel" %% "cats-core" % "2.0.0",
   "uk.gov.hmrc" %% "totp-generator" % "0.15.0",
   "org.jsoup" % "jsoup" % "1.11.3"
 )
 
 def testDependencies(scope: String = "test") = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.4.0-play-25" % scope,
-  "uk.gov.hmrc" %% "domain" % "5.3.0" % scope,
-  "org.scalatest" %% "scalatest" % "3.0.5" % scope,
+  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.1.0" % scope classifier "tests",
+  "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
+  "uk.gov.hmrc" %% "domain" % "5.6.0-play-26" % scope,
+  "org.scalatest" %% "scalatest" % "3.0.8" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
   "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % scope,
   "uk.gov.hmrc" %% "stub-data-generator" % "0.5.3" % scope,
-  "uk.gov.hmrc" %% "reactivemongo-test" % "4.8.0-play-25" % scope
+  "uk.gov.hmrc" %% "reactivemongo-test" % "4.15.0-play-26" % scope
 )
 
 lazy val plugins: Seq[Plugins] = Seq.empty
@@ -58,9 +59,8 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     libraryDependencies ++= appDependencies,
     //retrieveManaged := true,
-    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
+    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
     //testGrouping in Test := oneForkedJvmPerTest((definedTests in Test).value),
-    routesGenerator := StaticRoutesGenerator
   )
   .settings(resolvers ++= Seq(
     Resolver.bintrayRepo("hmrc", "releases"),

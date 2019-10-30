@@ -17,15 +17,18 @@
 package controllers
 
 import play.api.test.FakeRequest
+import play.api.test.CSRFTokenHelper._
 import play.filters.csrf.CSRF.{Token, TokenProvider}
 
 trait CSRFSupport { this: TestSupport ⇒
 
-  lazy val tokenProvider: TokenProvider =
-    fakeApplication.injector.instanceOf[TokenProvider]
+//  lazy val tokenProvider: TokenProvider =
+//    fakeApplication.injector.instanceOf[TokenProvider]
+//
+//  lazy val fakeRequestWithCSRFToken = FakeRequest().copyFakeRequest(tags = Map(
+//    Token.NameRequestTag → "csrfToken",
+//    Token.RequestTag → tokenProvider.generateToken))
 
-  lazy val fakeRequestWithCSRFToken = FakeRequest().copyFakeRequest(tags = Map(
-    Token.NameRequestTag → "csrfToken",
-    Token.RequestTag → tokenProvider.generateToken))
+  lazy val fakeRequestWithCSRFToken = FakeRequest("GET", "/").withCSRFToken
 
 }

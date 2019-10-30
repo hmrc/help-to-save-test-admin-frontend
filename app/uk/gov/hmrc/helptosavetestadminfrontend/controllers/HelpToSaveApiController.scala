@@ -24,7 +24,7 @@ import com.google.common.cache._
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Request}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.{AuthConnector, OAuthConnector}
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.TokenRequest.{PrivilegedTokenRequest, UserRestrictedTokenRequest}
@@ -39,9 +39,11 @@ import uk.gov.hmrc.totp.TotpGenerator
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class HelpToSaveApiController @Inject()(authConnector: AuthConnector, oauthConnector: OAuthConnector)
-                                       (implicit override val appConfig: AppConfig, val messageApi: MessagesApi, ec: ExecutionContext)
-  extends AdminFrontendController(messageApi, appConfig) with I18nSupport with Logging {
+class HelpToSaveApiController @Inject()(authConnector: AuthConnector,
+                                        oauthConnector: OAuthConnector,
+                                        mcc: MessagesControllerComponents)
+                                       (implicit val appConfig: AppConfig, val messageApi: MessagesApi, ec: ExecutionContext)
+  extends AdminFrontendController(appConfig, mcc) with I18nSupport with Logging {
 
   val userIdCache: Cache[UUID, String] =
     CacheBuilder
