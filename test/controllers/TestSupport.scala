@@ -18,26 +18,23 @@ package controllers
 
 import java.util.UUID
 
-import com.codahale.metrics._
-import com.kenshoo.play.metrics.{Metrics => PlayMetrics}
 import com.typesafe.config.ConfigFactory
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, Suite}
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{MessagesControllerComponents, Result}
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import play.api.{Application, Configuration, Environment, Play}
+import play.api.{Application, Configuration, Play}
 import play.filters.csrf.CSRFAddToken
-import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
+import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
+import uk.gov.hmrc.play.test.UnitSpec
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 trait TestSupport extends UnitSpec with MockFactory with BeforeAndAfterAll with ScalaFutures {
   this: Suite ⇒
@@ -84,4 +81,6 @@ trait TestSupport extends UnitSpec with MockFactory with BeforeAndAfterAll with 
   val fakeRequest: FakeRequest[_] = FakeRequest("GET", "/")
 
   val csrfAddToken: CSRFAddToken = fakeApplication.injector.instanceOf[play.filters.csrf.CSRFAddToken]
+
+  lazy val testErrorHandler: ErrorHandler = fakeApplication.injector.instanceOf[ErrorHandler]
 }

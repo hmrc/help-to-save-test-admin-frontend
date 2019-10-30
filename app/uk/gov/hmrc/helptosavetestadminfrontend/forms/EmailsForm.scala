@@ -18,6 +18,7 @@ package uk.gov.hmrc.helptosavetestadminfrontend.forms
 
 import play.api.data._
 import play.api.data.Forms._
+import play.api.libs.json.{Format, Json}
 
 object EmailsForm {
 
@@ -30,3 +31,8 @@ object EmailsForm {
 }
 
 case class Email(emails: String)
+
+object Email {
+
+  implicit val emailFormats: Format[Email] = Json.format[Email]
+}

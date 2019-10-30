@@ -23,10 +23,11 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 @Singleton
 class AdminFrontendController (appConfig: AppConfig,
-                               mcc: MessagesControllerComponents)
-  extends ErrorHandler(mcc.messagesApi, appConfig) {
+                               mcc: MessagesControllerComponents,
+                               errorHandler: ErrorHandler)
+  extends FrontendController(mcc) {
 
   def internalServerError()(implicit request: Request[_]): Result =
-    InternalServerError(internalServerErrorTemplate(request))
+    InternalServerError(errorHandler.internalServerErrorTemplate(request))
 
 }

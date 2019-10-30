@@ -17,9 +17,9 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
 import com.google.inject.Inject
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
 import play.api.mvc._
-import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
+import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.EmailsForm
 import uk.gov.hmrc.helptosavetestadminfrontend.repos.VerifiedEmailMongoRepository
 import uk.gov.hmrc.helptosavetestadminfrontend.views
@@ -27,9 +27,10 @@ import uk.gov.hmrc.helptosavetestadminfrontend.views
 import scala.concurrent.{ExecutionContext, Future}
 
 class VerifiedEmailsController @Inject()(verifiedEmailRepo: VerifiedEmailMongoRepository,
-                                         mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig,
-                                                                                          ec: ExecutionContext
-                                                 ) extends AdminFrontendController(appConfig, mcc) with I18nSupport {
+                                         mcc: MessagesControllerComponents,
+                                         errorHandler: ErrorHandler)(implicit val appConfig: AppConfig,
+                                                                                         ec: ExecutionContext
+                                                 ) extends AdminFrontendController(appConfig, mcc, errorHandler) with I18nSupport {
 
 
   def deleteVerifiedEmails: Action[AnyContent] = Action.async { implicit request ⇒
