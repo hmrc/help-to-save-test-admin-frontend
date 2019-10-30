@@ -24,7 +24,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.repos.VerifiedEmailMongoRepositor
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class VerifiedEmailsControllerSpec extends TestSupport with CSRFSupport {
+class VerifiedEmailsControllerSpec extends TestSupport {
 
   val store = mock[VerifiedEmailMongoRepository]
 
