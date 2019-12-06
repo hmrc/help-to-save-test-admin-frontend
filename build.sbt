@@ -23,7 +23,7 @@ val dependencies = Seq(
 
 def testDependencies(scope: String = "test") = Seq(
   "uk.gov.hmrc" %% "bootstrap-play-26" % "1.1.0" % scope classifier "tests",
-  "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
+  "uk.gov.hmrc" %% "service-integration-test" % "0.9.0-play-26" % scope,
   "uk.gov.hmrc" %% "domain" % "5.6.0-play-26" % scope,
   "org.scalatest" %% "scalatest" % "3.0.8" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
