@@ -19,7 +19,7 @@ package uk.gov.hmrc.helptosavetestadminfrontend.config
 import java.util.UUID
 
 import javax.inject.{Inject, Singleton}
-import play.api.Mode.Mode
+import play.api.Mode
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -30,7 +30,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration,
 
   protected def mode: Mode = environment.mode
 
-  private def loadConfig(key: String) = runModeConfiguration.getString(key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
+  private def loadConfig(key: String) = runModeConfiguration.getOptional[String](key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
   lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
 

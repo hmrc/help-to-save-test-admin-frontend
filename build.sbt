@@ -9,27 +9,27 @@ lazy val appDependencies: Seq[ModuleID] = dependencies ++ testDependencies()
 
 val dependencies = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.1.0",
-  "uk.gov.hmrc" %% "govuk-template" % "5.40.0-play-26",
-  "uk.gov.hmrc" %% "play-ui" % "8.1.0-play-26",
-  "org.mongodb.scala" %% "mongo-scala-driver" % "1.2.1",
-  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.20.0-play-26",
-  "uk.gov.hmrc" %% "play-whitelist-filter" % "2.0.0",
+  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.3.0",
+  "uk.gov.hmrc" %% "govuk-template" % "5.47.0-play-26",
+  "uk.gov.hmrc" %% "play-ui" % "8.5.0-play-26",
+  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.21.0-play-26",
+  "uk.gov.hmrc" %% "play-whitelist-filter" % "3.1.0-play-26",
+  "uk.gov.hmrc" %% "totp-generator" % "0.18.0",
   "com.github.kxbmap" %% "configs" % "0.4.4",
   "org.typelevel" %% "cats-core" % "2.0.0",
-  "uk.gov.hmrc" %% "totp-generator" % "0.15.0",
-  "org.jsoup" % "jsoup" % "1.11.3"
+  "org.jsoup" % "jsoup" % "1.12.1",
+  "org.mongodb.scala" %% "mongo-scala-driver" % "2.8.0"
 )
 
 def testDependencies(scope: String = "test") = Seq(
-  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.1.0" % scope classifier "tests",
+  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.3.0" % scope classifier "tests",
   "uk.gov.hmrc" %% "service-integration-test" % "0.9.0-play-26" % scope,
   "uk.gov.hmrc" %% "domain" % "5.6.0-play-26" % scope,
+  "uk.gov.hmrc" %% "stub-data-generator" % "0.5.3" % scope,
+  "uk.gov.hmrc" %% "reactivemongo-test" % "4.15.0-play-26" % scope,
   "org.scalatest" %% "scalatest" % "3.0.8" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-  "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % scope,
-  "uk.gov.hmrc" %% "stub-data-generator" % "0.5.3" % scope,
-  "uk.gov.hmrc" %% "reactivemongo-test" % "4.15.0-play-26" % scope
+  "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % scope
 )
 
 lazy val plugins: Seq[Plugins] = Seq.empty
@@ -40,7 +40,7 @@ lazy val scoverageSettings = {
   Seq(
     // Semicolon-separated list of regexs matching classes to exclude
     ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;.*(uk.gov.hmrc.helptosavetestadminfrontend.config|forms|util|views.*);.*(AuthService|BuildInfo|Routes).*",
-    ScoverageKeys.coverageMinimum := 89,
+    ScoverageKeys.coverageMinimum := 10,
     ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true,
     parallelExecution in Test := false
@@ -67,4 +67,4 @@ lazy val microservice = Project(appName, file("."))
     Resolver.jcenterRepo,
     "emueller-bintray" at "http://dl.bintray.com/emueller/maven" // for play json schema validator
   ))
-  .settings(scalacOptions += "-Xcheckinit")
+  .settings(scalacOptions ++= Seq("-Xcheckinit","-feature","-deprecation"))
