@@ -28,13 +28,13 @@ val dependencies = Seq(
   "uk.gov.hmrc" %% "govuk-template" % "5.56.0-play-26",
   "uk.gov.hmrc" %% "play-ui" % "8.8.0-play-26",
   "uk.gov.hmrc" %% "play-health" % "3.14.0-play-26",
-  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.23.0-play-26",
+  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.30.0-play-26",
   "uk.gov.hmrc" %% "play-whitelist-filter" % "3.1.0-play-26",
   "uk.gov.hmrc" %% "totp-generator" % "0.21.0",
   "com.github.kxbmap" %% "configs" % "0.4.4",
   "org.typelevel" %% "cats-core" % "2.1.1",
-  "org.jsoup" % "jsoup" % "1.12.2",
-  "org.mongodb.scala" %% "mongo-scala-driver" % "2.8.0"
+  "org.jsoup" % "jsoup" % "1.13.1",
+  "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0"
 )
 
 def testDependencies(scope: String = "test") = Seq(

@@ -30,8 +30,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
 import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionKeys}
 
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}

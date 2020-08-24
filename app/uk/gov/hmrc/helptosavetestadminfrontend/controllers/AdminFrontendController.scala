@@ -19,7 +19,7 @@ package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 import com.google.inject.Singleton
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
 class AdminFrontendController (appConfig: AppConfig,
