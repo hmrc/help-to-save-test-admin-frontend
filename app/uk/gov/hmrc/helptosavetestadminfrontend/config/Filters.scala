@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,21 @@ import configs.syntax._
 import play.api.Configuration
 import play.api.http.HttpFilters
 import play.api.mvc.EssentialFilter
-import uk.gov.hmrc.play.bootstrap.frontend.filters.FrontendFilters
+import uk.gov.hmrc.play.bootstrap.filters.FrontendFilters
 
 @Singleton
 class Filters @Inject()(
                          configuration:   Configuration,
-                         allowlistFilter: AllowlistFilter,
+                         allowListFilter: AllowListFilter,
                          frontendFilters: FrontendFilters
 ) extends HttpFilters {
 
-  val whiteListFilterEnabled: Boolean =
+  val allowListFilterEnabled: Boolean =
     configuration.underlying.get[List[String]]("http-header-ip-whitelist").value.nonEmpty
 
   override val filters: Seq[EssentialFilter] =
-    if (whiteListFilterEnabled) {
-      frontendFilters.filters :+ allowlistFilter
+    if (allowListFilterEnabled) {
+      frontendFilters.filters :+ allowListFilter
     } else {
       frontendFilters.filters
     }

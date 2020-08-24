@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ import play.api.Configuration
 import play.api.mvc.{Call, RequestHeader, Result, Results}
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
-import uk.gov.hmrc.whitelist.AkamaiWhitelistFilter
+import uk.gov.hmrc.whitelist.{AkamaiWhitelistFilter => AkamaiAllowListFilter}
 
 import scala.concurrent.Future
 
-class AllowlistFilter @Inject()(configuration: Configuration, val mat: Materializer) extends AkamaiWhitelistFilter with Logging {
+class AllowListFilter @Inject()(configuration: Configuration, val mat: Materializer) extends AkamaiAllowListFilter with Logging {
 
   override def whitelist: Seq[String] =
     configuration.underlying.get[List[String]]("http-header-ip-whitelist").value
@@ -35,7 +35,7 @@ class AllowlistFilter @Inject()(configuration: Configuration, val mat: Materiali
   override def excludedPaths: Seq[Call] = Seq(forbiddenCall, healthCheckCall)
 
   // This is the `Call` used in the `Redirect` when an IP is present in the header
-  // of the HTTP request but is not in the whitelist
+  // of the HTTP request but is not in the allowList
   override def destination: Call = forbiddenCall
 
   override def noHeaderAction(f:  (RequestHeader) ⇒ Future[Result],
@@ -51,7 +51,7 @@ class AllowlistFilter @Inject()(configuration: Configuration, val mat: Materiali
   override def apply(f: (RequestHeader) ⇒ Future[Result])(rh: RequestHeader): Future[Result] = {
     rh.headers.get(trueClient).foreach{ ip ⇒
       if (!whitelist.contains(ip)) {
-        logger.warn(s"SuspiciousActivity: Received request from non-whitelisted ip $ip")
+        logger.warn(s"SuspiciousActivity: Received request from non-allowListed ip $ip")
       }
     }
     super.apply(f)(rh)

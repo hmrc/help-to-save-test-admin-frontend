@@ -40,7 +40,7 @@ Endpoints
 | -----------------------------------------------------------------| ------ | ------------ |
 | /help-to-save-test-admin-frontend/                               | GET    | Shows a list of available functions through the UI |
 | /help-to-save-test-admin-frontend/available-functions            | GET    | Shows a list of available functions through the UI |
-| /help-to-save-test-admin-frontend/forbidden                      | GET    | Landing page for users who try to access the UI when their IP address has not been whitelisted and IP-whitelisting has been enabled |
+| /help-to-save-test-admin-frontend/forbidden                      | GET    | Landing page for users who try to access the UI when their IP address has not been allowListed and IP-allowListing has been enabled |
 | /help-to-save-test-admin-frontend/specify-emails-to-delete       | GET    | Shows a page where emails can be entered in for deletion |
 | /help-to-save-test-admin-frontend/delete-emails                  | POST   | Deletes some given email from the backend mongo store |
 | /help-to-save-test-admin-frontend/check-eligibility-page         | GET    | Shows a page to enter in details for a check eligibility API request |

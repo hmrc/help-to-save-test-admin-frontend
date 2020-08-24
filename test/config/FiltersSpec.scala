@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,12 @@ import play.api.Configuration
 import play.api.mvc.EssentialFilter
 import play.filters.csrf.CSRFFilter
 import play.filters.headers.SecurityHeadersFilter
-import uk.gov.hmrc.helptosavetestadminfrontend.config.{AllowlistFilter, Filters}
-import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCryptoFilter
-import uk.gov.hmrc.play.bootstrap.frontend.filters.deviceid.DeviceIdFilter
-import uk.gov.hmrc.play.bootstrap.frontend.filters.{FrontendAuditFilter, FrontendFilters, HeadersFilter, SessionIdFilter, SessionTimeoutFilter}
+import uk.gov.hmrc.helptosavetestadminfrontend.config.{Filters, AllowListFilter}
+import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCryptoFilter
+import uk.gov.hmrc.play.bootstrap.filters.frontend.deviceid.DeviceIdFilter
+import uk.gov.hmrc.play.bootstrap.filters.frontend.{FrontendAuditFilter, HeadersFilter, SessionTimeoutFilter}
 import uk.gov.hmrc.play.bootstrap.filters._
+
 class FiltersSpec extends TestSupport {
 
   // can't use scalamock for CacheControlFilter since a logging statement during class
@@ -36,9 +37,6 @@ class FiltersSpec extends TestSupport {
   val mockCacheControllerFilter = new CacheControlFilter(CacheControlConfig(), mock[Materializer])
 
   val mockMDCFilter = new MDCFilter(fakeApplication.materializer, fakeApplication.configuration, "")
-  val mockAllowlistFilter = mock[uk.gov.hmrc.play.bootstrap.frontend.filters.AllowlistFilter]
-
-  val mockSessionIdFilter =mock[SessionIdFilter]
 
   class TestableFrontendFilters extends FrontendFilters(
     stub[Configuration],
@@ -52,30 +50,28 @@ class FiltersSpec extends TestSupport {
     stub[SessionCookieCryptoFilter],
     stub[SessionTimeoutFilter],
     mockCacheControllerFilter,
-    mockMDCFilter,
-    mockAllowlistFilter,
-    mockSessionIdFilter
+    mockMDCFilter
   ) {
-    lazy val enableSecurityHeaderFilter: Boolean = false
+    override lazy val enableSecurityHeaderFilter: Boolean = false
     override val filters: Seq[EssentialFilter] = Seq()
   }
 
   val frontendFilters = new TestableFrontendFilters
-  val allowlistFilter   = mock[AllowlistFilter]
+  val allowListFilter = mock[AllowListFilter]
 
   "Filters" must {
 
-    "include the allowlist filter if the allowlist from config is non empty" in {
+    "include the allowList filter if the allowList from config is non empty" in {
       val config = Configuration("http-header-ip-whitelist" → List("1.2.3"))
 
-      val filters = new Filters(config, allowlistFilter, frontendFilters)
-      filters.filters shouldBe Seq(allowlistFilter)
+      val filters = new Filters(config, allowListFilter, frontendFilters)
+      filters.filters shouldBe Seq(allowListFilter)
     }
 
-    "not include the allowlist filter if the allowlist from config is empty" in {
+    "not include the allowList filter if the allowList from config is empty" in {
       val config = Configuration("http-header-ip-whitelist" → List())
 
-      val filters = new Filters(config, allowlistFilter, frontendFilters)
+      val filters = new Filters(config, allowListFilter, frontendFilters)
       filters.filters shouldBe Seq()
     }
   }
