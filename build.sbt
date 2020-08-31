@@ -24,24 +24,25 @@ dependencyOverrides += "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion
 
 val dependencies = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-play-26" % "1.3.0",
-  "uk.gov.hmrc" %% "govuk-template" % "5.52.0-play-26",
-  "uk.gov.hmrc" %% "play-ui" % "8.8.0-play-26",
-  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.23.0-play-26",
-  "uk.gov.hmrc" %% "play-whitelist-filter" % "3.1.0-play-26",
-  "uk.gov.hmrc" %% "totp-generator" % "0.19.0",
+  "uk.gov.hmrc" %% "bootstrap-frontend-play-26" % "2.24.0",
+  "uk.gov.hmrc" %% "govuk-template" % "5.56.0-play-26",
+  "uk.gov.hmrc" %% "play-ui" % "8.11.0-play-26",
+  "uk.gov.hmrc" %% "play-health" % "3.14.0-play-26",
+  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.30.0-play-26",
+  "uk.gov.hmrc" %% "play-whitelist-filter" % "3.4.0-play-26",
+  "uk.gov.hmrc" %% "totp-generator" % "0.21.0",
   "com.github.kxbmap" %% "configs" % "0.4.4",
-  "org.typelevel" %% "cats-core" % "2.0.0",
-  "org.jsoup" % "jsoup" % "1.12.2",
-  "org.mongodb.scala" %% "mongo-scala-driver" % "2.8.0"
+  "org.typelevel" %% "cats-core" % "2.1.1",
+  "org.jsoup" % "jsoup" % "1.13.1",
+  "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0"
 )
 
 def testDependencies(scope: String = "test") = Seq(
   "uk.gov.hmrc" %% "bootstrap-play-26" % "1.3.0" % scope classifier "tests",
-  "uk.gov.hmrc" %% "service-integration-test" % "0.9.0-play-26" % scope,
-  "uk.gov.hmrc" %% "domain" % "5.6.0-play-26" % scope,
+  "uk.gov.hmrc" %% "service-integration-test" % "0.12.0-play-26" % scope,
+  "uk.gov.hmrc" %% "domain" % "5.9.0-play-26" % scope,
   "uk.gov.hmrc" %% "stub-data-generator" % "0.5.3" % scope,
-  "uk.gov.hmrc" %% "reactivemongo-test" % "4.16.0-play-26" % scope,
+  "uk.gov.hmrc" %% "reactivemongo-test" % "4.21.0-play-26" % scope,
   "org.scalatest" %% "scalatest" % "3.0.8" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
   "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % scope
@@ -70,6 +71,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(majorVersion := 2)
   .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
+  .settings(scalaVersion := "2.12.11")
   .settings(PlayKeys.playDefaultPort := 7007)
   .settings(
     libraryDependencies ++= appDependencies,
