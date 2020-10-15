@@ -34,7 +34,7 @@ class OAuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends L
   private def getAccessToken(body: JsValue,
                      extraHeaders: Map[String, String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
 
-    http.post("http://oauth-frontend.public.mdtp:80/oauth/token", body, extraHeaders)
+    http.post("https://oauth.protected.mdtp/token", body, extraHeaders)
       .map[Either[String, AccessToken]]{
       response =>
         response.status match {
