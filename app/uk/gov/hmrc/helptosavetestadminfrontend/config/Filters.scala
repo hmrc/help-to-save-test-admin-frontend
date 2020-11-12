@@ -21,13 +21,13 @@ import configs.syntax._
 import play.api.Configuration
 import play.api.http.HttpFilters
 import play.api.mvc.EssentialFilter
-import uk.gov.hmrc.play.bootstrap.filters.FrontendFilters
+import uk.gov.hmrc.play.bootstrap.frontend.filters.FrontendFilters
 
 @Singleton
 class Filters @Inject()(
-    configuration:   Configuration,
-    whitelistFilter: WhitelistFilter,
-    frontendFilters: FrontendFilters
+                         configuration:   Configuration,
+                         allowlistFilter: AllowlistFilter,
+                         frontendFilters: FrontendFilters
 ) extends HttpFilters {
 
   val whiteListFilterEnabled: Boolean =
@@ -35,7 +35,7 @@ class Filters @Inject()(
 
   override val filters: Seq[EssentialFilter] =
     if (whiteListFilterEnabled) {
-      frontendFilters.filters :+ whitelistFilter
+      frontendFilters.filters :+ allowlistFilter
     } else {
       frontendFilters.filters
     }

@@ -24,9 +24,9 @@ dependencyOverrides += "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion
 
 val dependencies = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-frontend-play-26" % "2.25.0",
-  "uk.gov.hmrc" %% "govuk-template" % "5.58.0-play-26",
-  "uk.gov.hmrc" %% "play-ui" % "8.13.0-play-26",
+  "uk.gov.hmrc" %% "bootstrap-frontend-play-26" % "3.0.0",
+  "uk.gov.hmrc" %% "govuk-template" % "5.59.0-play-26",
+  "uk.gov.hmrc" %% "play-ui" % "8.15.0-play-26",
   "uk.gov.hmrc" %% "play-health" % "3.15.0-play-26",
   "uk.gov.hmrc" %% "simple-reactivemongo" % "7.30.0-play-26",
   "uk.gov.hmrc" %% "play-whitelist-filter" % "3.4.0-play-26",
@@ -38,7 +38,7 @@ val dependencies = Seq(
 )
 
 def testDependencies(scope: String = "test") = Seq(
-  "uk.gov.hmrc" %% "bootstrap-frontend-play-26" % scope,
+  "uk.gov.hmrc" %% "bootstrap-test-play-26" % "3.0.0" % scope,
   "uk.gov.hmrc" %% "service-integration-test" % "0.12.0-play-26" % scope,
   "uk.gov.hmrc" %% "domain" % "5.10.0-play-26" % scope,
   "uk.gov.hmrc" %% "stub-data-generator" % "0.5.3" % scope,
