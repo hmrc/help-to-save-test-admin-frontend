@@ -23,12 +23,11 @@ import play.api.Configuration
 import play.api.mvc.EssentialFilter
 import play.filters.csrf.CSRFFilter
 import play.filters.headers.SecurityHeadersFilter
-import uk.gov.hmrc.helptosavetestadminfrontend.config.{Filters, WhitelistFilter}
+import uk.gov.hmrc.helptosavetestadminfrontend.config.{AllowlistFilter, Filters}
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.bootstrap.frontend.filters.deviceid.DeviceIdFilter
-import uk.gov.hmrc.play.bootstrap.frontend.filters.{FrontendAuditFilter, HeadersFilter, SessionIdFilter, SessionTimeoutFilter}
+import uk.gov.hmrc.play.bootstrap.frontend.filters.{FrontendAuditFilter, FrontendFilters, HeadersFilter, SessionIdFilter, SessionTimeoutFilter}
 import uk.gov.hmrc.play.bootstrap.filters._
-
 class FiltersSpec extends TestSupport {
 
   // can't use scalamock for CacheControlFilter since a logging statement during class
@@ -37,7 +36,7 @@ class FiltersSpec extends TestSupport {
   val mockCacheControllerFilter = new CacheControlFilter(CacheControlConfig(), mock[Materializer])
 
   val mockMDCFilter = new MDCFilter(fakeApplication.materializer, fakeApplication.configuration, "")
-  val mockWhiteListFilter = mock[uk.gov.hmrc.play.bootstrap.frontend.filters.WhitelistFilter]
+  val mockAllowlistFilter = mock[uk.gov.hmrc.play.bootstrap.frontend.filters.AllowlistFilter]
 
   val mockSessionIdFilter =mock[SessionIdFilter]
 
@@ -54,7 +53,7 @@ class FiltersSpec extends TestSupport {
     stub[SessionTimeoutFilter],
     mockCacheControllerFilter,
     mockMDCFilter,
-    mockWhiteListFilter,
+    mockAllowlistFilter,
     mockSessionIdFilter
   ) {
     lazy val enableSecurityHeaderFilter: Boolean = false
@@ -62,21 +61,21 @@ class FiltersSpec extends TestSupport {
   }
 
   val frontendFilters = new TestableFrontendFilters
-  val whiteListFilter = mock[WhitelistFilter]
+  val allowlistFilter   = mock[AllowlistFilter]
 
   "Filters" must {
 
-    "include the whitelist filter if the whitelist from config is non empty" in {
+    "include the allowlist filter if the allowlist from config is non empty" in {
       val config = Configuration("http-header-ip-whitelist" → List("1.2.3"))
 
-      val filters = new Filters(config, whiteListFilter, frontendFilters)
-      filters.filters shouldBe Seq(whiteListFilter)
+      val filters = new Filters(config, allowlistFilter, frontendFilters)
+      filters.filters shouldBe Seq(allowlistFilter)
     }
 
-    "not include the whitelist filter if the whitelist from config is empty" in {
+    "not include the allowlist filter if the allowlist from config is empty" in {
       val config = Configuration("http-header-ip-whitelist" → List())
 
-      val filters = new Filters(config, whiteListFilter, frontendFilters)
+      val filters = new Filters(config, allowlistFilter, frontendFilters)
       filters.filters shouldBe Seq()
     }
   }

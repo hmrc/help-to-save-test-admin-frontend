@@ -24,6 +24,7 @@ import org.joda.time.DateTime
 import play.api.http.HeaderNames
 import play.api.libs.json._
 import play.api.mvc.Session
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
@@ -49,15 +50,12 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
             response.header(HeaderNames.LOCATION),
             (response.json \ "gatewayToken").asOpt[String])
           match {
-            case (Some(token), Some(sessionUri), Some(receivedGatewayToken)) =>
+            case (Some(token), Some(_), Some(_)) =>
 
               val session = Session(Map(
                 SessionKeys.sessionId -> SessionId(s"session-${UUID.randomUUID}").value,
-                SessionKeys.authProvider -> "GGW",
-                SessionKeys.userId -> sessionUri,
                 SessionKeys.authToken -> token,
                 SessionKeys.lastRequestTimestamp -> DateTime.now.getMillis.toString,
-                SessionKeys.token -> receivedGatewayToken,
                 SessionKeys.affinityGroup -> "Individual",
                 SessionKeys.name -> credId
               ))

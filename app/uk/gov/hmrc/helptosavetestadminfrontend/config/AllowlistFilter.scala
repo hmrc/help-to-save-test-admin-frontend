@@ -27,7 +27,7 @@ import uk.gov.hmrc.whitelist.AkamaiWhitelistFilter
 
 import scala.concurrent.Future
 
-class WhitelistFilter @Inject()(configuration: Configuration, val mat: Materializer) extends AkamaiWhitelistFilter with Logging {
+class AllowlistFilter @Inject()(configuration: Configuration, val mat: Materializer) extends AkamaiWhitelistFilter with Logging {
 
   override def whitelist: Seq[String] =
     configuration.underlying.get[List[String]]("http-header-ip-whitelist").value
