@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ class VerifiedEmailsControllerSpec extends TestSupport {
 
   val store = mock[VerifiedEmailMongoRepository]
 
-  val controller = new VerifiedEmailsController(store, testMCC, testErrorHandler)(appConfig, ec)
+  val controller = new VerifiedEmailsController(store, testMCC, testErrorHandler,specify_emails_to_delete,emails_deleted)(appConfig, ec)
 
   def mockDeleteEmails(emails: List[String])(result: Future[Either[List[String], Unit]]): Unit =
     (store.deleteEmails(_: List[String])(_: ExecutionContext))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,6 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
             (response.json \ "gatewayToken").asOpt[String])
           match {
             case (Some(token), Some(_), Some(_)) =>
-
               val session = Session(Map(
                 SessionKeys.sessionId -> SessionId(s"session-${UUID.randomUUID}").value,
                 SessionKeys.authToken -> token,
@@ -83,7 +82,7 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
   val privilegedRequestBody: JsValue = JsObject(Map(
     "clientId" → JsString("id"),
     "enrolments" → JsArray(),
-    "ttl" → JsNumber(1200)
+    "ttl" → JsNumber(1200) // scalastyle:ignore magic.number
   ))
 
   def getGGRequestBody(authUserDetails: AuthUserDetails, credId: String): JsValue = {

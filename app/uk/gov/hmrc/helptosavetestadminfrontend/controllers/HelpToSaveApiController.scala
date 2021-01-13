@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiControll
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.{CreateAccountForm, EligibilityRequestForm, GetAccountForm}
 import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util._
-import uk.gov.hmrc.helptosavetestadminfrontend.views
+import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.totp.TotpGenerator
 
@@ -42,7 +42,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class HelpToSaveApiController @Inject()(authConnector:  AuthConnector,
                                         oauthConnector: OAuthConnector,
                                         mcc:            MessagesControllerComponents,
-                                        errorHandler:   ErrorHandler)
+                                        errorHandler:   ErrorHandler,
+                                        curl_result: curl_result,
+                                        get_check_eligibility_page: get_check_eligibility_page,
+                                        get_create_account_page: get_create_account_page,
+                                        get_account_page: get_account_page,
+                                        available_Functions: availableFunctions
+                                       )
                                        (implicit val appConfig: AppConfig, val messageApi: MessagesApi, ec: ExecutionContext)
   extends AdminFrontendController(appConfig, mcc, errorHandler) with I18nSupport with Logging {
 
@@ -61,20 +67,20 @@ class HelpToSaveApiController @Inject()(authConnector:  AuthConnector,
     Option(userIdCache.getIfPresent(id)).fold{
       logger.warn(s"Could not find curl request for id: $id")
       internalServerError()
-    }{ curl ⇒ Ok(views.html.curl_result(curl)) }
+    }{ curl ⇒ Ok(curl_result(curl)) }
   }
 
   def availableFunctions(): Action[AnyContent] = Action.async { implicit request ⇒
-    Future.successful(Ok(views.html.availableFunctions()))
+    Future.successful(Ok(available_Functions()))
   }
 
   def getCheckEligibilityPage(): Action[AnyContent] = Action.async { implicit request ⇒
-    Future.successful(Ok(views.html.get_check_eligibility_page(EligibilityRequestForm.eligibilityForm)))
+    Future.successful(Ok(get_check_eligibility_page(EligibilityRequestForm.eligibilityForm)))
   }
 
   def checkEligibility(): Action[AnyContent] = Action.async { implicit request ⇒
     EligibilityRequestForm.eligibilityForm.bindFromRequest().fold(
-      formWithErrors ⇒ Future.successful(Ok(views.html.get_check_eligibility_page(formWithErrors))),
+      formWithErrors ⇒ Future.successful(Ok(get_check_eligibility_page(formWithErrors))),
       { params ⇒
         def curlRequest(token: String) =
           s"""
@@ -91,12 +97,12 @@ class HelpToSaveApiController @Inject()(authConnector:  AuthConnector,
   }
 
   def getCreateAccountPage(): Action[AnyContent] = Action.async { implicit request ⇒
-    Future.successful(Ok(views.html.get_create_account_page(CreateAccountForm.createAccountForm)))
+    Future.successful(Ok(get_create_account_page(CreateAccountForm.createAccountForm)))
   }
 
   def createAccount(): Action[AnyContent] = Action.async { implicit request ⇒
     CreateAccountForm.createAccountForm.bindFromRequest().fold(
-      formWithErrors ⇒ Future.successful(Ok(views.html.get_create_account_page(formWithErrors))),
+      formWithErrors ⇒ Future.successful(Ok(get_create_account_page(formWithErrors))),
       {
         params ⇒
           def curlRequest(token: String) = {
@@ -152,12 +158,12 @@ class HelpToSaveApiController @Inject()(authConnector:  AuthConnector,
   }
 
   def getAccountPage(): Action[AnyContent] = Action.async { implicit request ⇒
-    Future.successful(Ok(views.html.get_account_page(GetAccountForm.getAccountForm)))
+    Future.successful(Ok(get_account_page(GetAccountForm.getAccountForm)))
   }
 
   def getAccount(): Action[AnyContent] = Action.async { implicit request ⇒
     GetAccountForm.getAccountForm.bindFromRequest().fold(
-      formWithErrors ⇒ Future.successful(Ok(views.html.get_account_page(formWithErrors))),
+      formWithErrors ⇒ Future.successful(Ok(get_account_page(formWithErrors))),
       { params ⇒
 
         def curlRequest(token: String) =

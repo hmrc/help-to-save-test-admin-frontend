@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,21 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.helptosavetestadminfrontend.views
+import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
 
 @Singleton
-class DummyPagesController @Inject() (mcc: MessagesControllerComponents)(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
+class DummyPagesController @Inject() (mcc: MessagesControllerComponents,
+                                      account_homepage: account_homepage,
+                                      pay_in: pay_in
+                                     )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
   def accountHomepage: Action[AnyContent] = Action { implicit request ⇒
-    Ok(views.html.account_homepage())
+    Ok(account_homepage())
   }
 
 
   def payIn: Action[AnyContent] = Action { implicit request ⇒
-    Ok(views.html.pay_in())
+    Ok(pay_in())
   }
 
 }
