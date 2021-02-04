@@ -56,8 +56,6 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
                 SessionKeys.sessionId -> SessionId(s"session-${UUID.randomUUID}").value,
                 SessionKeys.authToken -> token,
                 SessionKeys.lastRequestTimestamp -> DateTime.now.getMillis.toString,
-                SessionKeys.affinityGroup -> "Individual",
-                SessionKeys.name -> credId
               ))
 
               Right(SessionToken(session))
