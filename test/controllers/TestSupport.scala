@@ -31,7 +31,7 @@ import play.filters.csrf.CSRFAddToken
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
-
+import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
 import scala.concurrent.ExecutionContext
 
 trait TestSupport extends UnitSpec with MockFactory with BeforeAndAfterAll with ScalaFutures {
@@ -73,6 +73,8 @@ trait TestSupport extends UnitSpec with MockFactory with BeforeAndAfterAll with 
   implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
 
   implicit lazy val appConfig: AppConfig = fakeApplication.injector.instanceOf[AppConfig]
+  implicit lazy val specify_emails_to_delete: specify_emails_to_delete = fakeApplication.injector.instanceOf[specify_emails_to_delete]
+  implicit lazy val emails_deleted: emails_deleted = fakeApplication.injector.instanceOf[emails_deleted]
 
   implicit lazy val configuration: Configuration = appConfig.runModeConfiguration
 
