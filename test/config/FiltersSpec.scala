@@ -24,9 +24,9 @@ import play.api.mvc.EssentialFilter
 import play.filters.csrf.CSRFFilter
 import play.filters.headers.SecurityHeadersFilter
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{Filters, AllowListFilter}
-import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCryptoFilter
-import uk.gov.hmrc.play.bootstrap.filters.frontend.deviceid.DeviceIdFilter
-import uk.gov.hmrc.play.bootstrap.filters.frontend.{FrontendAuditFilter, HeadersFilter, SessionTimeoutFilter}
+import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCryptoFilter
+import uk.gov.hmrc.play.bootstrap.frontend.filters.deviceid.DeviceIdFilter
+import uk.gov.hmrc.play.bootstrap.frontend.filters.{FrontendAuditFilter, FrontendFilters, HeadersFilter, SessionIdFilter, SessionTimeoutFilter}
 import uk.gov.hmrc.play.bootstrap.filters._
 
 class FiltersSpec extends TestSupport {
@@ -37,6 +37,9 @@ class FiltersSpec extends TestSupport {
   val mockCacheControllerFilter = new CacheControlFilter(CacheControlConfig(), mock[Materializer])
 
   val mockMDCFilter = new MDCFilter(fakeApplication.materializer, fakeApplication.configuration, "")
+  val mockAllowlistFilter = mock[uk.gov.hmrc.play.bootstrap.frontend.filters.AllowlistFilter]
+
+  val mockSessionIdFilter =mock[SessionIdFilter]
 
   class TestableFrontendFilters extends FrontendFilters(
     stub[Configuration],
@@ -50,14 +53,16 @@ class FiltersSpec extends TestSupport {
     stub[SessionCookieCryptoFilter],
     stub[SessionTimeoutFilter],
     mockCacheControllerFilter,
-    mockMDCFilter
+    mockMDCFilter,
+    mockAllowlistFilter,
+    mockSessionIdFilter
   ) {
-    override lazy val enableSecurityHeaderFilter: Boolean = false
+    lazy val enableSecurityHeaderFilter: Boolean = false
     override val filters: Seq[EssentialFilter] = Seq()
   }
 
   val frontendFilters = new TestableFrontendFilters
-  val allowListFilter = mock[AllowListFilter]
+  val allowListFilter   = mock[AllowListFilter]
 
   "Filters" must {
 
