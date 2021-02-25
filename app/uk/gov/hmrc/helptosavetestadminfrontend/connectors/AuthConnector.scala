@@ -54,7 +54,7 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
               val session = Session(Map(
                 SessionKeys.sessionId -> SessionId(s"session-${UUID.randomUUID}").value,
                 SessionKeys.authToken -> token,
-                SessionKeys.lastRequestTimestamp -> DateTime.now.getMillis.toString,
+                SessionKeys.lastRequestTimestamp -> DateTime.now.getMillis.toString
               ))
 
               Right(SessionToken(session))
