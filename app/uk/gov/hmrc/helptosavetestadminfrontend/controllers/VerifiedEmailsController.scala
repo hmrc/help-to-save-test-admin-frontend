@@ -31,7 +31,7 @@ class VerifiedEmailsController @Inject() (
                                            mcc: MessagesControllerComponents,
                                            errorHandler: ErrorHandler,
                                            specify_emails_to_delete: specify_emails_to_delete,
-                                           emails_deleted : emails_deleted,
+                                           emails_deleted : emails_deleted
                                          )(
                                           implicit val appConfig: AppConfig, ec: ExecutionContext
                                          ) extends AdminFrontendController(appConfig, mcc, errorHandler) with I18nSupport {
