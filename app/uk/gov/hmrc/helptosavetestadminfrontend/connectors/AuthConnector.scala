@@ -24,13 +24,12 @@ import org.joda.time.DateTime
 import play.api.http.HeaderNames
 import play.api.libs.json._
 import play.api.mvc.Session
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
 import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
 import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
-import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionKeys}
 
 import scala.annotation.tailrec

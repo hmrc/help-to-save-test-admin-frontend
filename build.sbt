@@ -1,6 +1,5 @@
 import play.core.PlayVersion
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
-import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin, _}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "help-to-save-test-admin-frontend"
@@ -24,26 +23,28 @@ dependencyOverrides += "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion
 
 val dependencies = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-frontend-play-26" % "3.0.0",
-  "uk.gov.hmrc" %% "govuk-template" % "5.59.0-play-26",
-  "uk.gov.hmrc" %% "play-ui" % "8.15.0-play-26",
-  "uk.gov.hmrc" %% "play-health" % "3.15.0-play-26",
-  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.30.0-play-26",
+  "uk.gov.hmrc" %% "bootstrap-frontend-play-26" % "5.2.0",
+  "uk.gov.hmrc" %% "govuk-template" % "5.66.0-play-26",
+  "uk.gov.hmrc" %% "play-ui" % "9.2.0-play-26",
+  "uk.gov.hmrc" %% "play-health" % "3.16.0-play-26",
+  "uk.gov.hmrc" %% "simple-reactivemongo" % "8.0.0-play-26",
   "uk.gov.hmrc" %% "play-whitelist-filter" % "3.4.0-play-26",
-  "uk.gov.hmrc" %% "totp-generator" % "0.21.0",
-  "com.github.kxbmap" %% "configs" % "0.4.4",
+  "uk.gov.hmrc" %% "totp-generator" % "0.22.0",
+  "com.github.kxbmap" %% "configs" % "0.6.1",
   "org.typelevel" %% "cats-core" % "2.2.0",
   "org.jsoup" % "jsoup" % "1.13.1",
-  "org.mongodb.scala" %% "mongo-scala-driver" % "4.1.0"
+  "org.mongodb.scala" %% "mongo-scala-driver" % "4.2.3",
+  compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.3" cross CrossVersion.full),
+  "com.github.ghik" % "silencer-lib" % "1.7.3" % Provided cross CrossVersion.full
 )
 
 def testDependencies(scope: String = "test") = Seq(
-  "uk.gov.hmrc" %% "bootstrap-test-play-26" % "3.0.0" % scope,
-  "uk.gov.hmrc" %% "service-integration-test" % "0.12.0-play-26" % scope,
-  "uk.gov.hmrc" %% "domain" % "5.10.0-play-26" % scope,
+  "uk.gov.hmrc" %% "bootstrap-test-play-26" % "5.2.0" % scope,
+  "uk.gov.hmrc" %% "service-integration-test" % "1.1.0-play-26" % scope,
+  "uk.gov.hmrc" %% "domain" % "5.11.0-play-26" % scope,
   "uk.gov.hmrc" %% "stub-data-generator" % "0.5.3" % scope,
-  "uk.gov.hmrc" %% "reactivemongo-test" % "4.21.0-play-26" % scope,
-  "org.scalatest" %% "scalatest" % "3.2.0" % scope,
+  "uk.gov.hmrc" %% "reactivemongo-test" % "5.0.0-play-26" % scope,
+  "org.scalatest" %% "scalatest" % "3.2.8" % scope,
   "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % scope,
   "com.vladsch.flexmark" % "flexmark-all" % "0.35.10" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
@@ -67,13 +68,13 @@ lazy val scoverageSettings = {
 
 lazy val microservice = Project(appName, file("."))
   .settings(addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.17"))
-  .enablePlugins(Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory) ++ plugins: _*)
+  .enablePlugins(Seq(play.sbt.PlayScala, SbtDistributablesPlugin) ++ plugins: _*)
   .settings(playSettings ++ scoverageSettings: _*)
   .settings(scalaSettings: _*)
   .settings(majorVersion := 2)
   .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
-  .settings(scalaVersion := "2.12.11")
+  .settings(scalaVersion := "2.12.13")
   .settings(PlayKeys.playDefaultPort := 7007)
   .settings(
     libraryDependencies ++= appDependencies,
@@ -82,8 +83,10 @@ lazy val microservice = Project(appName, file("."))
     //testGrouping in Test := oneForkedJvmPerTest((definedTests in Test).value),
   )
   .settings(resolvers ++= Seq(
-    Resolver.bintrayRepo("hmrc", "releases"),
     Resolver.jcenterRepo,
-    "emueller-bintray" at "http://dl.bintray.com/emueller/maven" // for play json schema validator
+    "emueller-bintray" at "https://dl.bintray.com/emueller/maven" // for play json schema validator
   ))
   .settings(scalacOptions ++= Seq("-Xcheckinit","-feature","-deprecation"))
+  .settings(scalacOptions += "-P:silencer:pathFilters=routes")
+  .settings(scalacOptions += "-P:silencer:globalFilters=Unused import")
+

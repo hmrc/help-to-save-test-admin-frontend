@@ -15,25 +15,24 @@
  *@
 
 @import uk.gov.hmrc.helptosavetestadminfrontend.forms.Email
-@import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers
+@import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers.{form => uiForm, input_text, submit}
 @import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 
 @this(main_template: uk.gov.hmrc.helptosavetestadminfrontend.views.html.main_template)
 
-@(form: Form[Email])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Email])(implicit request: Request[_], messages: Messages)
 
 @main_template(title = "Hello from help-to-save-test-admin-frontend", bodyClasses = None) {
 
-@helpers.form(uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes.VerifiedEmailsController.deleteVerifiedEmails(), 'class -> "group subsection--wide") {
-  @helpers.input_text(
+@uiForm(uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes.VerifiedEmailsController.deleteVerifiedEmails(), 'class -> "group subsection--wide") {
+  @input_text(
     id = "emails",
     name = "emails",
     label = "Specify the emails you wish to delete from email-verification:",
     errorMessage = if (form.errors.isEmpty) None else Some(Html(form.errors.mkString("\n")))
   )
 
-  @helpers.submit('_buttonClass -> "delete-button", 'id → "Delete Emails") { Delete Emails }
+  @submit('_buttonClass -> "delete-button", 'id → "Delete Emails") { Delete Emails }
 }
 
 }

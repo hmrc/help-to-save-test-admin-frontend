@@ -19,7 +19,7 @@ package repos
 import org.scalamock.scalatest.MockFactory
 import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.{DefaultWriteResult, WriteError, WriteResult}
+import reactivemongo.api.commands.{UpdateWriteResult, WriteError, WriteResult}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.mongo.{MongoConnector, ReactiveRepository}
 
@@ -51,7 +51,7 @@ trait MongoTestSupport[Data, Repo <: ReactiveRepository[Data, BSONObjectID]] {
     (mockDBFunctions.remove _)
     .expects(query)
     .returning(result.map{
-      case Left(error) ⇒ DefaultWriteResult(false, 1, Seq(WriteError(1, 400, error)), None, None, None)
-      case Right(()) ⇒ DefaultWriteResult(true, 1, Seq.empty, None, None, None)
+      case Left(error) ⇒ UpdateWriteResult(false, 1, 1, Seq.empty, Seq(WriteError(1, 400, error)), None, None, None)
+      case Right(()) ⇒ UpdateWriteResult(true, 1, 1, Seq.empty, Seq.empty, None, None, None)
     })
 }
