@@ -14,18 +14,17 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 @import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 @import uk.gov.hmrc.helptosavetestadminfrontend.forms.EligibilityParams
-@import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers
+@import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers.{form => uiForm}
 @import uk.gov.hmrc.helptosavetestadminfrontend.util.DefaultParameters
 
 @this(main_template: uk.gov.hmrc.helptosavetestadminfrontend.views.html.main_template)
 
-@(form: Form[EligibilityParams])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[EligibilityParams])(implicit request: Request[_], messages: Messages)
 
 @main_template(title = "help-to-save-test-admin-frontend", bodyClasses = None) {
-@helpers.form(routes.HelpToSaveApiController.checkEligibility(), 'id -> "inputForm") {
+@uiForm(routes.HelpToSaveApiController.checkEligibility(), 'id -> "inputForm") {
 
 <div class="form-field-group">
     <div class="form-field-group @if(form.hasErrors || form.hasGlobalErrors) {error}">

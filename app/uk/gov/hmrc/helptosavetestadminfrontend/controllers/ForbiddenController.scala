@@ -22,7 +22,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
-class ForbiddenController @Inject()(mcc: MessagesControllerComponents)(implicit appConfig: AppConfig) extends FrontendController(mcc) {
+class ForbiddenController @Inject()(mcc: MessagesControllerComponents) extends FrontendController(mcc) {
 
   def forbidden: Action[AnyContent] = Action {
     Forbidden("Please ask the HtS Dev team for permissions to access this site")

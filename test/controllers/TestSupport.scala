@@ -30,7 +30,7 @@ import play.api.{Application, Configuration, Play}
 import play.filters.csrf.CSRFAddToken
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
 import scala.concurrent.ExecutionContext
 

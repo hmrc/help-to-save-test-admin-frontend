@@ -19,7 +19,6 @@ package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
 
@@ -27,7 +26,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
 class DummyPagesController @Inject() (mcc: MessagesControllerComponents,
                                       account_homepage: account_homepage,
                                       pay_in: pay_in
-                                     )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
+                                     ) extends FrontendController(mcc) with I18nSupport {
 
   def accountHomepage: Action[AnyContent] = Action { implicit request ⇒
     Ok(account_homepage())
