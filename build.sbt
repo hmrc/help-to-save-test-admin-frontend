@@ -78,9 +78,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(PlayKeys.playDefaultPort := 7007)
   .settings(
     libraryDependencies ++= appDependencies,
-    //retrieveManaged := true,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
-    //testGrouping in Test := oneForkedJvmPerTest((definedTests in Test).value),
   )
   .settings(resolvers ++= Seq(
     Resolver.jcenterRepo,
@@ -89,4 +87,5 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalacOptions ++= Seq("-Xcheckinit","-feature","-deprecation"))
   .settings(scalacOptions += "-P:silencer:pathFilters=routes")
   .settings(scalacOptions += "-P:silencer:globalFilters=Unused import")
+  .settings(Global / lintUnusedKeysOnLoad := false)
 
