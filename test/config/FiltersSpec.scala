@@ -16,14 +16,15 @@
 
 package config
 
-import akka.stream.Materializer
+import akka.actor.ActorSystem
+import akka.stream.{ActorMaterializer, Materializer}
 import com.kenshoo.play.metrics.MetricsFilter
 import controllers.TestSupport
 import play.api.Configuration
 import play.api.mvc.EssentialFilter
 import play.filters.csrf.CSRFFilter
 import play.filters.headers.SecurityHeadersFilter
-import uk.gov.hmrc.helptosavetestadminfrontend.config.{Filters, AllowListFilter}
+import uk.gov.hmrc.helptosavetestadminfrontend.config.{AllowListFilter, Filters}
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.bootstrap.frontend.filters.deviceid.DeviceIdFilter
 import uk.gov.hmrc.play.bootstrap.frontend.filters.{FrontendAuditFilter, FrontendFilters, HeadersFilter, SessionIdFilter, SessionTimeoutFilter}
@@ -33,8 +34,10 @@ class FiltersSpec extends TestSupport {
 
   // can't use scalamock for CacheControlFilter since a logging statement during class
   // construction requires a parameter from the CacheControlConfig. Using scalamock
-  // reuslts in a NullPointerException since no CacheControlConfig is there
-  val mockCacheControllerFilter = new CacheControlFilter(CacheControlConfig(), mock[Materializer])
+  // results in a NullPointerException since no CacheControlConfig is there
+  implicit val as = mock[ActorSystem]
+  implicit val mat: ActorMaterializer = ActorMaterializer()
+  val mockCacheControllerFilter = new CacheControlFilter(CacheControlConfig(), mat)
 
   val mockMDCFilter = new MDCFilter(fakeApplication.materializer, fakeApplication.configuration, "")
   val mockAllowlistFilter = mock[uk.gov.hmrc.play.bootstrap.frontend.filters.AllowlistFilter]

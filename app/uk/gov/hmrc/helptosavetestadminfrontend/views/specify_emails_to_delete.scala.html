@@ -24,7 +24,7 @@
 
 @main_template(title = "Hello from help-to-save-test-admin-frontend", bodyClasses = None) {
 
-@uiForm(uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes.VerifiedEmailsController.deleteVerifiedEmails(), 'class -> "group subsection--wide") {
+@uiForm(uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes.VerifiedEmailsController.deleteVerifiedEmails, 'class -> "group subsection--wide") {
   @input_text(
     id = "emails",
     name = "emails",
