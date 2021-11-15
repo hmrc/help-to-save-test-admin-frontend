@@ -8,7 +8,7 @@ lazy val appDependencies: Seq[ModuleID] = dependencies ++ testDependencies()
 
 val dependencies = Seq(
   ws,
-  "uk.gov.hmrc"       %% "bootstrap-frontend-play-28"   % "5.3.0",
+  "uk.gov.hmrc"       %% "bootstrap-frontend-play-28"   % "5.12.0",
   "uk.gov.hmrc"       %% "govuk-template"               % "5.72.0-play-28",
   "uk.gov.hmrc"       %% "play-ui"                      % "9.5.0-play-28",
   "uk.gov.hmrc"       %% "simple-reactivemongo"         % "8.0.0-play-28",
@@ -18,12 +18,12 @@ val dependencies = Seq(
   "org.typelevel"     %% "cats-core"                    % "2.2.0",
   "org.jsoup"         %  "jsoup"                        % "1.13.1",
   "org.mongodb.scala" %% "mongo-scala-driver"           % "4.2.3",
-  compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.1" cross CrossVersion.full),
-  "com.github.ghik" % "silencer-lib" % "1.7.1" % Provided cross CrossVersion.full
+  compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.5" cross CrossVersion.full),
+  "com.github.ghik" % "silencer-lib" % "1.7.5" % Provided cross CrossVersion.full
 )
 
 def testDependencies(scope: String = "test") = Seq(
-  "uk.gov.hmrc"           %% "bootstrap-test-play-28"      % "5.3.0"            % scope,
+  "uk.gov.hmrc"           %% "bootstrap-test-play-28"      % "5.12.0"            % scope,
   "uk.gov.hmrc"           %% "service-integration-test"    % "1.1.0-play-28"     % scope,
   "uk.gov.hmrc"           %% "domain"                      % "6.2.0-play-28"     % scope,
   "uk.gov.hmrc"           %% "stub-data-generator"         % "0.5.3"             % scope,
@@ -58,7 +58,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(majorVersion := 2)
   .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
-  .settings(scalaVersion := "2.12.12")
+  .settings(scalaVersion := "2.12.13")
   .settings(PlayKeys.playDefaultPort := 7007)
   .settings(
     libraryDependencies ++= appDependencies,

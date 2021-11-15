@@ -35,9 +35,7 @@ class FiltersSpec extends TestSupport {
   // can't use scalamock for CacheControlFilter since a logging statement during class
   // construction requires a parameter from the CacheControlConfig. Using scalamock
   // results in a NullPointerException since no CacheControlConfig is there
-  implicit val as = mock[ActorSystem]
-  implicit val mat: ActorMaterializer = ActorMaterializer()
-  val mockCacheControllerFilter = new CacheControlFilter(CacheControlConfig(), mat)
+  val mockCacheControllerFilter = new CacheControlFilter(CacheControlConfig(), mock[Materializer])
 
   val mockMDCFilter = new MDCFilter(fakeApplication.materializer, fakeApplication.configuration, "")
   val mockAllowlistFilter = mock[uk.gov.hmrc.play.bootstrap.frontend.filters.AllowlistFilter]
