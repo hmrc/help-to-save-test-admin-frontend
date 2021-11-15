@@ -17,12 +17,12 @@
 package controllers
 
 import java.util.UUID
+
 import com.typesafe.config.ConfigFactory
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, Suite}
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
@@ -32,32 +32,26 @@ import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
-
 import scala.concurrent.ExecutionContext
 
-trait TestSupport extends UnitSpec with MockFactory with BeforeAndAfterAll with ScalaFutures with GuiceOneAppPerTest with I18nSupport {
+trait TestSupport extends UnitSpec with MockFactory with BeforeAndAfterAll with ScalaFutures {
   this: Suite ⇒
 
   lazy val additionalConfig = Configuration()
 
-  def buildFakeApplication(additionalConfig: Configuration): Application =
+  def buildFakeApplication(additionalConfig: Configuration): Application = {
     new GuiceApplicationBuilder()
-      .configure(
-        Configuration(
-          ConfigFactory.parseString("""
-                                      | metrics.jvm = false
-                                      | metrics.enabled = true
-                                      | play.modules.disabled = [ "play.api.mvc.CookiesModule",
-                                      |   "uk.gov.hmrc.helptosavefrontend.config.HealthCheckModule",
-                                      |   "akka.event.slf4j.Slf4jLogger"
-                                      | ]
-                                      | mongodb.session.expireAfter = 5 seconds
+      .configure(Configuration(
+        ConfigFactory.parseString(
+          """
+            |
+            |
           """.stripMargin)
-        ).withFallback(additionalConfig)
-      )
+      ) ++ additionalConfig)
       .build()
+  }
 
-  //implicit lazy val fakeApplication: Application = buildFakeApplication(additionalConfig)
+  implicit lazy val fakeApplication: Application = buildFakeApplication(additionalConfig)
 
   implicit lazy val ec: ExecutionContext = fakeApplication.injector.instanceOf[ExecutionContext]
 
