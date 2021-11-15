@@ -47,7 +47,8 @@ trait TestSupport extends UnitSpec with MockFactory with BeforeAndAfterAll with 
             |
             |
           """.stripMargin)
-      ) ++ additionalConfig)
+        ).withFallback(additionalConfig)
+      )
       .build()
   }
 

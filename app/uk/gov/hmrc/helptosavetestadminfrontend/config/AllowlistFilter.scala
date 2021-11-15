@@ -23,16 +23,16 @@ import play.api.Configuration
 import play.api.mvc.{Call, RequestHeader, Result, Results}
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
-import uk.gov.hmrc.whitelist.{AkamaiWhitelistFilter => AkamaiAllowListFilter}
+import uk.gov.hmrc.allowlist.AkamaiAllowlistFilter
 
 import scala.concurrent.Future
 
-class AllowListFilter @Inject()(configuration: Configuration, val mat: Materializer) extends AkamaiAllowListFilter with Logging {
+class AllowListFilter @Inject()(configuration: Configuration, val mat: Materializer) extends AkamaiAllowlistFilter with Logging {
 
-  override def whitelist: Seq[String] =
+  override def allowlist: Seq[String] =
     configuration.underlying.get[List[String]]("http-header-ip-whitelist").value
 
-  override def excludedPaths: Seq[Call] = Seq(forbiddenCall, healthCheckCall)
+  override def excludedPaths: Seq[Call] = Seq(forbiddenCall)
 
   // This is the `Call` used in the `Redirect` when an IP is present in the header
   // of the HTTP request but is not in the allowList
@@ -44,13 +44,11 @@ class AllowListFilter @Inject()(configuration: Configuration, val mat: Materiali
     Future.successful(Results.Redirect(forbiddenCall))
   }
 
-  val forbiddenCall: Call = Call("GET", routes.ForbiddenController.forbidden().url)
-
-  val healthCheckCall: Call = Call("GET", uk.gov.hmrc.play.health.routes.HealthController.ping().url)
+  val forbiddenCall: Call = Call("GET", routes.ForbiddenController.forbidden.url)
 
   override def apply(f: (RequestHeader) ⇒ Future[Result])(rh: RequestHeader): Future[Result] = {
     rh.headers.get(trueClient).foreach{ ip ⇒
-      if (!whitelist.contains(ip)) {
+      if (!allowlist.contains(ip)) {
         logger.warn(s"SuspiciousActivity: Received request from non-allowListed ip $ip")
       }
     }

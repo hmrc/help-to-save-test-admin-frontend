@@ -16,52 +16,19 @@
 
 package config
 
-import akka.stream.Materializer
-import com.kenshoo.play.metrics.MetricsFilter
 import controllers.TestSupport
 import play.api.Configuration
-import play.api.mvc.EssentialFilter
-import play.filters.csrf.CSRFFilter
-import play.filters.headers.SecurityHeadersFilter
-import uk.gov.hmrc.helptosavetestadminfrontend.config.{Filters, AllowListFilter}
-import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCryptoFilter
-import uk.gov.hmrc.play.bootstrap.frontend.filters.deviceid.DeviceIdFilter
-import uk.gov.hmrc.play.bootstrap.frontend.filters.{FrontendAuditFilter, FrontendFilters, HeadersFilter, SessionIdFilter, SessionTimeoutFilter}
+import uk.gov.hmrc.helptosavetestadminfrontend.config.{AllowListFilter, Filters}
+import uk.gov.hmrc.play.bootstrap.frontend.filters.SessionIdFilter
 import uk.gov.hmrc.play.bootstrap.filters._
 
 class FiltersSpec extends TestSupport {
-
-  // can't use scalamock for CacheControlFilter since a logging statement during class
-  // construction requires a parameter from the CacheControlConfig. Using scalamock
-  // reuslts in a NullPointerException since no CacheControlConfig is there
-  val mockCacheControllerFilter = new CacheControlFilter(CacheControlConfig(), mock[Materializer])
 
   val mockMDCFilter = new MDCFilter(fakeApplication.materializer, fakeApplication.configuration, "")
   val mockAllowlistFilter = mock[uk.gov.hmrc.play.bootstrap.frontend.filters.AllowlistFilter]
 
   val mockSessionIdFilter =mock[SessionIdFilter]
 
-  class TestableFrontendFilters extends FrontendFilters(
-    stub[Configuration],
-    stub[LoggingFilter],
-    stub[HeadersFilter],
-    stub[SecurityHeadersFilter],
-    stub[FrontendAuditFilter],
-    stub[MetricsFilter],
-    stub[DeviceIdFilter],
-    stub[CSRFFilter],
-    stub[SessionCookieCryptoFilter],
-    stub[SessionTimeoutFilter],
-    mockCacheControllerFilter,
-    mockMDCFilter,
-    mockAllowlistFilter,
-    mockSessionIdFilter
-  ) {
-    lazy val enableSecurityHeaderFilter: Boolean = false
-    override val filters: Seq[EssentialFilter] = Seq()
-  }
-
-  val frontendFilters = new TestableFrontendFilters
   val allowListFilter   = mock[AllowListFilter]
 
   "Filters" must {
@@ -69,14 +36,14 @@ class FiltersSpec extends TestSupport {
     "include the allowList filter if the allowList from config is non empty" in {
       val config = Configuration("http-header-ip-whitelist" → List("1.2.3"))
 
-      val filters = new Filters(config, allowListFilter, frontendFilters)
+      val filters = new Filters(config, allowListFilter)
       filters.filters shouldBe Seq(allowListFilter)
     }
 
     "not include the allowList filter if the allowList from config is empty" in {
       val config = Configuration("http-header-ip-whitelist" → List())
 
-      val filters = new Filters(config, allowListFilter, frontendFilters)
+      val filters = new Filters(config, allowListFilter)
       filters.filters shouldBe Seq()
     }
   }
