@@ -21,23 +21,18 @@ import configs.syntax._
 import play.api.Configuration
 import play.api.http.HttpFilters
 import play.api.mvc.EssentialFilter
-import uk.gov.hmrc.play.bootstrap.frontend.filters.FrontendFilters
 
 @Singleton
 class Filters @Inject()(
-                         configuration:   Configuration,
-                         allowListFilter: AllowListFilter,
-                         frontendFilters: FrontendFilters
+     configuration:   Configuration,
+     allowListFilter: AllowListFilter
 ) extends HttpFilters {
 
   val allowListFilterEnabled: Boolean =
     configuration.underlying.get[List[String]]("http-header-ip-whitelist").value.nonEmpty
 
   override val filters: Seq[EssentialFilter] =
-    if (allowListFilterEnabled) {
-      frontendFilters.filters :+ allowListFilter
-    } else {
-      frontendFilters.filters
-    }
+    if (allowListFilterEnabled) Seq(allowListFilter)
+    else Seq.empty
 
 }
