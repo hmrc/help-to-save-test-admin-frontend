@@ -11,7 +11,7 @@ val dependencies = Seq(
   "uk.gov.hmrc"       %% "bootstrap-frontend-play-28"   % "5.12.0",
   "uk.gov.hmrc"       %% "govuk-template"               % "5.72.0-play-28",
   "uk.gov.hmrc"       %% "play-ui"                      % "9.5.0-play-28",
-  "uk.gov.hmrc"       %% "simple-reactivemongo"         % "8.0.0-play-28",
+  "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-28"           % "0.68.0",
   "uk.gov.hmrc"       %% "play-allowlist-filter"        % "1.0.0-play-28",
   "uk.gov.hmrc"       %% "totp-generator"               % "0.22.0",
   "com.github.kxbmap" %% "configs"                      % "0.6.1",
@@ -23,14 +23,16 @@ val dependencies = Seq(
 )
 
 def testDependencies(scope: String = "test") = Seq(
+  "org.scalatestplus" %% "mockito-3-12" % "3.2.10.0" % scope,
+"org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % scope,
   "uk.gov.hmrc"           %% "bootstrap-test-play-28"      % "5.12.0"            % scope,
   "uk.gov.hmrc"           %% "service-integration-test"    % "1.1.0-play-28"     % scope,
   "uk.gov.hmrc"           %% "domain"                      % "6.2.0-play-28"     % scope,
   "uk.gov.hmrc"           %% "stub-data-generator"         % "0.5.3"             % scope,
-  "uk.gov.hmrc"           %% "reactivemongo-test"          % "5.0.0-play-28"     % scope,
+  "uk.gov.hmrc.mongo"     %% "hmrc-mongo-test-play-28"    % "0.68.0"             % scope,
   "org.scalatest"         %% "scalatest"                   % "3.2.9"             % scope,
   "org.scalatestplus"     %% "scalatestplus-scalacheck"    % "3.1.0.0-RC2"       % scope,
-  "com.vladsch.flexmark"  %  "flexmark-all"                % "0.35.10"           % scope,
+  "com.vladsch.flexmark"   % "flexmark-all"        % "0.62.2"            % scope,
   "com.typesafe.play"     %% "play-test"                   % PlayVersion.current % scope,
   "org.scalamock"         %% "scalamock-scalatest-support" % "3.6.0"             % scope
 )

@@ -16,52 +16,29 @@
 
 package repos
 
-import controllers.TestSupport
-import play.api.libs.json.Json
-import play.api.libs.json.Json.toJsFieldJsValueWrapper
-import reactivemongo.api.commands.WriteResult
+import controllers.UnitSpec
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.Email
-import uk.gov.hmrc.helptosavetestadminfrontend.repos.VerifiedEmailMongoRepositoryImpl
+import uk.gov.hmrc.helptosavetestadminfrontend.repos.VerifiedEmailMongoRepository
+import uk.gov.hmrc.mongo.test.{DefaultPlayMongoRepositorySupport, MongoSupport}
 
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
 
-class VerifiedEmailMongoRepositorySpec extends TestSupport with MongoTestSupport[Email, VerifiedEmailMongoRepositoryImpl] {
-
-  def newMongoStore() = new VerifiedEmailMongoRepositoryImpl(mockMongo) {
-
-    override def remove(query: (String, Json.JsValueWrapper)*)(implicit ec: ExecutionContext): Future[WriteResult] =
-      mockDBFunctions.remove(query: _*)
-  }
-
-  def mockDeleteEmail(email: String)(result: Future[Either[String, Unit]]): Unit =
-    mockRemove("email" → email)(result)
+class VerifiedEmailMongoRepositorySpec extends MongoSupport with MockitoSugar with UnitSpec with DefaultPlayMongoRepositorySupport[Email] {
+  override lazy val repository = new VerifiedEmailMongoRepository(mongoComponent)
 
   "deleteEmails" must {
-
     def delete(emails: List[String]): Either[List[String], Unit] =
-      Await.result(mongoStore.deleteEmails(emails), 5.seconds)
+      Await.result(repository.deleteEmails(emails), 5.seconds)
 
-    val email1: String = "email1@gmail.com"
-    val email2: String = "email2@gmail.com"
-    val emails: List[String] = List(email1, email2)
+    val email1: Email = Email("email1@gmail.com")
+    val email2: Email = Email("email2@gmail.com")
+    val emails: List[String] = List(email1.emails, email2.emails)
 
     "return a Right when all emails are successfully deleted" in {
-      inSequence {
-        mockDeleteEmail(email1)(Future.successful(Right(())))
-        mockDeleteEmail(email2)(Future.successful(Right(())))
-      }
-
       delete(emails) shouldBe Right(())
-    }
-
-    "return a Left when an error occurs when deleting an email" in {
-      inSequence {
-        mockDeleteEmail(email1)(Future.successful(Right(())))
-        mockDeleteEmail(email2)(Future.successful(Left("unexpected error")))
-      }
-
-      delete(emails) shouldBe Left(List(s"An error has occurred while deleting email: $email2, errors: unexpected error"))
     }
   }
 

@@ -17,46 +17,42 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.repos
 
 
-import com.google.inject.{ImplementedBy, Inject, Singleton}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.bson.BSONObjectID
+import com.google.inject.{Inject, Singleton}
+import org.mongodb.scala.bson.Document
+import org.mongodb.scala.model.IndexModel
+import org.mongodb.scala.model.Indexes.ascending
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.Email
-import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[VerifiedEmailMongoRepositoryImpl])
-trait VerifiedEmailMongoRepository {
-
-  def deleteEmails(emails: List[String])(implicit ec: ExecutionContext): Future[Either[List[String], Unit]]
-
-}
-
 @Singleton
-class VerifiedEmailMongoRepositoryImpl @Inject()(mongo:   ReactiveMongoComponent)
-  extends ReactiveRepository[Email, BSONObjectID](
+class VerifiedEmailMongoRepository @Inject()(mongo: MongoComponent)
+                                            (implicit executionContext: ExecutionContext)
+  extends PlayMongoRepository[Email](
     collectionName = "verifiedEmail",
-    mongo = mongo.mongoConnector.db,
+    mongoComponent = mongo,
     domainFormat = Email.emailFormats,
-    idFormat = ReactiveMongoFormats.objectIdFormats
-  ) with VerifiedEmailMongoRepository {
+    indexes = Seq(
+      IndexModel(
+        ascending("email"))
+    )
+  ) {
 
-
-  def deleteEmails(emails: List[String])(implicit ec: ExecutionContext): Future[Either[List[String], Unit]] = {
+  def deleteEmails(emails: List[String]): Future[Either[List[String], Unit]] = {
 
     val result: List[Future[Either[String, Unit]]] =  emails.map { email ⇒
-      remove("email" -> email).map { res ⇒
-        if (res.writeErrors.nonEmpty) {
-          Left(s"An error has occurred while deleting email: $email, errors: ${res.writeErrors.map(_.errmsg).mkString(",")}")
-        } else {
+      collection.deleteOne(Document("email" -> email)).toFuture().map { res ⇒
           Right(())
+        }.recover{
+        case e => Left(s"${e.getMessage}")
         }
       }
-    }
+
 
     Future.sequence(result).map{ x ⇒
-      val errors = x.collect{ case Left(s) ⇒ s }
+      val errors = x.collect { case Left(s) ⇒ s }
       if(errors.nonEmpty){
         Left(errors)
       } else {

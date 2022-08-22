@@ -16,27 +16,29 @@
 
 package controllers
 
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController
 import uk.gov.hmrc.helptosavetestadminfrontend.repos.VerifiedEmailMongoRepository
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class VerifiedEmailsControllerSpec extends TestSupport {
 
-  val store = mock[VerifiedEmailMongoRepository]
+  val store: VerifiedEmailMongoRepository = mock[VerifiedEmailMongoRepository]
 
   val controller = new VerifiedEmailsController(store, testMCC, testErrorHandler,specify_emails_to_delete,emails_deleted)(appConfig, ec)
 
   def mockDeleteEmails(emails: List[String])(result: Future[Either[List[String], Unit]]): Unit =
-    (store.deleteEmails(_: List[String])(_: ExecutionContext))
-    .expects(emails, *)
-    .returning(result)
+    when(store.deleteEmails(ArgumentMatchers.eq(emails))).thenReturn(result)
 
   "handling delete email form submits" must {
-
 
     val email1: String = "email1@gmail.com"
     val email2: String = "email2@gmail.com"
