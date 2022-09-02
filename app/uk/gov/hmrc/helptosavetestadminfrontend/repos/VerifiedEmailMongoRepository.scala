@@ -36,7 +36,7 @@ class VerifiedEmailMongoRepository @Inject()(mongo: MongoComponent)
     domainFormat = Email.emailFormats,
     indexes = Seq(
       IndexModel(
-        ascending("email"))
+        ascending("_id"))
     )
   ) {
 

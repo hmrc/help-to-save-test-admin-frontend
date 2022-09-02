@@ -38,6 +38,8 @@ class VerifiedEmailMongoRepositorySpec extends MongoSupport with MockitoSugar wi
     val emails: List[String] = List(email1.emails, email2.emails)
 
     "return a Right when all emails are successfully deleted" in {
+      dropDatabase()
+      repository.collection.insertMany(Seq(email1,email2))
       delete(emails) shouldBe Right(())
     }
   }
