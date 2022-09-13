@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,40 +18,9 @@ package repos
 
 import org.scalamock.scalatest.MockFactory
 import play.api.libs.json.Json
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.{UpdateWriteResult, WriteError, WriteResult}
-import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.mongo.{MongoConnector, ReactiveRepository}
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-trait MongoTestSupport[Data, Repo <: ReactiveRepository[Data, BSONObjectID]] {
-  this: MockFactory ⇒
-
-  trait MockDBFunctions {
-    def remove(query: (String, Json.JsValueWrapper)*): Future[WriteResult]
-  }
-
-  val mockDBFunctions = mock[MockDBFunctions]
-
-  val mockMongo = mock[ReactiveMongoComponent]
-
-  def newMongoStore(): Repo
-
-  lazy val mongoStore: Repo = {
-    val connector = mock[MongoConnector]
-    (mockMongo.mongoConnector _).expects().returning(connector)
-    // we are using null as the constructor of DefaultDB is private
-    (connector.db _).expects().returning(() ⇒ null)
-    newMongoStore()
-  }
-
-  def mockRemove(query: (String, Json.JsValueWrapper)*)(result: ⇒ Future[Either[String, Unit]]): Unit =
-    (mockDBFunctions.remove _)
-    .expects(query)
-    .returning(result.map{
-      case Left(error) ⇒ UpdateWriteResult(false, 1, 1, Seq.empty, Seq(WriteError(1, 400, error)), None, None, None)
-      case Right(()) ⇒ UpdateWriteResult(true, 1, 1, Seq.empty, Seq.empty, None, None, None)
-    })
-}

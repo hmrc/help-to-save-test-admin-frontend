@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.typesafe.config.ConfigFactory
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, Suite}
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.MessagesControllerComponents
@@ -32,9 +33,10 @@ import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
+
 import scala.concurrent.ExecutionContext
 
-trait TestSupport extends UnitSpec with MockFactory with BeforeAndAfterAll with ScalaFutures {
+trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with MockitoSugar {
   this: Suite ⇒
 
   lazy val additionalConfig = Configuration()
