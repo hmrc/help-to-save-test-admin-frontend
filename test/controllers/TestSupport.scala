@@ -17,12 +17,12 @@
 package controllers
 
 import java.util.UUID
-
 import com.typesafe.config.ConfigFactory
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, Suite}
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.MessagesControllerComponents
@@ -36,27 +36,27 @@ import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
 
 import scala.concurrent.ExecutionContext
 
-trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with MockitoSugar {
+trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with MockitoSugar with GuiceOneAppPerSuite {
   this: Suite ⇒
 
   lazy val additionalConfig = Configuration()
 
-  def buildFakeApplication(additionalConfig: Configuration): Application = {
-    new GuiceApplicationBuilder()
-      .configure(Configuration(
-        ConfigFactory.parseString(
-          """
-            |
-            |
-          """.stripMargin)
-        ).withFallback(additionalConfig)
-      )
-      .build()
-  }
+//  def buildFakeApplication(additionalConfig: Configuration): Application = {
+//    new GuiceApplicationBuilder()
+//      .configure(Configuration(
+//        ConfigFactory.parseString(
+//          """
+//            |
+//            |
+//          """.stripMargin)
+//        ).withFallback(additionalConfig)
+//      )
+//      .build()
+//  }
 
-  implicit lazy val fakeApplication: Application = buildFakeApplication(additionalConfig)
+//  implicit lazy val fakeApplication: Application = buildFakeApplication(additionalConfig)
 
-  implicit lazy val ec: ExecutionContext = fakeApplication.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   implicit val headerCarrier: HeaderCarrier =
     HeaderCarrier(sessionId = Some(SessionId(UUID.randomUUID().toString)))
@@ -71,19 +71,19 @@ trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with
     super.afterAll()
   }
 
-  val testMCC: MessagesControllerComponents = fakeApplication.injector.instanceOf[MessagesControllerComponents]
+  val testMCC: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
-  implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+  implicit val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
 
-  implicit lazy val appConfig: AppConfig = fakeApplication.injector.instanceOf[AppConfig]
-  implicit lazy val specify_emails_to_delete: specify_emails_to_delete = fakeApplication.injector.instanceOf[specify_emails_to_delete]
-  implicit lazy val emails_deleted: emails_deleted = fakeApplication.injector.instanceOf[emails_deleted]
+  implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+  implicit lazy val specify_emails_to_delete: specify_emails_to_delete = app.injector.instanceOf[specify_emails_to_delete]
+  implicit lazy val emails_deleted: emails_deleted = app.injector.instanceOf[emails_deleted]
 
   implicit lazy val configuration: Configuration = appConfig.runModeConfiguration
 
   val fakeRequest: FakeRequest[_] = FakeRequest("GET", "/")
 
-  val csrfAddToken: CSRFAddToken = fakeApplication.injector.instanceOf[play.filters.csrf.CSRFAddToken]
+  val csrfAddToken: CSRFAddToken = app.injector.instanceOf[play.filters.csrf.CSRFAddToken]
 
-  lazy val testErrorHandler: ErrorHandler = fakeApplication.injector.instanceOf[ErrorHandler]
+  lazy val testErrorHandler: ErrorHandler = app.injector.instanceOf[ErrorHandler]
 }
