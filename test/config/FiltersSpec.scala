@@ -24,7 +24,7 @@ import uk.gov.hmrc.play.bootstrap.filters._
 
 class FiltersSpec extends TestSupport {
 
-  val mockMDCFilter = new MDCFilter(fakeApplication.materializer, fakeApplication.configuration, "")
+  val mockMDCFilter = new MDCFilter(app.materializer, app.configuration, "")
   val mockAllowlistFilter = mock[uk.gov.hmrc.play.bootstrap.frontend.filters.AllowlistFilter]
 
   val mockSessionIdFilter =mock[SessionIdFilter]

@@ -39,7 +39,7 @@ class VerifiedEmailMongoRepositorySpec extends MongoSupport with MockitoSugar wi
 
     "return a Right when all emails are successfully deleted" in {
       dropDatabase()
-      repository.collection.insertMany(Seq(email1,email2))
+      await(repository.collection.insertMany(Seq(email1,email2)).toFuture())
       delete(emails) shouldBe Right(())
     }
   }
