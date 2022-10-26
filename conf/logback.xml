@@ -51,11 +51,11 @@
 
     <logger name="com.google.inject" level="INFO"/>
 
-    <logger name="uk.gov" level="INFO"/>
+    <logger name="uk.gov" level="TRACE"/>
 
     <logger name="uk.gov.hmrc.play.bootstrap.audit.DefaultAuditConnector" level="WARN"/>
 
-    <logger name="application" level="DEBUG"/>
+    <logger name="application" level="TRACE"/>
 
 
     <logger name="connector" level="TRACE">
@@ -64,7 +64,7 @@
 
 
 
-    <root level="INFO">
+    <root level="TRACE">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
     </root>
