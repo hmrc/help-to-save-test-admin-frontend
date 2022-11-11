@@ -24,10 +24,10 @@ import uk.gov.hmrc.play.bootstrap.frontend.filters.SessionIdFilter
 import uk.gov.hmrc.play.bootstrap.filters.MDCFilter
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvider
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
-@Inject
-class FiltersSpec(implicit val mat: Materializer) extends MDCFilter with FrontendHeaderCarrierProvider with TestSupport {
+@Singleton
+class FiltersSpec @Inject()(implicit val mat: Materializer) extends MDCFilter with FrontendHeaderCarrierProvider with TestSupport {
 
   val mockAllowlistFilter = mock[uk.gov.hmrc.play.bootstrap.frontend.filters.AllowlistFilter]
 
