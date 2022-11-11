@@ -16,10 +16,11 @@
 
 package controllers
 
-import java.util.UUID
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 
+import java.util.UUID
 import com.typesafe.config.ConfigFactory
-import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, Suite}
 import org.scalatestplus.mockito.MockitoSugar
@@ -60,6 +61,9 @@ trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with
 
   implicit val headerCarrier: HeaderCarrier =
     HeaderCarrier(sessionId = Some(SessionId(UUID.randomUUID().toString)))
+
+  //private implicit val as: ActorSystem = ActorSystem("test-materializer")
+  //implicit val mat: ActorMaterializer = ActorMaterializer()
 
   override def beforeAll() {
     Play.start(fakeApplication)

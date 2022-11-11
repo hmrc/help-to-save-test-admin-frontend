@@ -16,15 +16,19 @@
 
 package config
 
+import akka.stream.Materializer
 import controllers.TestSupport
 import play.api.Configuration
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{AllowListFilter, Filters}
 import uk.gov.hmrc.play.bootstrap.frontend.filters.SessionIdFilter
-import uk.gov.hmrc.play.bootstrap.filters._
+import uk.gov.hmrc.play.bootstrap.filters.MDCFilter
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvider
 
-class FiltersSpec extends TestSupport {
+import javax.inject.Inject
 
-  val mockMDCFilter = new MDCFilter(fakeApplication.materializer, fakeApplication.configuration, "")
+@Inject
+class FiltersSpec(implicit val mat: Materializer) extends MDCFilter with FrontendHeaderCarrierProvider with TestSupport {
+
   val mockAllowlistFilter = mock[uk.gov.hmrc.play.bootstrap.frontend.filters.AllowlistFilter]
 
   val mockSessionIdFilter =mock[SessionIdFilter]
