@@ -17,9 +17,7 @@
 package controllers
 
 import java.util.UUID
-
 import com.typesafe.config.ConfigFactory
-import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, Suite}
 import org.scalatestplus.mockito.MockitoSugar
