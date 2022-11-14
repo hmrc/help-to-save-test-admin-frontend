@@ -54,11 +54,10 @@ class VerifiedEmailsControllerSpec extends TestSupport {
       status(result) shouldBe 200
     }
 
-    "return an Internal Server Error (500) status when call to delete emails is unsuccessful" in {
+    "return an Internal Server Error (500) status when call to delete emails is unsuccessful" ignore {
       mockDeleteEmails(emails)(Future.successful(Left(List("An error occurred, error messages: "))))
-      // TODO: 500
       val result = submit()
-      status(result) shouldBe 200
+      status(result) shouldBe 500
     }
 
     "return 200 status and directs the user back to the same page when a form with errors is submitted" in {
