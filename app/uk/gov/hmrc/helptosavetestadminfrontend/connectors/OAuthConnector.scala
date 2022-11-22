@@ -63,7 +63,8 @@ class OAuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends L
           "client_id":"${appConfig.clientId}",
           "grant_type":"authorization_code",
           "redirect_uri":"${appConfig.authorizeCallback(id)}",
-          "code":"$authorisationCode"
+          "code":"$authorisationCode",
+          "chooseRealBasGateway" : false
       }""")
     getAccessToken(json, extraHeaders)
   }
