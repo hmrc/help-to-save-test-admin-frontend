@@ -19,135 +19,285 @@
 @import uk.gov.hmrc.helptosavetestadminfrontend.forms.CreateAccountParams
 @import uk.gov.hmrc.helptosavetestadminfrontend.util.DefaultParameters
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@this(layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout, formWithCSRF: FormWithCSRF)
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.helptosavetestadminfrontend.views.helpers.FormErrorMessage.formErrorMessage
+
+@this(
+        layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout,
+        formWithCSRF: FormWithCSRF,
+        govukFieldset: GovukFieldset,
+        govukInput: GovukInput
+)
 
 @(form: Form[CreateAccountParams])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
+@enterHTTPHeadersFields = {
+    @govukInput(Input(
+        id = "httpHeaders.accept",
+        name = "httpHeaders.accept",
+        value = Some(DefaultParameters.acceptValue),
+        label = Label(
+            content = Text("Accept")
+        ),
+        classes = "govuk-!-width-one-half",
+        errorMessage = formErrorMessage(form, "httpHeaders.accept")
+    ))
+    @govukInput(Input(
+        id = "httpHeaders.govClientUserId",
+        name = "httpHeaders.govClientUserId",
+        value = Some(DefaultParameters.govClientUserId),
+        label = Label(
+            content = Text("Gov-Client-User-ID")
+        ),
+        classes = "govuk-!-width-one-half",
+        errorMessage = formErrorMessage(form, "httpHeaders.govClientUserId")
+    ))
+    @govukInput(Input(
+        id = "httpHeaders.govClientTimezone",
+        name = "httpHeaders.govClientTimezone",
+        value = Some(DefaultParameters.govClientTimezone),
+        label = Label(
+            content = Text("Gov-Client-Timezone")
+        ),
+        classes = "govuk-!-width-one-half",
+        errorMessage = formErrorMessage(form, "httpHeaders.govClientTimezone")
+    ))
+    @govukInput(Input(
+        id = "httpHeaders.govVendorVersion",
+        name = "httpHeaders.govVendorVersion",
+        value = Some(DefaultParameters.govVendorVersion),
+        label = Label(
+            content = Text("Gov-Vendor-Version")
+        ),
+        classes = "govuk-!-width-one-half",
+        errorMessage = formErrorMessage(form, "httpHeaders.govVendorVersion")
+    ))
+    @govukInput(Input(
+        id = "httpHeaders.govVendorInstanceId",
+        name = "httpHeaders.govVendorInstanceId",
+        value = Some(DefaultParameters.govVendorInstanceId),
+        label = Label(
+            content = Text("Gov-Vendor-Instance-ID")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "httpHeaders.govVendorInstanceId")
+    ))
+}
+
+@enterRequestHeaders = {
+    @govukInput(Input(
+        id = "requestHeaders.version",
+        name = "requestHeaders.version",
+        value = Some("2.0"),
+        label = Label(
+            content = Text("Version")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestHeaders.version")
+    ))
+    @govukInput(Input(
+        id = "requestHeaders.createdTimestamp",
+        name = "requestHeaders.createdTimestamp",
+        value = Some("2017-11-22 23:11:09 GMT"),
+        label = Label(
+            content = Text("createdTimestamp")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestHeaders.createdTimestamp")
+    ))
+    @govukInput(Input(
+        id = "requestHeaders.clientCode",
+        name = "requestHeaders.clientCode",
+        value = Some("KCOM"),
+        label = Label(
+            content = Text("clientCode")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestHeaders.clientCode")
+    ))
+    @govukInput(Input(
+        id = "requestHeaders.requestCorrelationId",
+        name = "requestHeaders.requestCorrelationId",
+        value = Some("123e4567-e89b-12d3-a456-426655440000"),
+        label = Label(
+            content = Text("requestCorrelationId")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestHeaders.requestCorrelationId")
+    ))
+}
+
+@enterRequestBody = {
+@govukInput(Input(
+    id = "requestBody.nino",
+    name = "requestBody.nino",
+    value = Some("AE123456C"),
+    label = Label(
+        content = Text("NINO")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.nino")
+))
+@govukInput(Input(
+    id = "requestBody.forename",
+    name = "requestBody.forename",
+    value = Some("Alex"),
+    label = Label(
+        content = Text("forename")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.forename")
+))
+@govukInput(Input(
+    id = "requestBody.surname",
+    name = "requestBody.surname",
+    value = Some("Brown"),
+    label = Label(
+        content = Text("surname")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.surname")
+))
+@govukInput(Input(
+    id = "requestBody.dateOfBirth",
+    name = "requestBody.dateOfBirth",
+    value = Some("19920423"),
+    label = Label(
+        content = Text("dateOfBirth")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.dateOfBirth")
+))
+@govukInput(Input(
+    id = "requestBody.contactDetails.address1",
+    name = "requestBody.contactDetails.address1",
+    value = Some("44, quicksilver"),
+    label = Label(
+        content = Text("address1")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.contactDetails.address1")
+))
+@govukInput(Input(
+    id = "requestBody.contactDetails.address2",
+    name = "requestBody.contactDetails.address2",
+    value = Some("Blackpool"),
+    label = Label(
+        content = Text("address2")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.contactDetails.address2")
+))
+@govukInput(Input(
+    id = "requestBody.contactDetails.address3",
+    name = "requestBody.contactDetails.address3",
+    value = Some(""),
+    label = Label(
+        content = Text("address3")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.contactDetails.address3")
+))
+@govukInput(Input(
+    id = "requestBody.contactDetails.address4",
+    name = "requestBody.contactDetails.address4",
+    value = Some(""),
+    label = Label(
+        content = Text("address4")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.contactDetails.address4")
+))
+@govukInput(Input(
+    id = "requestBody.contactDetails.address5",
+    name = "requestBody.contactDetails.address5",
+    value = Some(""),
+    label = Label(
+        content = Text("address5")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.contactDetails.address5")
+))
+@govukInput(Input(
+    id = "requestBody.contactDetails.postcode",
+    name = "requestBody.contactDetails.postcode",
+    value = Some("FY43 1FB"),
+    label = Label(
+        content = Text("postcode")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.contactDetails.postcode")
+))
+@govukInput(Input(
+    id = "requestBody.contactDetails.countryCode",
+    name = "requestBody.contactDetails.countryCode",
+    label = Label(
+        content = Text("countryCode")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.contactDetails.countryCode")
+))
+@govukInput(Input(
+    id = "requestBody.contactDetails.communicationPreference",
+    name = "requestBody.contactDetails.communicationPreference",
+    value = Some("00"),
+    label = Label(
+        content = Text("communicationPreference")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.contactDetails.communicationPreference")
+))
+@govukInput(Input(
+    id = "requestBody.contactDetails.email",
+    name = "requestBody.contactDetails.email",
+    value = Some(""),
+    label = Label(
+        content = Text("email")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "requestBody.contactDetails.email")
+))
+}
+
 @layout(title = "help-to-save-test-admin-frontend", backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
+    <h1 class="govuk-heading-l">
+        Create account
+    </h1>
+
+    @form.errors.map { error =>
+        <span class="govuk-error">@error.key @Messages(error.message)</span>
+    }
     @formWithCSRF(action = routes.HelpToSaveApiController.createAccount()) {
+        @govukFieldset(Fieldset(
+            legend = Some(Legend(
+                content = Text("Enter HTTP Headers"),
+                classes = "govuk-fieldset__legend--m",
+                isPageHeading = false
+            )),
+            html = enterHTTPHeadersFields
+        ))
+        @govukFieldset(Fieldset(
+            legend = Some(Legend(
+                content = Text("Enter Request Headers"),
+                classes = "govuk-fieldset__legend--m",
+                isPageHeading = false
+            )),
+            html = enterRequestHeaders
+        ))
+        @govukFieldset(Fieldset(
+            legend = Some(Legend(
+                content = Text("Enter Request Body"),
+                classes = "govuk-fieldset__legend--m",
+                isPageHeading = false
+            )),
+            html = enterRequestBody
+        ))
 
 <div class="form-field-group">
-    <div class="form-field-group @if(form.hasErrors || form.hasGlobalErrors) {error}">
 
-        @form.errors.map { error =>
-        <span class="error-notification">@error.key @Messages(error.message)</span>
-        }
-
-        <h3>Enter HTTP Headers:</h3>
-
-        <div class="form-field">
-            <label class="label--inline">Content-Type:</label>
-            <input type="text" name="httpHeaders.contentType" size="30" value="application/json">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">Accept:</label>
-            <input type="text" name="httpHeaders.accept" size="30" value=@DefaultParameters.acceptValue>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">Gov-Client-User-ID:</label>
-            <input type="text" name="httpHeaders.govClientUserId" size="30" value=@DefaultParameters.govClientUserId>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">Gov-Client-Timezone:</label>
-            <input type="text" name="httpHeaders.govClientTimezone" size="30" value=@DefaultParameters.govClientTimezone>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">Gov-Vendor-Version:</label>
-            <input type="text" name="httpHeaders.govVendorVersion" size="30" value=@DefaultParameters.govVendorVersion>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">Gov-Vendor-Instance-ID:</label>
-            <input type="text" name="httpHeaders.govVendorInstanceId" size="35" value=@DefaultParameters.govVendorInstanceId>
-        </div>
-
-        <h3>Enter Request Headers:</h3>
-
-        <div class="form-field">
-            <label class="label--inline">version:</label>
-            <input type="text" name="requestHeaders.version" size="30" value="2.0">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">createdTimestamp:</label>
-            <input type="text" name="requestHeaders.createdTimestamp" size="30" value="2017-11-22 23:11:09 GMT">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">clientCode:</label>
-            <input type="text" name="requestHeaders.clientCode" size="30" value="KCOM">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">requestCorrelationId:</label>
-            <input type="text" name="requestHeaders.requestCorrelationId" size="35" value="123e4567-e89b-12d3-a456-426655440000">
-        </div>
 
         <h3>Enter Request Body:</h3>
 
-        <div class="form-field">
-            <label class="label--inline">NINO:</label>
-            <input type="text" name="requestBody.nino" size="30" value="AE123456C"/>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">forename:</label>
-            <input type="text" name="requestBody.forename" size="30" value="Alex">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">surname:</label>
-            <input type="text" name="requestBody.surname" size="30" value="Brown">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">dateOfBirth:</label>
-            <input type="text" name="requestBody.dateOfBirth" size="30" value="19920423">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">address1:</label>
-            <input type="text" name="requestBody.contactDetails.address1" size="30" value="44, quicksilver">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">address2:</label>
-            <input type="text" name="requestBody.contactDetails.address2" size="30" value="Blackpool">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">address3:</label>
-            <input type="text" name="requestBody.contactDetails.address3" size="30">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">address4:</label>
-            <input type="text" name="requestBody.contactDetails.address4" size="30">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">address5:</label>
-            <input type="text" name="requestBody.contactDetails.address5" size="30">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">postcode:</label>
-            <input type="text" name="requestBody.contactDetails.postcode" size="30" value="FY43 1FB">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">countryCode:</label>
-            <input type="text" name="requestBody.contactDetails.countryCode" size="30">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">communicationPreference:</label>
-            <input type="text" name="requestBody.contactDetails.communicationPreference" size="30" value="00">
-        </div>
 
         <div class="form-field">
             <label class="label--inline">email:</label>

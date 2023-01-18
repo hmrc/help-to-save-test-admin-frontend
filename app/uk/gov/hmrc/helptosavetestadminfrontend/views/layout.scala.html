@@ -27,16 +27,11 @@
         hmrcLayout: HmrcLayout,
         standardBetaBanner: StandardBetaBanner,
         govukBackLink: GovukBackLink,
-        appConfig: AppConfig,
-        hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper
+        appConfig: AppConfig
 )
 
 @(title: String, pageScripts: Option[Html] = None, pageHeadBlock: Option[Html] = None, backLocation: Option[Call] = None)(contentBlock: Html)(implicit request : Request[_], messages: Messages, config: AppConfig)
 
-@content = {
-@contentBlock
-@hmrcReportTechnicalIssueHelper()
-}
 @beforeContentBlock = {
   <div class="govuk-!-display-none-print">
     @{
@@ -46,6 +41,7 @@
     }
   </div>
 }
+
 @pageTitle = @{
   title + " - " + "Help To Save Test Admin" + " - " + "GOV.UK"
 }
@@ -57,4 +53,4 @@
   additionalHeadBlock = pageHeadBlock,
   additionalScriptsBlock = pageScripts,
   phaseBanner = None
-)(content)
+)(contentBlock)

@@ -17,12 +17,11 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.views.helpers
 
 import play.api.data.Form
-import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 
 object FormErrorMessage {
-  def formErrorMessage(form: Form[_], key: String)(implicit messages: Messages): Option[ErrorMessage] = form
+  def formErrorMessage(form: Form[_], key: String): Option[ErrorMessage] = form
     .error(key)
     .map(e =>
       ErrorMessage(
