@@ -26,9 +26,7 @@
         hmrcLayout: HmrcLayout,
         standardBetaBanner: StandardBetaBanner,
         appConfig: AppConfig,
-        hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-        autcompleteCss: HmrcAccessibleAutocompleteCss,
-        autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
+        hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper
 )
 
 @(title: String, pageScripts: Option[Html] = None, pageHeadBlock: Option[Html] = None)(contentBlock: Html)(implicit request : Request[_], messages: Messages, config: AppConfig)
@@ -42,7 +40,7 @@
 }
 @hmrcLayout(
   pageTitle = Some(pageTitle),
-  isWelshTranslationAvailable = false, /* or false if your service has not been translated */
+  isWelshTranslationAvailable = false,
   displayHmrcBanner = true,
   additionalHeadBlock = pageHeadBlock,
   additionalScriptsBlock = pageScripts,
