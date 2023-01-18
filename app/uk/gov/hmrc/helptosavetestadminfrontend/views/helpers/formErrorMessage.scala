@@ -27,7 +27,7 @@ object FormErrorMessage {
     .map(e =>
       ErrorMessage(
         content = Text(e.message),
-        visuallyHiddenText = Some(messages("generic.errorPrefix"))
+        visuallyHiddenText = Some("Error")
       )
     )
 }
