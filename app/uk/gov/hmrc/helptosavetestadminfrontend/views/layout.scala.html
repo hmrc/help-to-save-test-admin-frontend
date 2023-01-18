@@ -21,19 +21,30 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteJavascript
 @import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
 
 @this(
         hmrcLayout: HmrcLayout,
         standardBetaBanner: StandardBetaBanner,
+        govukBackLink: GovukBackLink,
         appConfig: AppConfig,
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper
 )
 
-@(title: String, pageScripts: Option[Html] = None, pageHeadBlock: Option[Html] = None)(contentBlock: Html)(implicit request : Request[_], messages: Messages, config: AppConfig)
+@(title: String, pageScripts: Option[Html] = None, pageHeadBlock: Option[Html] = None, backLocation: Option[Call] = None)(contentBlock: Html)(implicit request : Request[_], messages: Messages, config: AppConfig)
 
 @content = {
 @contentBlock
 @hmrcReportTechnicalIssueHelper()
+}
+@beforeContentBlock = {
+  <div class="govuk-!-display-none-print">
+    @{
+      backLocation map { back =>
+        govukBackLink(BackLink(href = back.url, attributes = Map("id" -> "back"), content = Text("Back")))
+      }
+    }
+  </div>
 }
 @pageTitle = @{
   title + " - " + "Help To Save Test Admin" + " - " + "GOV.UK"
@@ -42,6 +53,7 @@
   pageTitle = Some(pageTitle),
   isWelshTranslationAvailable = false,
   displayHmrcBanner = true,
+  beforeContentBlock = Some(beforeContentBlock),
   additionalHeadBlock = pageHeadBlock,
   additionalScriptsBlock = pageScripts,
   phaseBanner = None

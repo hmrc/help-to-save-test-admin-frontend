@@ -15,11 +15,12 @@
  *@
 
 @import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
+@import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 
-@this(main_template: uk.gov.hmrc.helptosavetestadminfrontend.views.html.main_template)
+@this(layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout)
 
-@()(implicit request: Request[_], messages: Messages)
+@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@main_template(title = "Hello from help-to-save-test-admin-frontend", bodyClasses = None) {
-    <h1>Emails deleted</h1>
+@layout(title = "Success: Emails deleted", backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
+    <h1 class="govuk-heading-l">Emails deleted</h1>
 }

@@ -23,7 +23,7 @@
 
 @(form: Form[CreateAccountParams])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@layout(title = "help-to-save-test-admin-frontend") {
+@layout(title = "help-to-save-test-admin-frontend", backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
     @formWithCSRF(action = routes.HelpToSaveApiController.createAccount()) {
 
 <div class="form-field-group">

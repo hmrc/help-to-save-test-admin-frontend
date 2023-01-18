@@ -20,14 +20,15 @@
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 @import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 
 @this(layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout, formWithCSRF: FormWithCSRF, govukInput: GovukInput, govukButton: GovukButton)
 
 @(form: Form[Email])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @key = @{"emails"}
-@layout(title = "Select emails to delete") {
-  @formWithCSRF(uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes.VerifiedEmailsController.deleteVerifiedEmails, 'class -> "group subsection--wide") {
+@layout(title = "Select emails to delete", backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
+  @formWithCSRF(routes.VerifiedEmailsController.deleteVerifiedEmails, 'class -> "group subsection--wide") {
     @govukInput(Input(
       id = key,
       name = key,
