@@ -14,35 +14,30 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 @import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 
 @this(layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout)
 
-@(curl: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
-
-@layout(title = "help-to-save-test-admin-frontend", backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
-    <h1 class="govuk-heading-l">Curl Result</h1>
+@(curl: String)(implicit request: Request[_], messages: Messages)
+@title = @{"Curl result"}
+@layout(title, backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
+    <h1 class="govuk-heading-l">@title</h1>
 
     <p class="govuk-body">Curl request is:</p>
     <pre style="overflow-x:scroll; padding: 5px; font-size: 75%; white-space: pre" id="curl" >@curl</pre>
 
     <br>
 
-    <div class="wrapper">
-        <button onclick="function copy(id) {
-            var copyText = document.getElementById(id).textContent;
-            var textArea = document.createElement('textarea');
-            textArea.textContent = copyText;
-            document.body.append(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            textArea.remove();
-        };copy('curl')">Copy text</button>
-
-
-        <a class="govuk-button" role="button" href=@{routes.HelpToSaveApiController.availableFunctions().url}>Start again</a>
-    </div>
-
+    <button class="govuk-button govuk-button--secondary" onclick="function copy(id) {
+        var copyText = document.getElementById(id).textContent;
+        var textArea = document.createElement('textarea');
+        textArea.textContent = copyText;
+        document.body.append(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+    };copy('curl')">
+      Copy text
+    </button>
 
 }

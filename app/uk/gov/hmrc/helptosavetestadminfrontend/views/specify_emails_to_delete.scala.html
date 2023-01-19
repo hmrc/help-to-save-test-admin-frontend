@@ -15,10 +15,7 @@
  *@
 
 @import uk.gov.hmrc.helptosavetestadminfrontend.forms.Email
-@import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers.{input_text, submit}
 @import uk.gov.hmrc.helptosavetestadminfrontend.views.helpers.FormErrorMessage.formErrorMessage
-@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 
@@ -30,7 +27,7 @@
         govukErrorSummary: GovukErrorSummary
 )
 
-@(form: Form[Email])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Email])(implicit request: Request[_], messages: Messages)
 
 @key = @{"emails"}
   @title = @{"Specify the emails you wish to delete from email-verification"}

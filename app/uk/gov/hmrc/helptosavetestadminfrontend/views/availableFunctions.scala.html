@@ -14,12 +14,11 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 @import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 
 @this(layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout)
 
-@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@()(implicit request: Request[_], messages: Messages)
 @title = @{"Available Functions"}
 @layout(title) {
     <h1 class="govuk-heading-l">@title</h1>
