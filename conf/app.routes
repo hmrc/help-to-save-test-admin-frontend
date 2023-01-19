@@ -2,6 +2,8 @@
 
 GET        /                           uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions()
 
+->        /hmrc-frontend               hmrcfrontend.Routes
+
 POST       /delete-emails              uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.deleteVerifiedEmails
 
 GET        /forbidden                  uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController.forbidden

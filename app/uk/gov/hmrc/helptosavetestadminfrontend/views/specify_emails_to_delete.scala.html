@@ -15,24 +15,49 @@
  *@
 
 @import uk.gov.hmrc.helptosavetestadminfrontend.forms.Email
-@import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers.{form => uiForm, input_text, submit}
+@import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers.{input_text, submit}
+@import uk.gov.hmrc.helptosavetestadminfrontend.views.helpers.FormErrorMessage.formErrorMessage
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 
-@this(main_template: uk.gov.hmrc.helptosavetestadminfrontend.views.html.main_template)
+@this(
+        layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout,
+        formWithCSRF: FormWithCSRF,
+        govukInput: GovukInput,
+        govukButton: GovukButton,
+        govukErrorSummary: GovukErrorSummary
+)
 
-@(form: Form[Email])(implicit request: Request[_], messages: Messages)
+@(form: Form[Email])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@main_template(title = "Hello from help-to-save-test-admin-frontend", bodyClasses = None) {
+@key = @{"emails"}
+  @title = @{"Specify the emails you wish to delete from email-verification"}
+@layout(title, backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
+  @if(form.errors.nonEmpty) {
+    @govukErrorSummary(ErrorSummary(errorList = form.errors.map(e => ErrorLink(
+      href = Some(s"#${e.key}"),
+      content = Text(s"${e.key} ${Messages(e.message)}")
+    )), title = Text(messages("There is a problem"))))
+  }
+  @formWithCSRF(routes.VerifiedEmailsController.deleteVerifiedEmails, 'class -> "group subsection--wide") {
+    @govukInput(Input(
+      id = key,
+      name = key,
+      value = form(key).value,
+      label = Label(
+        isPageHeading = true,
+        classes = "govuk-label--l",
+        content = Text(title)
+      ),
+      errorMessage = formErrorMessage(form, key)
+    ))
 
-@uiForm(uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes.VerifiedEmailsController.deleteVerifiedEmails, 'class -> "group subsection--wide") {
-  @input_text(
-    id = "emails",
-    name = "emails",
-    label = "Specify the emails you wish to delete from email-verification:",
-    errorMessage = if (form.errors.isEmpty) None else Some(Html(form.errors.mkString("\n")))
-  )
-
-  @submit('_buttonClass -> "delete-button", 'id → "Delete Emails") { Delete Emails }
-}
-
+    @govukButton(Button(
+      content = Text("Delete Emails"),
+      classes = "delete-button",
+      attributes = Map("id" → "Delete Emails")
+    ))
+  }
 }

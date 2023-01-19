@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers.random_cat
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
+package uk.gov.hmrc.helptosavetestadminfrontend.views.helpers
 
-@this(layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout)
+import play.api.data.Form
+import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 
-
-@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
-
-@title = @{"Account Homepage"}
-@layout(title) {
-  <h1 class="govuk-heading-l">@title</h1>
-  <p class="govuk-body">This is a dummy page</p>
-
-  @random_cat()
-
+object FormErrorMessage {
+  def formErrorMessage(form: Form[_], key: String): Option[ErrorMessage] = form
+    .error(key)
+    .map(e =>
+      ErrorMessage(
+        content = Text(e.message),
+        visuallyHiddenText = Some("Error")
+      )
+    )
 }

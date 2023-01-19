@@ -14,71 +14,142 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 @import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 @import uk.gov.hmrc.helptosavetestadminfrontend.forms.GetAccountParams
-@import uk.gov.hmrc.helptosavetestadminfrontend.views.html.helpers.{form => uiForm}
 @import uk.gov.hmrc.helptosavetestadminfrontend.util.DefaultParameters
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.helptosavetestadminfrontend.views.helpers.FormErrorMessage.formErrorMessage
 
-@this(main_template: uk.gov.hmrc.helptosavetestadminfrontend.views.html.main_template)
+@this(
+        layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout,
+        formWithCSRF: FormWithCSRF,
+        govukFieldset: GovukFieldset,
+        govukInput: GovukInput,
+        govukSelect : GovukSelect,
+        govukButton: GovukButton,
+        govukErrorSummary: GovukErrorSummary
+)
 
-@(form: Form[GetAccountParams])(implicit request: Request[_], messages: Messages)
+@(form: Form[GetAccountParams])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@main_template(title = "help-to-save-test-admin-frontend", bodyClasses = None) {
-@uiForm(routes.HelpToSaveApiController.getAccount(), 'id -> "inputForm") {
-
-<div class="form-field-group">
-    <div class="form-field-group @if(form.hasErrors || form.hasGlobalErrors) {error}">
-
-        @form.errors.map { error =>
-        <span class="error-notification">@error.key @Messages(error.message)</span>
-        }
-
-        <h3>Enter HTTP Headers:</h3>
-
-        <div class="form-field">
-            <label class="label--inline">Accept:</label>
-            <input type="text" name="httpHeaders.accept" size="30" value=@DefaultParameters.acceptValue>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">Gov-Client-User-ID:</label>
-            <input type="text" name="httpHeaders.govClientUserId" size="30" value=@DefaultParameters.govClientUserId>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">Gov-Client-Timezone:</label>
-            <input type="text" name="httpHeaders.govClientTimezone" size="30" value=@DefaultParameters.govClientTimezone>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">Gov-Vendor-Version:</label>
-            <input type="text" name="httpHeaders.govVendorVersion" size="30" value=@DefaultParameters.govVendorVersion>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">Gov-Vendor-Instance-ID:</label>
-            <input type="text" name="httpHeaders.govVendorInstanceId" size="35" value=@DefaultParameters.govVendorInstanceId>
-        </div>
-
-        <h3>Enter NINO:</h3>
-
-        <div class="form-field">
-            <label class="label--inline">Auth NINO:</label>
-            <input type="text" name="authNino" size="9"/>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">Access-Type:</label>
-            <select name="accessType">
-                <option value="Privileged" selected>Privileged</option>
-                <option value="UserRestricted">User-restricted</option>
-            </select>
-        </div>
-
-        <p><input class="button" type="submit" value="Submit"></p>
-    </div>
-</div>
+@enterHTTPHeadersFields = {
+  @govukInput(Input(
+    id = "httpHeaders.accept",
+    name = "httpHeaders.accept",
+    value = Some(DefaultParameters.acceptValue),
+    label = Label(
+      content = Text("Accept")
+    ),
+    classes = "govuk-!-width-one-half",
+    errorMessage = formErrorMessage(form, "httpHeaders.accept")
+  ))
+  @govukInput(Input(
+    id = "httpHeaders.govClientUserId",
+    name = "httpHeaders.govClientUserId",
+    value = Some(DefaultParameters.govClientUserId),
+    label = Label(
+      content = Text("Gov-Client-User-ID")
+    ),
+    classes = "govuk-!-width-one-half",
+    errorMessage = formErrorMessage(form, "httpHeaders.govClientUserId")
+  ))
+  @govukInput(Input(
+    id = "httpHeaders.govClientTimezone",
+    name = "httpHeaders.govClientTimezone",
+    value = Some(DefaultParameters.govClientTimezone),
+    label = Label(
+      content = Text("Gov-Client-Timezone")
+    ),
+    classes = "govuk-!-width-one-half",
+    errorMessage = formErrorMessage(form, "httpHeaders.govClientTimezone")
+  ))
+  @govukInput(Input(
+    id = "httpHeaders.govVendorVersion",
+    name = "httpHeaders.govVendorVersion",
+    value = Some(DefaultParameters.govVendorVersion),
+    label = Label(
+      content = Text("Gov-Vendor-Version")
+    ),
+    classes = "govuk-!-width-one-half",
+    errorMessage = formErrorMessage(form, "httpHeaders.govVendorVersion")
+  ))
+  @govukInput(Input(
+    id = "httpHeaders.govVendorInstanceId",
+    name = "httpHeaders.govVendorInstanceId",
+    value = Some(DefaultParameters.govVendorInstanceId),
+    label = Label(
+      content = Text("Gov-Vendor-Instance-ID")
+    ),
+    classes = "govuk-!-width-two-thirds",
+    errorMessage = formErrorMessage(form, "httpHeaders.govVendorInstanceId")
+  ))
 }
+
+@ninoFields = {
+@govukInput(Input(
+  id = "authNino",
+  name = "authNino",
+  value = Some("AE123456C"),
+  label = Label(
+    content = Text("Auth NINO")
+  ),
+  classes = "govuk-!-width-two-thirds",
+  errorMessage = formErrorMessage(form, "authNino")
+))
+@govukSelect(Select(
+  id = "accessType",
+  name = "accessType",
+  items = Seq(
+    SelectItem(
+      value = Some("Privileged"),
+      text = "Privileged",
+      selected = true
+    ),
+    SelectItem(
+      value = Some("UserRestricted"),
+      text = "User-Restricted",
+    )
+  ),
+  label = Label(
+    content = Text("Access-Type")
+  )
+))
+}
+
+@title = @{"Get Account"}
+
+@layout(title, backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
+  @if(form.errors.nonEmpty) {
+    @govukErrorSummary(ErrorSummary(errorList = form.errors.map(e => ErrorLink(
+      href = Some(s"#${e.key}"),
+      content = Text(s"${e.key} ${Messages(e.message)}")
+    )), title = Text(messages("There is a problem"))))
+  }
+
+  <h1 class="govuk-heading-l">@title</h1>
+
+  @formWithCSRF(routes.HelpToSaveApiController.getAccount(), 'id -> "inputForm") {
+    @govukFieldset(Fieldset(
+      legend = Some(Legend(
+        content = Text("Enter HTTP Headers"),
+        classes = "govuk-fieldset__legend--m",
+        isPageHeading = false
+      )),
+      html = enterHTTPHeadersFields
+    ))
+    @govukFieldset(Fieldset(
+      legend = Some(Legend(
+        content = Text("Enter NINO"),
+        classes = "govuk-fieldset__legend--m",
+        isPageHeading = false
+      )),
+      html = ninoFields
+    ))
+    @govukButton(Button(
+      content = Text("Continue")
+    ))
+  }
 
 }
