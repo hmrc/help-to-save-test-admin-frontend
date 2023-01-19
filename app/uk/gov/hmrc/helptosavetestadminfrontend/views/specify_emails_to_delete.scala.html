@@ -22,12 +22,25 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 
-@this(layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout, formWithCSRF: FormWithCSRF, govukInput: GovukInput, govukButton: GovukButton)
+@this(
+        layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout,
+        formWithCSRF: FormWithCSRF,
+        govukInput: GovukInput,
+        govukButton: GovukButton,
+        govukErrorSummary: GovukErrorSummary
+)
 
 @(form: Form[Email])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @key = @{"emails"}
-@layout(title = "Select emails to delete", backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
+  @title = @{"Specify the emails you wish to delete from email-verification"}
+@layout(title, backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
+  @if(form.errors.nonEmpty) {
+    @govukErrorSummary(ErrorSummary(errorList = form.errors.map(e => ErrorLink(
+      href = Some(s"#${e.key}"),
+      content = Text(s"${e.key} ${Messages(e.message)}")
+    )), title = Text(messages("There is a problem"))))
+  }
   @formWithCSRF(routes.VerifiedEmailsController.deleteVerifiedEmails, 'class -> "group subsection--wide") {
     @govukInput(Input(
       id = key,
@@ -36,7 +49,7 @@
       label = Label(
         isPageHeading = true,
         classes = "govuk-label--l",
-        content = Text("Specify the emails you wish to delete from email-verification")
+        content = Text(title)
       ),
       errorMessage = formErrorMessage(form, key)
     ))

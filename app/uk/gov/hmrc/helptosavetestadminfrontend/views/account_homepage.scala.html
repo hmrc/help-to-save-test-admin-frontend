@@ -22,8 +22,9 @@
 
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@layout(title = "Account home - Help to Save - GOV.UK") {
-  <h1 class="govuk-heading-l">Account Homepage</h1>
+@title = @{"Account Homepage"}
+@layout(title) {
+  <h1 class="govuk-heading-l">@title</h1>
   <p class="govuk-body">This is a dummy page</p>
 
   @random_cat()

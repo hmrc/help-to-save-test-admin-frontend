@@ -20,9 +20,9 @@
 @this(layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout)
 
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
-
-@layout(title = "help-to-save-test-admin-frontend") {
-    <h1 class="govuk-heading-l">Available Functions</h1>
+@title = @{"Available Functions"}
+@layout(title) {
+    <h1 class="govuk-heading-l">@title</h1>
 
     <ul class="govuk-list govuk-list--bullet">
         <li><a class="govuk-link" href="@routes.VerifiedEmailsController.specifyEmailsToDelete">Delete Emails</a></li><br>

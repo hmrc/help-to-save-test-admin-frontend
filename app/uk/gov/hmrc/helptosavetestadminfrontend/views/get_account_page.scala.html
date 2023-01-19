@@ -28,7 +28,8 @@
         govukFieldset: GovukFieldset,
         govukInput: GovukInput,
         govukSelect : GovukSelect,
-        govukButton: GovukButton
+        govukButton: GovukButton,
+        govukErrorSummary: GovukErrorSummary
 )
 
 @(form: Form[GetAccountParams])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
@@ -117,27 +118,38 @@
 ))
 }
 
-@layout(title = "help-to-save-test-admin-frontend", backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
-@formWithCSRF(routes.HelpToSaveApiController.getAccount(), 'id -> "inputForm") {
-  @govukFieldset(Fieldset(
-    legend = Some(Legend(
-      content = Text("Enter HTTP Headers"),
-      classes = "govuk-fieldset__legend--m",
-      isPageHeading = false
-    )),
-    html = enterHTTPHeadersFields
-  ))
-  @govukFieldset(Fieldset(
-    legend = Some(Legend(
-      content = Text("Enter NINO"),
-      classes = "govuk-fieldset__legend--m",
-      isPageHeading = false
-    )),
-    html = ninoFields
-  ))
-  @govukButton(Button(
-    content = Text("Continue")
-  ))
-}
+@title = @{"Get Account"}
+
+@layout(title, backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
+  @if(form.errors.nonEmpty) {
+    @govukErrorSummary(ErrorSummary(errorList = form.errors.map(e => ErrorLink(
+      href = Some(s"#${e.key}"),
+      content = Text(s"${e.key} ${Messages(e.message)}")
+    )), title = Text(messages("There is a problem"))))
+  }
+
+  <h1 class="govuk-heading-l">@title</h1>
+
+  @formWithCSRF(routes.HelpToSaveApiController.getAccount(), 'id -> "inputForm") {
+    @govukFieldset(Fieldset(
+      legend = Some(Legend(
+        content = Text("Enter HTTP Headers"),
+        classes = "govuk-fieldset__legend--m",
+        isPageHeading = false
+      )),
+      html = enterHTTPHeadersFields
+    ))
+    @govukFieldset(Fieldset(
+      legend = Some(Legend(
+        content = Text("Enter NINO"),
+        classes = "govuk-fieldset__legend--m",
+        isPageHeading = false
+      )),
+      html = ninoFields
+    ))
+    @govukButton(Button(
+      content = Text("Continue")
+    ))
+  }
 
 }
