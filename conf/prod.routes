@@ -1,5 +1,4 @@
 # Add all the application routes to the app.routes file
 ->         /help-to-save-test-admin-frontend        app.Routes
 ->         /                                        health.Routes
-->     	   /template                                template.Routes
 

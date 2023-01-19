@@ -2,6 +2,8 @@
 
 GET        /                           uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions()
 
+->        /hmrc-frontend               hmrcfrontend.Routes
+
 POST       /delete-emails              uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.deleteVerifiedEmails
 
 GET        /forbidden                  uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController.forbidden
@@ -27,7 +29,3 @@ GET        /get-account-page           uk.gov.hmrc.helptosavetestadminfrontend.c
 GET        /account                    uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getAccount()
 
 GET        /curl-result                uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCurlRequestIsPage(id: java.util.UUID)
-
-GET        /dummy-pages/account-homepage uk.gov.hmrc.helptosavetestadminfrontend.controllers.DummyPagesController.accountHomepage
-
-GET        /dummy-pages/pay-in           uk.gov.hmrc.helptosavetestadminfrontend.controllers.DummyPagesController.payIn

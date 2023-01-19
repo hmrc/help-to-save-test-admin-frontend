@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,30 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 @import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 
-@this(main_template: uk.gov.hmrc.helptosavetestadminfrontend.views.html.main_template)
+@this(layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout)
 
 @(curl: String)(implicit request: Request[_], messages: Messages)
+@title = @{"Curl result"}
+@layout(title, backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
+    <h1 class="govuk-heading-l">@title</h1>
 
-@main_template(title = "help-to-save-test-admin-frontend", bodyClasses = None) {
-    <h1>Curl Result</h1>
-
-    <p>Curl request is:</p>
+    <p class="govuk-body">Curl request is:</p>
     <pre style="overflow-x:scroll; padding: 5px; font-size: 75%; white-space: pre" id="curl" >@curl</pre>
 
     <br>
 
-    <div class="wrapper">
-        <button onclick="function copy(id) {
-            var copyText = document.getElementById(id).textContent;
-            var textArea = document.createElement('textarea');
-            textArea.textContent = copyText;
-            document.body.append(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            textArea.remove();
-        };copy('curl')">Copy text</button>
-
-
-        <a href=@{routes.HelpToSaveApiController.availableFunctions().url} class="button" role="button">Start again</a>
-    </div>
-
+    <button class="govuk-button govuk-button--secondary" onclick="function copy(id) {
+        var copyText = document.getElementById(id).textContent;
+        var textArea = document.createElement('textarea');
+        textArea.textContent = copyText;
+        document.body.append(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+    };copy('curl')">
+      Copy text
+    </button>
 
 }

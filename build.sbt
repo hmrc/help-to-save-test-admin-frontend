@@ -9,8 +9,6 @@ lazy val appDependencies: Seq[ModuleID] = dependencies ++ testDependencies()
 val dependencies = Seq(
   ws,
   "uk.gov.hmrc"       %% "bootstrap-frontend-play-28"   % "7.11.0",
-  "uk.gov.hmrc"       %% "govuk-template"               % "5.78.0-play-28",
-  "uk.gov.hmrc"       %% "play-ui"                      % "9.11.0-play-28",
   "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-28"           % "0.68.0",
   "uk.gov.hmrc"       %% "play-allowlist-filter"        % "1.0.0-play-28",
   "uk.gov.hmrc"       %% "totp-generator"               % "0.22.0",
@@ -19,7 +17,8 @@ val dependencies = Seq(
   "org.jsoup"         %  "jsoup"                        % "1.13.1",
   "org.mongodb.scala" %% "mongo-scala-driver"           % "4.2.3",
   compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.12" cross CrossVersion.full),
-  "com.github.ghik" % "silencer-lib" % "1.7.12" % Provided cross CrossVersion.full
+  "com.github.ghik" % "silencer-lib" % "1.7.12" % Provided cross CrossVersion.full,
+  "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "3.34.0-play-28",
 )
 
 def testDependencies(scope: String = "test") = Seq(

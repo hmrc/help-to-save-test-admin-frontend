@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 @import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 
-@this(main_template: uk.gov.hmrc.helptosavetestadminfrontend.views.html.main_template)
+@this(layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout)
 
 @()(implicit request: Request[_], messages: Messages)
+@title = @{"Available Functions"}
+@layout(title) {
+    <h1 class="govuk-heading-l">@title</h1>
 
-@main_template(title = "help-to-save-test-admin-frontend", bodyClasses = None) {
-    <h1>Available Functions</h1>
-
-    <ul>
-        <li><a href="@routes.VerifiedEmailsController.specifyEmailsToDelete">Delete Emails</a></li><br>
-        <li><a href="@routes.HelpToSaveApiController.getCheckEligibilityPage()">Check Eligibility</a></li><br>
-        <li><a href="@routes.HelpToSaveApiController.getCreateAccountPage()">Create Account</a></li><br>
-        <li><a href="@routes.HelpToSaveApiController.getAccountPage()">Get Account</a></li>
+    <ul class="govuk-list govuk-list--bullet">
+        <li><a class="govuk-link" href="@routes.VerifiedEmailsController.specifyEmailsToDelete">Delete Emails</a></li><br>
+        <li><a class="govuk-link" href="@routes.HelpToSaveApiController.getCheckEligibilityPage()">Check Eligibility</a></li><br>
+        <li><a class="govuk-link" href="@routes.HelpToSaveApiController.getCreateAccountPage()">Create Account</a></li><br>
+        <li><a class="govuk-link" href="@routes.HelpToSaveApiController.getAccountPage()">Get Account</a></li>
     </ul>
 }

@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
+@import uk.gov.hmrc.helptosavetestadminfrontend.controllers.routes
 
-@this(main_template: uk.gov.hmrc.helptosavetestadminfrontend.views.html.main_template)
+@this(layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout)
 
 @()(implicit request: Request[_], messages: Messages)
 
-@main_template(title = "Hello from help-to-save-test-admin-frontend", bodyClasses = None) {
-    <h1>Emails deleted</h1>
+@title = @{"Emails deleted"}
+
+@layout(title, backLocation = Some(routes.HelpToSaveApiController.availableFunctions)) {
+    <h1 class="govuk-heading-l">@title</h1>
 }
