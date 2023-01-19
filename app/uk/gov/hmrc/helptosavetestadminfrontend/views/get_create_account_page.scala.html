@@ -26,7 +26,9 @@
         layout: uk.gov.hmrc.helptosavetestadminfrontend.views.html.layout,
         formWithCSRF: FormWithCSRF,
         govukFieldset: GovukFieldset,
-        govukInput: GovukInput
+        govukInput: GovukInput,
+        govukSelect: GovukSelect,
+        govukButton: GovukButton
 )
 
 @(form: Form[CreateAccountParams])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
@@ -128,134 +130,344 @@
 }
 
 @enterRequestBody = {
+    @govukInput(Input(
+        id = "requestBody.nino",
+        name = "requestBody.nino",
+        value = Some("AE123456C"),
+        label = Label(
+            content = Text("NINO")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.nino")
+    ))
+    @govukInput(Input(
+        id = "requestBody.forename",
+        name = "requestBody.forename",
+        value = Some("Alex"),
+        label = Label(
+            content = Text("forename")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.forename")
+    ))
+    @govukInput(Input(
+        id = "requestBody.surname",
+        name = "requestBody.surname",
+        value = Some("Brown"),
+        label = Label(
+            content = Text("surname")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.surname")
+    ))
+    @govukInput(Input(
+        id = "requestBody.dateOfBirth",
+        name = "requestBody.dateOfBirth",
+        value = Some("19920423"),
+        label = Label(
+            content = Text("dateOfBirth")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.dateOfBirth")
+    ))
+    @govukInput(Input(
+        id = "requestBody.contactDetails.address1",
+        name = "requestBody.contactDetails.address1",
+        value = Some("44, quicksilver"),
+        label = Label(
+            content = Text("address1")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.contactDetails.address1")
+    ))
+    @govukInput(Input(
+        id = "requestBody.contactDetails.address2",
+        name = "requestBody.contactDetails.address2",
+        value = Some("Blackpool"),
+        label = Label(
+            content = Text("address2")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.contactDetails.address2")
+    ))
+    @govukInput(Input(
+        id = "requestBody.contactDetails.address3",
+        name = "requestBody.contactDetails.address3",
+        value = Some(""),
+        label = Label(
+            content = Text("address3")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.contactDetails.address3")
+    ))
+    @govukInput(Input(
+        id = "requestBody.contactDetails.address4",
+        name = "requestBody.contactDetails.address4",
+        value = Some(""),
+        label = Label(
+            content = Text("address4")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.contactDetails.address4")
+    ))
+    @govukInput(Input(
+        id = "requestBody.contactDetails.address5",
+        name = "requestBody.contactDetails.address5",
+        value = Some(""),
+        label = Label(
+            content = Text("address5")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.contactDetails.address5")
+    ))
+    @govukInput(Input(
+        id = "requestBody.contactDetails.postcode",
+        name = "requestBody.contactDetails.postcode",
+        value = Some("FY43 1FB"),
+        label = Label(
+            content = Text("postcode")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.contactDetails.postcode")
+    ))
+    @govukInput(Input(
+        id = "requestBody.contactDetails.countryCode",
+        name = "requestBody.contactDetails.countryCode",
+        label = Label(
+            content = Text("countryCode")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.contactDetails.countryCode")
+    ))
+    @govukInput(Input(
+        id = "requestBody.contactDetails.communicationPreference",
+        name = "requestBody.contactDetails.communicationPreference",
+        value = Some("00"),
+        label = Label(
+            content = Text("communicationPreference")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.contactDetails.communicationPreference")
+    ))
+    @govukInput(Input(
+        id = "requestBody.contactDetails.email",
+        name = "requestBody.contactDetails.email",
+        value = Some(""),
+        label = Label(
+            content = Text("email")
+        ),
+        errorMessage = formErrorMessage(form, "requestBody.contactDetails.email")
+    ))
+    @govukInput(Input(
+        id = "requestBody.contactDetails.phoneNumber",
+        name = "requestBody.contactDetails.phoneNumber",
+        value = Some(""),
+        label = Label(
+            content = Text("phoneNumber")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.contactDetails.phoneNumber")
+    ))
+
+
+    @govukInput(Input(
+        id = "requestBody.contactDetails.registrationChannel",
+        name = "requestBody.contactDetails.registrationChannel",
+        value = Some("callCentre"),
+        label = Label(
+            content = Text("registrationChannel")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.contactDetails.registrationChannel")
+    ))
+    @govukInput(Input(
+        id = "requestBody.bankDetails.sortCode",
+        name = "requestBody.bankDetails.sortCode",
+        value = Some("801497"),
+        label = Label(
+            content = Text("sort code")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.bankDetails.sortCode")
+    ))
+    @govukInput(Input(
+        id = "requestBody.bankDetails.accountNumber",
+        name = "requestBody.bankDetails.accountNumber",
+        value = Some("11111111"),
+        label = Label(
+            content = Text("account number")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.bankDetails.accountNumber")
+    ))
+    @govukInput(Input(
+        id = "requestBody.bankDetails.rollNumber",
+        name = "requestBody.bankDetails.rollNumber",
+        value = Some(""),
+        label = Label(
+            content = Text("roll number")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.bankDetails.rollNumber")
+    ))
+    @govukInput(Input(
+        id = "requestBody.bankDetails.accountName",
+        name = "requestBody.bankDetails.accountName",
+        value = Some("test name"),
+        label = Label(
+            content = Text("account name")
+        ),
+        classes = "govuk-!-width-two-thirds",
+        errorMessage = formErrorMessage(form, "requestBody.bankDetails.accountName")
+    ))
+}
+
+@enterAuthDetails = {
 @govukInput(Input(
-    id = "requestBody.nino",
-    name = "requestBody.nino",
+    id = "authUserDetails.nino",
+    name = "authUserDetails.nino",
     value = Some("AE123456C"),
     label = Label(
         content = Text("NINO")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.nino")
+    errorMessage = formErrorMessage(form, "authUserDetails.nino")
 ))
 @govukInput(Input(
-    id = "requestBody.forename",
-    name = "requestBody.forename",
+    id = "authUserDetails.forename",
+    name = "authUserDetails.forename",
     value = Some("Alex"),
     label = Label(
         content = Text("forename")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.forename")
+    errorMessage = formErrorMessage(form, "authUserDetails.forename")
 ))
 @govukInput(Input(
-    id = "requestBody.surname",
-    name = "requestBody.surname",
+    id = "authUserDetails.surname",
+    name = "authUserDetails.surname",
     value = Some("Brown"),
     label = Label(
         content = Text("surname")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.surname")
+    errorMessage = formErrorMessage(form, "authUserDetails.surname")
 ))
 @govukInput(Input(
-    id = "requestBody.dateOfBirth",
-    name = "requestBody.dateOfBirth",
+    id = "authUserDetails.dateOfBirth",
+    name = "authUserDetails.dateOfBirth",
     value = Some("19920423"),
     label = Label(
         content = Text("dateOfBirth")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.dateOfBirth")
+    errorMessage = formErrorMessage(form, "authUserDetails.dateOfBirth")
 ))
 @govukInput(Input(
-    id = "requestBody.contactDetails.address1",
-    name = "requestBody.contactDetails.address1",
+    id = "authUserDetails.address1",
+    name = "authUserDetails.address1",
     value = Some("44, quicksilver"),
     label = Label(
         content = Text("address1")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.contactDetails.address1")
+    errorMessage = formErrorMessage(form, "authUserDetails.address1")
 ))
 @govukInput(Input(
-    id = "requestBody.contactDetails.address2",
-    name = "requestBody.contactDetails.address2",
+    id = "authUserDetails.address2",
+    name = "authUserDetails.address2",
     value = Some("Blackpool"),
     label = Label(
         content = Text("address2")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.contactDetails.address2")
+    errorMessage = formErrorMessage(form, "authUserDetails.address2")
 ))
 @govukInput(Input(
-    id = "requestBody.contactDetails.address3",
-    name = "requestBody.contactDetails.address3",
+    id = "authUserDetails.address3",
+    name = "authUserDetails.address3",
     value = Some(""),
     label = Label(
         content = Text("address3")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.contactDetails.address3")
+    errorMessage = formErrorMessage(form, "authUserDetails.address3")
 ))
 @govukInput(Input(
-    id = "requestBody.contactDetails.address4",
-    name = "requestBody.contactDetails.address4",
+    id = "authUserDetails.address4",
+    name = "authUserDetails.address4",
     value = Some(""),
     label = Label(
         content = Text("address4")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.contactDetails.address4")
+    errorMessage = formErrorMessage(form, "authUserDetails.address4")
 ))
 @govukInput(Input(
-    id = "requestBody.contactDetails.address5",
-    name = "requestBody.contactDetails.address5",
+    id = "authUserDetails.address5",
+    name = "authUserDetails.address5",
     value = Some(""),
     label = Label(
         content = Text("address5")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.contactDetails.address5")
+    errorMessage = formErrorMessage(form, "authUserDetails.address5")
 ))
 @govukInput(Input(
-    id = "requestBody.contactDetails.postcode",
-    name = "requestBody.contactDetails.postcode",
+    id = "authUserDetails.postcode",
+    name = "authUserDetails.postcode",
     value = Some("FY43 1FB"),
     label = Label(
         content = Text("postcode")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.contactDetails.postcode")
+    errorMessage = formErrorMessage(form, "authUserDetails.postcode")
 ))
 @govukInput(Input(
-    id = "requestBody.contactDetails.countryCode",
-    name = "requestBody.contactDetails.countryCode",
+    id = "authUserDetails.countryCode",
+    name = "authUserDetails.countryCode",
     label = Label(
         content = Text("countryCode")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.contactDetails.countryCode")
+    errorMessage = formErrorMessage(form, "authUserDetails.countryCode")
 ))
 @govukInput(Input(
-    id = "requestBody.contactDetails.communicationPreference",
-    name = "requestBody.contactDetails.communicationPreference",
+    id = "authUserDetails.communicationPreference",
+    name = "authUserDetails.communicationPreference",
     value = Some("00"),
     label = Label(
         content = Text("communicationPreference")
     ),
     classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.contactDetails.communicationPreference")
+    errorMessage = formErrorMessage(form, "authUserDetails.communicationPreference")
 ))
 @govukInput(Input(
-    id = "requestBody.contactDetails.email",
-    name = "requestBody.contactDetails.email",
+    id = "authUserDetails.email",
+    name = "authUserDetails.email",
     value = Some(""),
     label = Label(
         content = Text("email")
     ),
-    classes = "govuk-!-width-two-thirds",
-    errorMessage = formErrorMessage(form, "requestBody.contactDetails.email")
+    errorMessage = formErrorMessage(form, "authUserDetails.email")
+))
+@govukSelect(Select(
+    id = "accessType",
+    name = "accessType",
+    items = Seq(
+        SelectItem(
+            value = Some("Privileged"),
+            text = "Privileged",
+            selected = true
+        ),
+        SelectItem(
+            value = Some("UserRestricted"),
+            text = "User-Restricted",
+        )
+    ),
+    label = Label(
+        content = Text("Access-Type")
+    )
 ))
 }
 
@@ -292,125 +504,17 @@
             )),
             html = enterRequestBody
         ))
-
-<div class="form-field-group">
-
-
-        <h3>Enter Request Body:</h3>
-
-
-        <div class="form-field">
-            <label class="label--inline">email:</label>
-            <input type="text" name="requestBody.contactDetails.email" size="30">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">phoneNumber:</label>
-            <input type="text" name="requestBody.contactDetails.phoneNumber" size="30">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">registrationChannel:</label>
-            <input type="text" name="requestBody.registrationChannel" size="30" value="callCentre">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">sort code:</label>
-            <input type="text" name="requestBody.bankDetails.sortCode" size="30" value="801497">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">account number:</label>
-            <input type="text" name="requestBody.bankDetails.accountNumber" size="30" value="11111111">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">roll number:</label>
-            <input type="text" name="requestBody.bankDetails.rollNumber" size="30">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">account name:</label>
-            <input type="text" name="requestBody.bankDetails.accountName" size="30" value="test name">
-        </div>
-
-        <h3>Enter Auth Details:</h3>
-
-        <div class="form-field">
-            <label class="label--inline">NINO:</label>
-            <input type="text" name="authUserDetails.nino" size="30" value="AE123456C"/>
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">forename:</label>
-            <input type="text" name="authUserDetails.forename" size="30" value="Alex">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">surname:</label>
-            <input type="text" name="authUserDetails.surname" size="30" value="Brown">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">dateOfBirth:</label>
-            <input type="text" name="authUserDetails.dateOfBirth" size="30" value="1992-04-23">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">address1:</label>
-            <input type="text" name="authUserDetails.address1" size="30" value="44, quicksilver">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">address2:</label>
-            <input type="text" name="authUserDetails.address2" size="30" value="Blackpool">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">address3:</label>
-            <input type="text" name="authUserDetails.address3" size="30">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">address4:</label>
-            <input type="text" name="authUserDetails.address4" size="30">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">address5:</label>
-            <input type="text" name="authUserDetails.address5" size="30">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">postcode:</label>
-            <input type="text" name="authUserDetails.postcode" size="30" value="FY43 1FB">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">countryCode:</label>
-            <input type="text" name="authUserDetails.countryCode" size="30">
-        </div>
-
-        <div class="form-field">
-            <label class="label--inline">email:</label>
-            <input type="text" name="authUserDetails.email" size="30">
-        </div>
-
-
-        <div class="form-field">
-            <label class="label--inline">accessType:</label>
-            <select name="accessType">
-                <option value="Privileged" selected>Privileged</option>
-                <option value="UserRestricted">User-restricted</option>
-            </select>
-        </div>
-
-
-        <p><input class="button" type="submit" value="Submit"></p>
-
-
-    </div>
-</div>
+        @govukFieldset(Fieldset(
+            legend = Some(Legend(
+                content = Text("Enter Auth Details"),
+                classes = "govuk-fieldset__legend--m",
+                isPageHeading = false
+            )),
+            html = enterAuthDetails
+        ))
+        @govukButton(Button(
+            content = Text("Continue")
+        ))
 }
 
 }
