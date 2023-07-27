@@ -18,7 +18,7 @@ val dependencies = Seq(
   "org.mongodb.scala" %% "mongo-scala-driver"           % "4.2.3",
   compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.12" cross CrossVersion.full),
   "com.github.ghik" % "silencer-lib" % "1.7.12" % Provided cross CrossVersion.full,
-  "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "3.34.0-play-28",
+  "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "5.0.0-play-28",
 )
 
 def testDependencies(scope: String = "test") = Seq(
