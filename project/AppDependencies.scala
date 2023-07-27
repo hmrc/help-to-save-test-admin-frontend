@@ -15,8 +15,6 @@ object AppDependencies {
     "org.typelevel"     %% "cats-core"                    % "2.2.0",
     "org.jsoup"         %  "jsoup"                        % "1.13.1",
     "org.mongodb.scala" %% "mongo-scala-driver"           % "4.2.3",
-    compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.12" cross CrossVersion.full),
-    "com.github.ghik" % "silencer-lib" % "1.7.12" % Provided cross CrossVersion.full,
     "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "5.0.0-play-28",
   )
 
