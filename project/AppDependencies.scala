@@ -9,12 +9,9 @@ object AppDependencies {
     ws,
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-28"   % hmrcBootstrapVersion,
     "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-28"           % "0.68.0",
-    "uk.gov.hmrc"       %% "play-allowlist-filter"        % "1.0.0-play-28",
     "uk.gov.hmrc"       %% "totp-generator"               % "0.22.0",
     "com.github.kxbmap" %% "configs"                      % "0.6.1",
     "org.typelevel"     %% "cats-core"                    % "2.2.0",
-    "org.jsoup"         %  "jsoup"                        % "1.13.1",
-    "org.mongodb.scala" %% "mongo-scala-driver"           % "4.2.3",
     "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "5.0.0-play-28",
   )
 
