@@ -8,7 +8,7 @@ lazy val appDependencies: Seq[ModuleID] = dependencies ++ testDependencies()
 
 val dependencies = Seq(
   ws,
-  "uk.gov.hmrc"       %% "bootstrap-frontend-play-28"   % "7.11.0",
+  "uk.gov.hmrc"       %% "bootstrap-frontend-play-28"   % "7.15.0",
   "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-28"           % "0.68.0",
   "uk.gov.hmrc"       %% "play-allowlist-filter"        % "1.0.0-play-28",
   "uk.gov.hmrc"       %% "totp-generator"               % "0.22.0",
