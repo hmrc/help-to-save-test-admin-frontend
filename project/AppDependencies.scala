@@ -11,13 +11,12 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "totp-generator"               % "0.22.0",
     "com.github.kxbmap" %% "configs"                      % "0.6.1",
     "org.typelevel"     %% "cats-core"                    % "2.2.0",
-    "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "5.0.0-play-28",
+    "uk.gov.hmrc"       %% "play-frontend-hmrc"           % "5.0.0-play-28"
   )
 
   def test(scope: String = "test"): Seq[ModuleID] = Seq(
-    "org.scalatestplus"       %% "mockito-3-12"                 % "3.2.10.0"          % scope,
     "uk.gov.hmrc"             %% "bootstrap-test-play-28"       % hmrcBootstrapVersion    % scope,
-    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-28"      % "0.68.0"            % scope,
-    "com.vladsch.flexmark"    % "flexmark-all"                  % "0.62.2"            % scope,
+    "org.mockito"             %% "mockito-scala"                % "1.17.12"           % scope,
+    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-28"      % "0.68.0"            % scope
   )
 }
