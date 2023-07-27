@@ -25,7 +25,6 @@ def testDependencies(scope: String = "test") = Seq(
   "org.scalatestplus"       %% "mockito-3-12"                 % "3.2.10.0"          % scope,
   "org.scalatestplus.play"  %% "scalatestplus-play"           % "5.1.0"             % scope,
   "uk.gov.hmrc"             %% "bootstrap-test-play-28"       % "7.11.0"            % scope,
-  "uk.gov.hmrc"             %% "service-integration-test"     % "1.1.0-play-28"     % scope,
   "uk.gov.hmrc"             %% "domain"                       % "6.2.0-play-28"     % scope,
   "uk.gov.hmrc"             %% "stub-data-generator"          % "0.5.3"             % scope,
   "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-28"      % "0.68.0"            % scope,
