@@ -1,14 +1,15 @@
 import play.core.PlayVersion
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "help-to-save-test-admin-frontend"
+
+val bootstrapVersion = "7.15.0"
 
 lazy val appDependencies: Seq[ModuleID] = dependencies ++ testDependencies()
 
 val dependencies = Seq(
   ws,
-  "uk.gov.hmrc"       %% "bootstrap-frontend-play-28"   % "7.15.0",
+  "uk.gov.hmrc"       %% "bootstrap-frontend-play-28"   % bootstrapVersion,
   "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-28"           % "0.68.0",
   "uk.gov.hmrc"       %% "play-allowlist-filter"        % "1.0.0-play-28",
   "uk.gov.hmrc"       %% "totp-generator"               % "0.22.0",
@@ -24,7 +25,7 @@ val dependencies = Seq(
 def testDependencies(scope: String = "test") = Seq(
   "org.scalatestplus"       %% "mockito-3-12"                 % "3.2.10.0"          % scope,
   "org.scalatestplus.play"  %% "scalatestplus-play"           % "5.1.0"             % scope,
-  "uk.gov.hmrc"             %% "bootstrap-test-play-28"       % "7.11.0"            % scope,
+  "uk.gov.hmrc"             %% "bootstrap-test-play-28"       % bootstrapVersion            % scope,
   "uk.gov.hmrc"             %% "domain"                       % "6.2.0-play-28"     % scope,
   "uk.gov.hmrc"             %% "stub-data-generator"          % "0.5.3"             % scope,
   "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-28"      % "0.68.0"            % scope,
@@ -56,7 +57,6 @@ lazy val microservice = Project(appName, file("."))
   .settings(playSettings ++ scoverageSettings: _*)
   .settings(scalaSettings: _*)
   .settings(majorVersion := 2)
-  .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
   .settings(scalaVersion := "2.12.16")
   .settings(PlayKeys.playDefaultPort := 7007)
