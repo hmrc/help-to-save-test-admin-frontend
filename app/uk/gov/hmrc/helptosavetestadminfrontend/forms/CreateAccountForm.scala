@@ -18,11 +18,11 @@ package uk.gov.hmrc.helptosavetestadminfrontend.forms
 
 import play.api.data.Forms._
 import play.api.data._
-import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, HttpHeaders}
 import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.CreateAccountBody.{BankDetails, ContactDetails}
 import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.{CreateAccountBody, CreateAccountHeader}
-import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
+import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, HttpHeaders}
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter._
+import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 
 object CreateAccountForm {
 

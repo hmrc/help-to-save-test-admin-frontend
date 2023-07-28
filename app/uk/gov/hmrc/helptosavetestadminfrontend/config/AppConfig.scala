@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.config
 
-import java.util.UUID
-
-import javax.inject.{Inject, Singleton}
-import play.api.Mode
-import play.api.{Configuration, Environment}
+import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 class AppConfig @Inject()(

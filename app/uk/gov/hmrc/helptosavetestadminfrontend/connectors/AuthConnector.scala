@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
-import java.util.UUID
-
 import cats.data.NonEmptyList
 import com.google.inject.Inject
 import org.joda.time.DateTime
@@ -29,9 +27,9 @@ import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObject
 import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
 import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
-import uk.gov.hmrc.http.SessionId
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionKeys}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId, SessionKeys}
 
+import java.util.UUID
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random

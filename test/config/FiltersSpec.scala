@@ -20,9 +20,9 @@ import akka.stream.Materializer
 import controllers.TestSupport
 import play.api.Configuration
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{AllowListFilter, Filters}
-import uk.gov.hmrc.play.bootstrap.frontend.filters.SessionIdFilter
 import uk.gov.hmrc.play.bootstrap.filters.MDCFilter
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvider
+import uk.gov.hmrc.play.bootstrap.frontend.filters.SessionIdFilter
 
 import javax.inject.{Inject, Singleton}
 

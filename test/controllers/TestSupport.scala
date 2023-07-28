@@ -16,7 +16,6 @@
 
 package controllers
 
-import java.util.UUID
 import com.typesafe.config.ConfigFactory
 import org.mockito.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
@@ -28,10 +27,10 @@ import play.api.test.FakeRequest
 import play.api.{Application, Configuration, Play}
 import play.filters.csrf.CSRFAddToken
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext
 
 trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with MockitoSugar {

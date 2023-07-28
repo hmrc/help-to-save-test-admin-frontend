@@ -16,9 +16,6 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.controllers
 
-import java.util.UUID
-import java.util.concurrent.TimeUnit
-
 import com.google.common.cache._
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -35,6 +32,8 @@ import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.totp.TotpGenerator
 
+import java.util.UUID
+import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton

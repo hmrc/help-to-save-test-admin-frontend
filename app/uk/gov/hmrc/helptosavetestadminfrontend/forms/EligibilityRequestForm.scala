@@ -19,8 +19,8 @@ package uk.gov.hmrc.helptosavetestadminfrontend.forms
 import play.api.data.Forms._
 import play.api.data._
 import uk.gov.hmrc.helptosavetestadminfrontend.models.HttpHeaders
-import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter._
+import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 
 object EligibilityRequestForm {
 
