@@ -27,26 +27,28 @@ object EligibilityRequestForm {
   def eligibilityForm = Form(
     mapping(
       "httpHeaders" → mapping(
-        "accept" -> optional(text),
-        "govClientUserId" -> optional(text),
-        "govClientTimezone" -> optional(text),
-        "govVendorVersion" -> optional(text),
+        "accept"              -> optional(text),
+        "govClientUserId"     -> optional(text),
+        "govClientTimezone"   -> optional(text),
+        "govVendorVersion"    -> optional(text),
         "govVendorInstanceId" -> optional(text)
-      ){ case (a, clientId, clientTimeZone, vendorVersion, vendorId) ⇒
-        HttpHeaders(a, None, clientId, clientTimeZone, vendorVersion, vendorId)}{
-        h ⇒ Some((h.accept, h.govClientUserId, h.govClientTimezone, h.govVendorVersion, h.govVendorInstanceId))
+      ) {
+        case (a, clientId, clientTimeZone, vendorVersion, vendorId) ⇒
+          HttpHeaders(a, None, clientId, clientTimeZone, vendorVersion, vendorId)
+      } { h ⇒
+        Some((h.accept, h.govClientUserId, h.govClientTimezone, h.govVendorVersion, h.govVendorInstanceId))
       },
-      "authNino" -> optional(text),
+      "authNino"    -> optional(text),
       "requestNino" -> optional(text),
-      "accessType" -> of(accessFormatter)
+      "accessType"  -> of(accessFormatter)
     )(EligibilityParams.apply)(EligibilityParams.unapply)
   )
 
 }
 
 case class EligibilityParams(
-                              httpHeaders: HttpHeaders,
-                              authNino: Option[String],
-                              requestNino: Option[String],
-                              accessType: AccessType
-                            )
+  httpHeaders: HttpHeaders,
+  authNino: Option[String],
+  requestNino: Option[String],
+  accessType: AccessType
+)

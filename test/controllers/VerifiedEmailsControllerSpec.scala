@@ -29,7 +29,10 @@ class VerifiedEmailsControllerSpec extends TestSupport {
 
   val store: VerifiedEmailMongoRepository = mock[VerifiedEmailMongoRepository]
 
-  val controller = new VerifiedEmailsController(store, testMCC, testErrorHandler,specify_emails_to_delete,emails_deleted)(appConfig, ec)
+  val controller =
+    new VerifiedEmailsController(store, testMCC, testErrorHandler, specify_emails_to_delete, emails_deleted)(
+      appConfig,
+      ec)
 
   def mockDeleteEmails(emails: List[String])(result: Future[Either[List[String], Unit]]): Unit =
     when(store.deleteEmails(ArgumentMatchers.eq(emails))).thenReturn(result)
@@ -41,7 +44,8 @@ class VerifiedEmailsControllerSpec extends TestSupport {
     val emails: List[String] = List(email1, email2)
 
     def submit(): Future[Result] =
-      csrfAddToken(controller.deleteVerifiedEmails())(fakeRequest.withFormUrlEncodedBody("emails" → s"$email1, $email2"))
+      csrfAddToken(controller.deleteVerifiedEmails())(
+        fakeRequest.withFormUrlEncodedBody("emails" → s"$email1, $email2"))
 
     "return 200 status and the emails deleted page when call to delete emails is successful" in {
       mockDeleteEmails(emails)(Future.successful(Right(())))
@@ -57,7 +61,8 @@ class VerifiedEmailsControllerSpec extends TestSupport {
     }
 
     "return 200 status and directs the user back to the same page when a form with errors is submitted" in {
-      val result = await(csrfAddToken(controller.deleteVerifiedEmails())(fakeRequest.withFormUrlEncodedBody("emails" → "")))
+      val result =
+        await(csrfAddToken(controller.deleteVerifiedEmails())(fakeRequest.withFormUrlEncodedBody("emails" → "")))
 
       status(result) shouldBe 200
       contentAsString(result) should include("Specify the emails you wish to delete from email-verification")

@@ -39,18 +39,16 @@ trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with
 
   lazy val additionalConfig = Configuration()
 
-  def buildFakeApplication(additionalConfig: Configuration): Application = {
+  def buildFakeApplication(additionalConfig: Configuration): Application =
     new GuiceApplicationBuilder()
-      .configure(Configuration(
-        ConfigFactory.parseString(
-          """
-            |
-            |
+      .configure(
+        Configuration(
+          ConfigFactory.parseString("""
+                                      |
+                                      |
           """.stripMargin)
-        ).withFallback(additionalConfig)
-      )
+        ).withFallback(additionalConfig))
       .build()
-  }
 
   implicit lazy val fakeApplication: Application = buildFakeApplication(additionalConfig)
 
@@ -74,7 +72,8 @@ trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with
   implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
 
   implicit lazy val appConfig: AppConfig = fakeApplication.injector.instanceOf[AppConfig]
-  implicit lazy val specify_emails_to_delete: specify_emails_to_delete = fakeApplication.injector.instanceOf[specify_emails_to_delete]
+  implicit lazy val specify_emails_to_delete: specify_emails_to_delete =
+    fakeApplication.injector.instanceOf[specify_emails_to_delete]
   implicit lazy val emails_deleted: emails_deleted = fakeApplication.injector.instanceOf[emails_deleted]
 
   implicit lazy val configuration: Configuration = appConfig.runModeConfiguration

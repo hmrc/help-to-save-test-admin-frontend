@@ -23,12 +23,13 @@ object AccessFormatter {
 
   val accessFormatter = new Formatter[AccessType] {
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], AccessType] =
-      data.get(key).fold[Either[Seq[FormError], AccessType]](
-        Left(Seq(FormError(key, "There was no AccessType string found")))){
-        case "Privileged"     ⇒ Right(Privileged)
-        case "UserRestricted" ⇒ Right(UserRestricted)
-        case error            ⇒ Left(Seq(FormError(key, s"Invalid AccessType found, error message: $error")))
-      }
+      data
+        .get(key)
+        .fold[Either[Seq[FormError], AccessType]](Left(Seq(FormError(key, "There was no AccessType string found")))) {
+          case "Privileged" ⇒ Right(Privileged)
+          case "UserRestricted" ⇒ Right(UserRestricted)
+          case error ⇒ Left(Seq(FormError(key, s"Invalid AccessType found, error message: $error")))
+        }
 
     override def unbind(key: String, value: AccessType): Map[String, String] =
       Map(key -> value.toString)
