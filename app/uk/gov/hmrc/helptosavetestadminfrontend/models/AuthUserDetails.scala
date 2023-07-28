@@ -17,22 +17,22 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.models
 
 case class AuthUserDetails(
-                            nino: Option[String],
-                            forename:Option[String],
-                            surname: Option[String],
-                            dateOfBirth: Option[String],
-                            address1: Option[String],
-                            address2: Option[String],
-                            address3: Option[String],
-                            address4: Option[String],
-                            address5: Option[String],
-                            postcode: Option[String],
-                            countryCode: Option[String],
-                            email: Option[String]
-                          )
+  nino: Option[String],
+  forename: Option[String],
+  surname: Option[String],
+  dateOfBirth: Option[String],
+  address1: Option[String],
+  address2: Option[String],
+  address3: Option[String],
+  address4: Option[String],
+  address5: Option[String],
+  postcode: Option[String],
+  countryCode: Option[String],
+  email: Option[String]
+)
 
 object AuthUserDetails {
 
-  def empty(): AuthUserDetails = AuthUserDetails(None, None, None, None, None, None, None,None, None, None, None, None)
+  def empty(): AuthUserDetails = AuthUserDetails(None, None, None, None, None, None, None, None, None, None, None, None)
 
 }

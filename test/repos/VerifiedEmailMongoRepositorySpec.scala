@@ -26,7 +26,8 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-class VerifiedEmailMongoRepositorySpec extends MongoSupport with MockitoSugar with UnitSpec with DefaultPlayMongoRepositorySupport[Email] {
+class VerifiedEmailMongoRepositorySpec
+    extends MongoSupport with MockitoSugar with UnitSpec with DefaultPlayMongoRepositorySupport[Email] {
   override lazy val repository = new VerifiedEmailMongoRepository(mongoComponent)
 
   "deleteEmails" must {
@@ -39,7 +40,7 @@ class VerifiedEmailMongoRepositorySpec extends MongoSupport with MockitoSugar wi
 
     "return a Right when all emails are successfully deleted" in {
       dropDatabase()
-      repository.collection.insertMany(Seq(email1,email2))
+      repository.collection.insertMany(Seq(email1, email2))
       delete(emails) shouldBe Right(())
     }
   }

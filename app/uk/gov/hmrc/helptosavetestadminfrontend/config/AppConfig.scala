@@ -16,21 +16,22 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.config
 
-import java.util.UUID
-
-import javax.inject.{Inject, Singleton}
-import play.api.Mode
-import play.api.{Configuration, Environment}
+import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
+
 @Singleton
-class AppConfig @Inject()(val runModeConfiguration: Configuration,
-                          environment:              Environment,
-                          servicesConfig:           ServicesConfig) {
+class AppConfig @Inject()(
+  val runModeConfiguration: Configuration,
+  environment: Environment,
+  servicesConfig: ServicesConfig) {
 
   protected def mode: Mode = environment.mode
 
-  private def loadConfig(key: String) = runModeConfiguration.getOptional[String](key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
+  private def loadConfig(key: String) =
+    runModeConfiguration.getOptional[String](key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
   lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
 
@@ -50,11 +51,14 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration,
   val scopes = "read:help-to-save write:help-to-save"
 
   val authorizeCallbackForITests = s"$adminFrontendUrl/help-to-save-test-admin-frontend/authorize-callback-for-itests"
+
   def authorizeCallback(id: Option[UUID]): String =
     s"$adminFrontendUrl/help-to-save-test-admin-frontend/" +
-    id.fold("authorize-callback-for-itests")(i ⇒ s"authorize-callback?id=${i.toString}")
+      id.fold("authorize-callback-for-itests")(i ⇒ s"authorize-callback?id=${i.toString}")
 
-  def authorizeUrl(id: UUID) = s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=${authorizeCallback(Some(id))}"
+  def authorizeUrl(id: UUID) =
+    s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=${authorizeCallback(
+      Some(id))}"
 
   val authLoginApiUrl: String = servicesConfig.getString("microservice.services.auth-login-api.url")
   val authUrl: String = servicesConfig.getString("microservice.services.auth.url")

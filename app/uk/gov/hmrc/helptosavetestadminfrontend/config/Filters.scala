@@ -24,8 +24,8 @@ import play.api.mvc.EssentialFilter
 
 @Singleton
 class Filters @Inject()(
-     configuration:   Configuration,
-     allowListFilter: AllowListFilter
+  configuration: Configuration,
+  allowListFilter: AllowListFilter
 ) extends HttpFilters {
 
   val allowListFilterEnabled: Boolean =

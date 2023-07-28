@@ -22,10 +22,8 @@ import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
-class AdminFrontendController (appConfig: AppConfig,
-                               mcc: MessagesControllerComponents,
-                               errorHandler: ErrorHandler)
-  extends FrontendController(mcc) {
+class AdminFrontendController(appConfig: AppConfig, mcc: MessagesControllerComponents, errorHandler: ErrorHandler)
+    extends FrontendController(mcc) {
 
   def internalServerError()(implicit request: Request[_]): Result =
     InternalServerError(errorHandler.internalServerErrorTemplate(request))

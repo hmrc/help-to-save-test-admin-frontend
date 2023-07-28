@@ -16,7 +16,6 @@
 
 package controllers
 
-import java.util.UUID
 import com.typesafe.config.ConfigFactory
 import org.mockito.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
@@ -28,10 +27,10 @@ import play.api.test.FakeRequest
 import play.api.{Application, Configuration, Play}
 import play.filters.csrf.CSRFAddToken
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext
 
 trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with MockitoSugar {
@@ -39,18 +38,16 @@ trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with
 
   lazy val additionalConfig = Configuration()
 
-  def buildFakeApplication(additionalConfig: Configuration): Application = {
+  def buildFakeApplication(additionalConfig: Configuration): Application =
     new GuiceApplicationBuilder()
-      .configure(Configuration(
-        ConfigFactory.parseString(
-          """
-            |
-            |
+      .configure(
+        Configuration(
+          ConfigFactory.parseString("""
+                                      |
+                                      |
           """.stripMargin)
-        ).withFallback(additionalConfig)
-      )
+        ).withFallback(additionalConfig))
       .build()
-  }
 
   implicit lazy val fakeApplication: Application = buildFakeApplication(additionalConfig)
 
@@ -74,7 +71,8 @@ trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with
   implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
 
   implicit lazy val appConfig: AppConfig = fakeApplication.injector.instanceOf[AppConfig]
-  implicit lazy val specify_emails_to_delete: specify_emails_to_delete = fakeApplication.injector.instanceOf[specify_emails_to_delete]
+  implicit lazy val specify_emails_to_delete: specify_emails_to_delete =
+    fakeApplication.injector.instanceOf[specify_emails_to_delete]
   implicit lazy val emails_deleted: emails_deleted = fakeApplication.injector.instanceOf[emails_deleted]
 
   implicit lazy val configuration: Configuration = appConfig.runModeConfiguration

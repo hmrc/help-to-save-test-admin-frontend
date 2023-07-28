@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
-import java.util.UUID
-
 import cats.data.NonEmptyList
 import com.google.inject.Inject
 import org.joda.time.DateTime
@@ -29,32 +27,35 @@ import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObject
 import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
 import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
-import uk.gov.hmrc.http.SessionId
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionKeys}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId, SessionKeys}
 
+import java.util.UUID
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
 
-  def login(authUserDetails: AuthUserDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, SessionToken]] = {
+  def login(authUserDetails: AuthUserDetails)(
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext): Future[Either[String, SessionToken]] = {
     val credId = Random.alphanumeric.take(10).mkString // scalastyle:ignore magic.number
     val json = getGGRequestBody(authUserDetails, credId)
-    http.post(s"${appConfig.authLoginApiUrl}/government-gateway/session/login", json).map {
-      response ⇒
+    http
+      .post(s"${appConfig.authLoginApiUrl}/government-gateway/session/login", json)
+      .map { response ⇒
         if (response.status == 201) {
           (
             response.header(HeaderNames.AUTHORIZATION),
             response.header(HeaderNames.LOCATION),
-            (response.json \ "gatewayToken").asOpt[String])
-          match {
+            (response.json \ "gatewayToken").asOpt[String]) match {
             case (Some(token), Some(_), Some(_)) =>
-              val session = Session(Map(
-                SessionKeys.sessionId -> SessionId(s"session-${UUID.randomUUID}").value,
-                SessionKeys.authToken -> token,
-                SessionKeys.lastRequestTimestamp -> DateTime.now.getMillis.toString
-              ))
+              val session = Session(
+                Map(
+                  SessionKeys.sessionId            -> SessionId(s"session-${UUID.randomUUID}").value,
+                  SessionKeys.authToken            -> token,
+                  SessionKeys.lastRequestTimestamp -> DateTime.now.getMillis.toString
+                ))
 
               Right(SessionToken(session))
             case _ => Left("Internal Error, missing headers or gatewayToken in response from auth-login-api")
@@ -62,51 +63,55 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
         } else {
           Left(s"failed calling auth-login-api, got status ${response.status}, body: ${response.body}")
         }
-    }.recover {
-      case ex ⇒ Left(s"error during auth, error=${ex.getMessage}")
-    }
+      }
+      .recover {
+        case ex ⇒ Left(s"error during auth, error=${ex.getMessage}")
+      }
   }
 
-  def getPrivilegedToken()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, LocalPrivilegedToken]] = {
-    http.post(s"${appConfig.authUrl}/auth/sessions", privilegedRequestBody).map{ response ⇒
-      response.header(HeaderNames.AUTHORIZATION).fold[Either[String,LocalPrivilegedToken]](
-        Left("Could not find Authorization header in response")
-      )(t ⇒ Right(LocalPrivilegedToken(t)))
+  def getPrivilegedToken()(
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext): Future[Either[String, LocalPrivilegedToken]] =
+    http.post(s"${appConfig.authUrl}/auth/sessions", privilegedRequestBody).map { response ⇒
+      response
+        .header(HeaderNames.AUTHORIZATION)
+        .fold[Either[String, LocalPrivilegedToken]](
+          Left("Could not find Authorization header in response")
+        )(t ⇒ Right(LocalPrivilegedToken(t)))
     }
-  }
 
-
-  val privilegedRequestBody: JsValue = JsObject(Map(
-    "clientId" → JsString("id"),
-    "enrolments" → JsArray(),
-    "ttl" → JsNumber(1200) // scalastyle:ignore magic.number
-  ))
+  val privilegedRequestBody: JsValue = JsObject(
+    Map(
+      "clientId" → JsString("id"),
+      "enrolments" → JsArray(),
+      "ttl" → JsNumber(1200) // scalastyle:ignore magic.number
+    ))
 
   def getGGRequestBody(authUserDetails: AuthUserDetails, credId: String): JsValue = {
-    val json: JsObject = JsObject(Map(
-      "credId" → JsString(credId),
-      "affinityGroup" → JsString("Individual"),
-      "confidenceLevel" → JsNumber(200), // scalastyle:ignore magic.number
-      "credentialStrength" → JsString("strong"),
-      "credentialRole" → JsString("User"))
-    )
+    val json: JsObject = JsObject(
+      Map(
+        "credId" → JsString(credId),
+        "affinityGroup" → JsString("Individual"),
+        "confidenceLevel" → JsNumber(200), // scalastyle:ignore magic.number
+        "credentialStrength" → JsString("strong"),
+        "credentialRole" → JsString("User")
+      ))
 
     json
       .withField("nino", authUserDetails.nino.map(JsString))
       .withField(NonEmptyList.of("itmpData", "givenName"), authUserDetails.forename.map(JsString))
       .withField(NonEmptyList.of("itmpData", "familyName"), authUserDetails.surname.map(JsString))
       .withField(NonEmptyList.of("itmpData", "birthdate"), authUserDetails.dateOfBirth.map(JsString))
-      .withField(NonEmptyList.of("itmpData","address", "line1"), authUserDetails.address1.map(JsString))
-      .withField(NonEmptyList.of("itmpData","address", "line2"), authUserDetails.address2.map(JsString))
-      .withField(NonEmptyList.of("itmpData","address", "line3"), authUserDetails.address3.map(JsString))
-      .withField(NonEmptyList.of("itmpData","address", "line4"), authUserDetails.address4.map(JsString))
-      .withField(NonEmptyList.of("itmpData","address", "line5"), authUserDetails.address5.map(JsString))
-      .withField(NonEmptyList.of("itmpData","address", "postCode"), authUserDetails.postcode.map(JsString))
+      .withField(NonEmptyList.of("itmpData", "address", "line1"), authUserDetails.address1.map(JsString))
+      .withField(NonEmptyList.of("itmpData", "address", "line2"), authUserDetails.address2.map(JsString))
+      .withField(NonEmptyList.of("itmpData", "address", "line3"), authUserDetails.address3.map(JsString))
+      .withField(NonEmptyList.of("itmpData", "address", "line4"), authUserDetails.address4.map(JsString))
+      .withField(NonEmptyList.of("itmpData", "address", "line5"), authUserDetails.address5.map(JsString))
+      .withField(NonEmptyList.of("itmpData", "address", "postCode"), authUserDetails.postcode.map(JsString))
       .withField(NonEmptyList.of("itmpData", "address", "countryCode"), authUserDetails.countryCode.map(JsString))
       .withField("email", authUserDetails.email.map(JsString))
       .withField("enrolments", Some(JsArray()))
   }
-
 
 }
 
@@ -124,8 +129,8 @@ object AuthConnector {
 
     @tailrec
     def loop(l: List[String], acc: JsObject): JsObject = l match {
-      case Nil          ⇒ acc
-      case head :: Nil  ⇒ JsObject(List(head → acc))
+      case Nil ⇒ acc
+      case head :: Nil ⇒ JsObject(List(head → acc))
       case head :: tail ⇒ loop(tail, JsObject(List(head → acc)))
     }
 
