@@ -17,7 +17,7 @@
 package repos
 
 import controllers.UnitSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.MockitoSugar
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.Email
 import uk.gov.hmrc.helptosavetestadminfrontend.repos.VerifiedEmailMongoRepository
 import uk.gov.hmrc.mongo.test.{DefaultPlayMongoRepositorySupport, MongoSupport}
