@@ -5,7 +5,7 @@ lazy val microservice = Project(appName, file("."))
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
     majorVersion := 2,
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.11",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test(),
     // ***************
     // Use the silencer plugin to suppress warnings
@@ -20,3 +20,5 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(CodeCoverageSettings.settings *)
   .settings(scalafmtOnCompile := true)
+
+libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
