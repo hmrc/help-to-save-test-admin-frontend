@@ -39,14 +39,14 @@ class FiltersSpec @Inject()(implicit val mat: Materializer)
   "Filters" must {
 
     "include the allowList filter if the allowList from config is non empty" in {
-      val config = Configuration("http-header-ip-whitelist" → List("1.2.3"))
+      val config = Configuration("http-header-ip-whitelist" -> List("1.2.3"))
 
       val filters = new Filters(config, allowListFilter)
       filters.filters shouldBe Seq(allowListFilter)
     }
 
     "not include the allowList filter if the allowList from config is empty" in {
-      val config = Configuration("http-header-ip-whitelist" → List())
+      val config = Configuration("http-header-ip-whitelist" -> List())
 
       val filters = new Filters(config, allowListFilter)
       filters.filters shouldBe Seq()

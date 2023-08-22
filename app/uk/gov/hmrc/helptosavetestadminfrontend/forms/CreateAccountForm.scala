@@ -60,11 +60,11 @@ object CreateAccountForm {
       "phoneNumber"             -> optional(text)
     )(ContactDetails.apply)(ContactDetails.unapply),
     "registrationChannel" -> optional(text),
-    "bankDetails" → mapping(
-      "sortCode" → optional(text),
-      "accountNumber" → optional(text),
-      "rollNumber" → optional(text),
-      "accountName" → optional(text)
+    "bankDetails" -> mapping(
+      "sortCode" -> optional(text),
+      "accountNumber" -> optional(text),
+      "rollNumber" -> optional(text),
+      "accountName" -> optional(text)
     )(BankDetails.apply)(BankDetails.unapply)
   )(CreateAccountBody.apply)(CreateAccountBody.unapply)
 
@@ -85,10 +85,10 @@ object CreateAccountForm {
 
   def createAccountForm = Form(
     mapping(
-      "httpHeaders" → httpHeaderMapping,
-      "requestHeaders" → requestHeaderMapping,
-      "requestBody" → requestBodyMapping,
-      "authUserDetails" → authUserDetailsMapping,
+      "httpHeaders" -> httpHeaderMapping,
+      "requestHeaders" -> requestHeaderMapping,
+      "requestBody" -> requestBodyMapping,
+      "authUserDetails" -> authUserDetailsMapping,
       "accessType" -> of(accessFormatter)
     )(CreateAccountParams.apply)(CreateAccountParams.unapply)
   )

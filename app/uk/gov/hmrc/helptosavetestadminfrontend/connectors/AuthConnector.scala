@@ -43,7 +43,7 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
     val json = getGGRequestBody(authUserDetails, credId)
     http
       .post(s"${appConfig.authLoginApiUrl}/government-gateway/session/login", json)
-      .map { response ⇒
+      .map { response =>
         if (response.status == 201) {
           (
             response.header(HeaderNames.AUTHORIZATION),
@@ -65,36 +65,36 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
         }
       }
       .recover {
-        case ex ⇒ Left(s"error during auth, error=${ex.getMessage}")
+        case ex => Left(s"error during auth, error=${ex.getMessage}")
       }
   }
 
   def getPrivilegedToken()(
     implicit hc: HeaderCarrier,
     ec: ExecutionContext): Future[Either[String, LocalPrivilegedToken]] =
-    http.post(s"${appConfig.authUrl}/auth/sessions", privilegedRequestBody).map { response ⇒
+    http.post(s"${appConfig.authUrl}/auth/sessions", privilegedRequestBody).map { response =>
       response
         .header(HeaderNames.AUTHORIZATION)
         .fold[Either[String, LocalPrivilegedToken]](
           Left("Could not find Authorization header in response")
-        )(t ⇒ Right(LocalPrivilegedToken(t)))
+        )(t => Right(LocalPrivilegedToken(t)))
     }
 
   val privilegedRequestBody: JsValue = JsObject(
     Map(
-      "clientId" → JsString("id"),
-      "enrolments" → JsArray(),
-      "ttl" → JsNumber(1200) // scalastyle:ignore magic.number
+      "clientId" -> JsString("id"),
+      "enrolments" -> JsArray(),
+      "ttl" -> JsNumber(1200) // scalastyle:ignore magic.number
     ))
 
   def getGGRequestBody(authUserDetails: AuthUserDetails, credId: String): JsValue = {
     val json: JsObject = JsObject(
       Map(
-        "credId" → JsString(credId),
-        "affinityGroup" → JsString("Individual"),
-        "confidenceLevel" → JsNumber(200), // scalastyle:ignore magic.number
-        "credentialStrength" → JsString("strong"),
-        "credentialRole" → JsString("User")
+        "credId" -> JsString(credId),
+        "affinityGroup" -> JsString("Individual"),
+        "confidenceLevel" -> JsNumber(200), // scalastyle:ignore magic.number
+        "credentialStrength" -> JsString("strong"),
+        "credentialRole" -> JsString("User")
       ))
 
     json
@@ -119,7 +119,7 @@ object AuthConnector {
 
   implicit class JsObjectOps(val j: JsObject) extends AnyVal {
     def withField(path: NonEmptyList[String], value: Option[JsValue]): JsObject =
-      value.fold(j)(v ⇒ j.deepMerge(jsObject(path → v)))
+      value.fold(j)(v => j.deepMerge(jsObject(path -> v)))
 
     def withField(fieldName: String, value: Option[JsValue]): JsObject =
       withField(NonEmptyList.one(fieldName), value)
@@ -129,13 +129,13 @@ object AuthConnector {
 
     @tailrec
     def loop(l: List[String], acc: JsObject): JsObject = l match {
-      case Nil ⇒ acc
-      case head :: Nil ⇒ JsObject(List(head → acc))
-      case head :: tail ⇒ loop(tail, JsObject(List(head → acc)))
+      case Nil => acc
+      case head :: Nil => JsObject(List(head -> acc))
+      case head :: tail => loop(tail, JsObject(List(head -> acc)))
     }
 
     val reversed = s._1.reverse
-    loop(reversed.tail, JsObject(List(reversed.head → s._2)))
+    loop(reversed.tail, JsObject(List(reversed.head -> s._2)))
   }
 
 }

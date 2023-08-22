@@ -41,15 +41,15 @@ class OAuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends L
             (response.json \ "access_token")
               .validate[String]
               .fold(
-                errors ⇒ Left(s"An error occurred during token validation: $errors"),
-                token ⇒ Right(AccessToken(token))
+                errors => Left(s"An error occurred during token validation: $errors"),
+                token => Right(AccessToken(token))
               )
           case other: Int =>
             Left(s"Got status $other, body was ${response.body}")
         }
       }
       .recover {
-        case ex ⇒
+        case ex =>
           Left(ex.getMessage)
       }
 

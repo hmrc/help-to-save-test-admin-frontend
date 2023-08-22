@@ -29,11 +29,11 @@ class DummyPagesController @Inject()(
   pay_in: pay_in)
     extends FrontendController(mcc) with I18nSupport {
 
-  def accountHomepage: Action[AnyContent] = Action { implicit request ⇒
+  def accountHomepage: Action[AnyContent] = Action { implicit request =>
     Ok(account_homepage())
   }
 
-  def payIn: Action[AnyContent] = Action { implicit request ⇒
+  def payIn: Action[AnyContent] = Action { implicit request =>
     Ok(pay_in())
   }
 

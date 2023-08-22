@@ -37,15 +37,15 @@ class VerifiedEmailsController @Inject()(
   ec: ExecutionContext
 ) extends AdminFrontendController(appConfig, mcc, errorHandler) with I18nSupport {
 
-  def deleteVerifiedEmails: Action[AnyContent] = Action.async { implicit request ⇒
+  def deleteVerifiedEmails: Action[AnyContent] = Action.async { implicit request =>
     EmailsForm.deleteEmailsForm
       .bindFromRequest()
       .fold(
-        formWithErrors ⇒ Future.successful(Ok(specify_emails_to_delete(formWithErrors))), { emails ⇒
+        formWithErrors => Future.successful(Ok(specify_emails_to_delete(formWithErrors))), { emails =>
           val emailsList: List[String] = emails.emails.split(",").toList.map(_.trim)
           verifiedEmailRepo.deleteEmails(emailsList).map {
-            case Right(()) ⇒ Ok(emails_deleted())
-            case Left(errors) ⇒ InternalServerError(s"An error occurred, error messages: $errors")
+            case Right(()) => Ok(emails_deleted())
+            case Left(errors) => InternalServerError(s"An error occurred, error messages: $errors")
           }
         }
       )

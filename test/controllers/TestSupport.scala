@@ -34,7 +34,7 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext
 
 trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with MockitoSugar {
-  this: Suite ⇒
+  this: Suite =>
 
   lazy val additionalConfig = Configuration()
 
