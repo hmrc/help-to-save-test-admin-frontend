@@ -17,54 +17,61 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.models
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.CreateAccountBody.{BankDetails, ContactDetails}
-import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.{CreateAccountBody, CreateAccountHeader}
+import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.CreateAccountBody.{
+  BankDetails,
+  ContactDetails
+}
+import uk.gov.hmrc.helptosavetestadminfrontend.models.CreateAccountRequest.{
+  CreateAccountBody,
+  CreateAccountHeader
+}
 
-case class CreateAccountRequest(header: CreateAccountHeader, body: CreateAccountBody)
+case class CreateAccountRequest(header: CreateAccountHeader,
+                                body: CreateAccountBody)
 
 object CreateAccountRequest {
 
-  case class CreateAccountHeader(
-    version: Option[String],
-    createdTimestamp: Option[String],
-    clientCode: Option[String],
-    requestCorrelationId: Option[String])
+  case class CreateAccountHeader(version: Option[String],
+                                 createdTimestamp: Option[String],
+                                 clientCode: Option[String],
+                                 requestCorrelationId: Option[String])
 
-  case class CreateAccountBody(
-    nino: Option[String],
-    forename: Option[String],
-    surname: Option[String],
-    dateOfBirth: Option[String],
-    contactDetails: ContactDetails,
-    registrationChannel: Option[String],
-    bankDetails: BankDetails)
+  case class CreateAccountBody(nino: Option[String],
+                               forename: Option[String],
+                               surname: Option[String],
+                               dateOfBirth: Option[String],
+                               contactDetails: ContactDetails,
+                               registrationChannel: Option[String],
+                               bankDetails: BankDetails)
 
   object CreateAccountBody {
 
-    case class ContactDetails(
-      address1: Option[String],
-      address2: Option[String],
-      address3: Option[String],
-      address4: Option[String],
-      address5: Option[String],
-      postcode: Option[String],
-      countryCode: Option[String],
-      communicationPreference: Option[String],
-      email: Option[String],
-      phoneNumber: Option[String])
+    case class ContactDetails(address1: Option[String],
+                              address2: Option[String],
+                              address3: Option[String],
+                              address4: Option[String],
+                              address5: Option[String],
+                              postcode: Option[String],
+                              countryCode: Option[String],
+                              communicationPreference: Option[String],
+                              email: Option[String],
+                              phoneNumber: Option[String])
 
-    case class BankDetails(
-      sortCode: Option[String],
-      accountNumber: Option[String],
-      rollNumber: Option[String],
-      accountName: Option[String])
+    case class BankDetails(sortCode: Option[String],
+                           accountNumber: Option[String],
+                           rollNumber: Option[String],
+                           accountName: Option[String])
 
   }
 
-  implicit val headerFormat: Format[CreateAccountHeader] = Json.format[CreateAccountHeader]
-  implicit val contactDetailsFormat: Format[ContactDetails] = Json.format[ContactDetails]
+  implicit val headerFormat: Format[CreateAccountHeader] =
+    Json.format[CreateAccountHeader]
+  implicit val contactDetailsFormat: Format[ContactDetails] =
+    Json.format[ContactDetails]
   implicit val bankDetailsFormat: Format[BankDetails] = Json.format[BankDetails]
-  implicit val bodyFormat: Format[CreateAccountBody] = Json.format[CreateAccountBody]
-  implicit val requestFormat: Format[CreateAccountRequest] = Json.format[CreateAccountRequest]
+  implicit val bodyFormat: Format[CreateAccountBody] =
+    Json.format[CreateAccountBody]
+  implicit val requestFormat: Format[CreateAccountRequest] =
+    Json.format[CreateAccountRequest]
 
 }

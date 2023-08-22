@@ -37,19 +37,22 @@ trait UnitSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
   implicit def extractAwait[A](future: Future[A]): A = await[A](future)
 
-  def await[A](future: Future[A])(implicit timeout: Duration): A = Await.result(future, timeout)
+  def await[A](future: Future[A])(implicit timeout: Duration): A =
+    Await.result(future, timeout)
 
   // Convenience to avoid having to wrap andThen() parameters in Future.successful
   implicit def liftFuture[A](v: A): Future[A] = Future.successful(v)
 
   def status(of: Result): Int = of.header.status
 
-  def status(of: Future[Result])(implicit timeout: Duration): Int = status(Await.result(of, timeout))
+  def status(of: Future[Result])(implicit timeout: Duration): Int =
+    status(Await.result(of, timeout))
 
   def jsonBodyOf(result: Result)(implicit mat: Materializer): JsValue =
     Json.parse(bodyOf(result))
 
-  def jsonBodyOf(resultF: Future[Result])(implicit mat: Materializer): Future[JsValue] =
+  def jsonBodyOf(resultF: Future[Result])(
+      implicit mat: Materializer): Future[JsValue] =
     resultF.map(jsonBodyOf)
 
   def bodyOf(result: Result)(implicit mat: Materializer): String = {
@@ -62,6 +65,7 @@ trait UnitSpec extends AnyWordSpecLike with Matchers with OptionValues {
     bodyBytes.decodeString(Charset.defaultCharset().name)
   }
 
-  def bodyOf(resultF: Future[Result])(implicit mat: Materializer): Future[String] =
+  def bodyOf(resultF: Future[Result])(
+      implicit mat: Materializer): Future[String] =
     resultF.map(bodyOf)
 }
