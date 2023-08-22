@@ -33,7 +33,11 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 
-trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with MockitoSugar {
+trait TestSupport
+    extends UnitSpec
+    with BeforeAndAfterAll
+    with ScalaFutures
+    with MockitoSugar {
   this: Suite =>
 
   lazy val additionalConfig = Configuration()
@@ -49,9 +53,11 @@ trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with
         ).withFallback(additionalConfig))
       .build()
 
-  implicit lazy val fakeApplication: Application = buildFakeApplication(additionalConfig)
+  implicit lazy val fakeApplication: Application = buildFakeApplication(
+    additionalConfig)
 
-  implicit lazy val ec: ExecutionContext = fakeApplication.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext =
+    fakeApplication.injector.instanceOf[ExecutionContext]
 
   implicit val headerCarrier: HeaderCarrier =
     HeaderCarrier(sessionId = Some(SessionId(UUID.randomUUID().toString)))
@@ -66,20 +72,27 @@ trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with
     super.afterAll()
   }
 
-  val testMCC: MessagesControllerComponents = fakeApplication.injector.instanceOf[MessagesControllerComponents]
+  val testMCC: MessagesControllerComponents =
+    fakeApplication.injector.instanceOf[MessagesControllerComponents]
 
-  implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+  implicit val messagesApi: MessagesApi =
+    fakeApplication.injector.instanceOf[MessagesApi]
 
-  implicit lazy val appConfig: AppConfig = fakeApplication.injector.instanceOf[AppConfig]
+  implicit lazy val appConfig: AppConfig =
+    fakeApplication.injector.instanceOf[AppConfig]
   implicit lazy val specify_emails_to_delete: specify_emails_to_delete =
     fakeApplication.injector.instanceOf[specify_emails_to_delete]
-  implicit lazy val emails_deleted: emails_deleted = fakeApplication.injector.instanceOf[emails_deleted]
+  implicit lazy val emails_deleted: emails_deleted =
+    fakeApplication.injector.instanceOf[emails_deleted]
 
-  implicit lazy val configuration: Configuration = appConfig.runModeConfiguration
+  implicit lazy val configuration: Configuration =
+    appConfig.runModeConfiguration
 
   val fakeRequest: FakeRequest[_] = FakeRequest("GET", "/")
 
-  val csrfAddToken: CSRFAddToken = fakeApplication.injector.instanceOf[play.filters.csrf.CSRFAddToken]
+  val csrfAddToken: CSRFAddToken =
+    fakeApplication.injector.instanceOf[play.filters.csrf.CSRFAddToken]
 
-  lazy val testErrorHandler: ErrorHandler = fakeApplication.injector.instanceOf[ErrorHandler]
+  lazy val testErrorHandler: ErrorHandler =
+    fakeApplication.injector.instanceOf[ErrorHandler]
 }

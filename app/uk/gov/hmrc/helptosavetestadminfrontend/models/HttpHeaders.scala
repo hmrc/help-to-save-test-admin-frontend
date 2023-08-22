@@ -17,10 +17,10 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.models
 
 case class HttpHeaders(
-  accept: Option[String],
-  contentType: Option[String],
-  govClientUserId: Option[String],
-  govClientTimezone: Option[String],
-  govVendorVersion: Option[String],
-  govVendorInstanceId: Option[String]
+    accept: Option[String],
+    contentType: Option[String],
+    govClientUserId: Option[String],
+    govClientTimezone: Option[String],
+    govVendorVersion: Option[String],
+    govVendorInstanceId: Option[String]
 )
