@@ -2,7 +2,7 @@ import play.sbt.PlayImport.ws
 import sbt.*
 
 object AppDependencies {
-  val hmrcBootstrapVersion = "7.11.0"
+  val hmrcBootstrapVersion = "7.15.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
