@@ -30,14 +30,11 @@ class VerifiedEmailsControllerSpec extends TestSupport {
   val store: VerifiedEmailMongoRepository = mock[VerifiedEmailMongoRepository]
 
   val controller =
-    new VerifiedEmailsController(store,
-                                 testMCC,
-                                 testErrorHandler,
-                                 specify_emails_to_delete,
-                                 emails_deleted)(appConfig, ec)
+    new VerifiedEmailsController(store, testMCC, testErrorHandler, specify_emails_to_delete, emails_deleted)(
+      appConfig,
+      ec)
 
-  def mockDeleteEmails(emails: List[String])(
-      result: Future[Either[List[String], Unit]]): Unit =
+  def mockDeleteEmails(emails: List[String])(result: Future[Either[List[String], Unit]]): Unit =
     when(store.deleteEmails(ArgumentMatchers.eq(emails))).thenReturn(result)
 
   "handling delete email form submits" must {
@@ -58,21 +55,17 @@ class VerifiedEmailsControllerSpec extends TestSupport {
     }
 
     "return an Internal Server Error (500) status when call to delete emails is unsuccessful" ignore {
-      mockDeleteEmails(emails)(
-        Future.successful(Left(List("An error occurred, error messages: "))))
+      mockDeleteEmails(emails)(Future.successful(Left(List("An error occurred, error messages: "))))
       val result = submit()
       status(result) shouldBe 500
     }
 
     "return 200 status and directs the user back to the same page when a form with errors is submitted" in {
       val result =
-        await(
-          csrfAddToken(controller.deleteVerifiedEmails())(
-            fakeRequest.withFormUrlEncodedBody("emails" -> "")))
+        await(csrfAddToken(controller.deleteVerifiedEmails())(fakeRequest.withFormUrlEncodedBody("emails" -> "")))
 
       status(result) shouldBe 200
-      contentAsString(result) should include(
-        "Specify the emails you wish to delete from email-verification")
+      contentAsString(result) should include("Specify the emails you wish to delete from email-verification")
     }
   }
 
@@ -83,8 +76,7 @@ class VerifiedEmailsControllerSpec extends TestSupport {
         csrfAddToken(controller.specifyEmailsToDelete())(FakeRequest())
 
       status(result) shouldBe 200
-      contentAsString(result) should include(
-        "Specify the emails you wish to delete from email-verification")
+      contentAsString(result) should include("Specify the emails you wish to delete from email-verification")
     }
   }
 

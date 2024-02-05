@@ -23,9 +23,10 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class AppConfig @Inject()(val runModeConfiguration: Configuration,
-                          environment: Environment,
-                          servicesConfig: ServicesConfig) {
+class AppConfig @Inject()(
+  val runModeConfiguration: Configuration,
+  environment: Environment,
+  servicesConfig: ServicesConfig) {
 
   protected def mode: Mode = environment.mode
 
@@ -34,23 +35,20 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration,
       .getOptional[String](key)
       .getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
-  lazy val assetsPrefix = loadConfig("assets.url") + loadConfig(
-    "assets.version")
+  lazy val assetsPrefix = loadConfig("assets.url") + loadConfig("assets.version")
 
   val runLocal: Boolean = servicesConfig.getBoolean("run-local")
 
   val clientId: String =
     servicesConfig.getString("microservice.services.oauth-frontend.client_id")
-  val clientSecret: String = servicesConfig.getString(
-    "microservice.services.oauth-frontend.client_secret")
+  val clientSecret: String = servicesConfig.getString("microservice.services.oauth-frontend.client_secret")
 
   val privilegedAccessClientId: String =
     servicesConfig.getString("privileged-access.client-id")
   val privilegedAccessTOTPSecret: String =
     servicesConfig.getString("privileged-access.totp-secret")
 
-  val adminFrontendUrl: String = servicesConfig.getString(
-    "microservice.services.help-to-save-test-admin-frontend.url")
+  val adminFrontendUrl: String = servicesConfig.getString("microservice.services.help-to-save-test-admin-frontend.url")
 
   val apiUrl: String = servicesConfig.getString("microservice.services.api.url")
 
@@ -63,8 +61,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration,
 
   def authorizeCallback(id: Option[UUID]): String =
     s"$adminFrontendUrl/help-to-save-test-admin-frontend/" +
-      id.fold("authorize-callback-for-itests")(i =>
-        s"authorize-callback?id=${i.toString}")
+      id.fold("authorize-callback-for-itests")(i => s"authorize-callback?id=${i.toString}")
 
   def authorizeUrl(id: UUID) =
     s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=${authorizeCallback(

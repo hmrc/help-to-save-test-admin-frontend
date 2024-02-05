@@ -28,9 +28,7 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class FiltersSpec @Inject()(implicit val mat: Materializer)
-    extends MDCFilter
-    with FrontendHeaderCarrierProvider
-    with TestSupport {
+    extends MDCFilter with FrontendHeaderCarrierProvider with TestSupport {
 
   val mockAllowlistFilter =
     mock[uk.gov.hmrc.play.bootstrap.frontend.filters.AllowlistFilter]

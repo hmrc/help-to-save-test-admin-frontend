@@ -33,11 +33,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 
-trait TestSupport
-    extends UnitSpec
-    with BeforeAndAfterAll
-    with ScalaFutures
-    with MockitoSugar {
+trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with MockitoSugar {
   this: Suite =>
 
   lazy val additionalConfig = Configuration()
@@ -53,8 +49,7 @@ trait TestSupport
         ).withFallback(additionalConfig))
       .build()
 
-  implicit lazy val fakeApplication: Application = buildFakeApplication(
-    additionalConfig)
+  implicit lazy val fakeApplication: Application = buildFakeApplication(additionalConfig)
 
   implicit lazy val ec: ExecutionContext =
     fakeApplication.injector.instanceOf[ExecutionContext]
