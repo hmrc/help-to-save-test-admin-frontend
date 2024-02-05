@@ -17,7 +17,6 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.config
 
 import com.google.inject.{Inject, Singleton}
-import configs.syntax._
 import play.api.Configuration
 import play.api.http.HttpFilters
 import play.api.mvc.EssentialFilter
@@ -27,15 +26,11 @@ class Filters @Inject()(
   configuration: Configuration,
   allowListFilter: AllowListFilter
 ) extends HttpFilters {
-
-  val allowListFilterEnabled: Boolean =
-    configuration.underlying
-      .get[List[String]]("http-header-ip-whitelist")
-      .value
+  private val allowListFilterEnabled =
+    configuration
+      .get[Seq[String]]("http-header-ip-whitelist")
       .nonEmpty
 
   override val filters: Seq[EssentialFilter] =
-    if (allowListFilterEnabled) Seq(allowListFilter)
-    else Seq.empty
-
+    if (allowListFilterEnabled) Seq(allowListFilter) else Seq.empty
 }

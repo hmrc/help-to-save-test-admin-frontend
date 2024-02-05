@@ -9,7 +9,6 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-28" % hmrcBootstrapVersion,
     "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-28"         % "0.68.0",
     "uk.gov.hmrc"       %% "totp-generator"             % "0.24.0",
-    "com.github.kxbmap" %% "configs"                    % "0.6.1",
     "org.typelevel"     %% "cats-core"                  % "2.2.0",
     "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "7.29.0-play-28"
   )
