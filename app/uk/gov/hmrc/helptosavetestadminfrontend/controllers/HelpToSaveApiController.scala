@@ -50,9 +50,9 @@ class HelpToSaveApiController @Inject()(
   implicit val appConfig: AppConfig,
   val messageApi: MessagesApi,
   ec: ExecutionContext)
-    extends AdminFrontendController(appConfig, mcc, errorHandler) with I18nSupport with Logging {
+    extends AdminFrontendController(mcc, errorHandler) with I18nSupport with Logging {
 
-  val userIdCache: Cache[UUID, String] =
+  private val userIdCache: Cache[UUID, String] =
     CacheBuilder.newBuilder
       .maximumSize(100)
       .expireAfterWrite(2, TimeUnit.MINUTES)
@@ -65,21 +65,21 @@ class HelpToSaveApiController @Inject()(
   def getCurlRequestIsPage(id: UUID): Action[AnyContent] = Action { implicit request =>
     Option(userIdCache.getIfPresent(id)).fold {
       logger.warn(s"Could not find curl request for id: $id")
-      internalServerError()
+      internalServerError
     } { curl =>
       Ok(curl_result(curl))
     }
   }
 
-  def availableFunctions(): Action[AnyContent] = Action.async { implicit request =>
+  def availableFunctions: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(available_Functions()))
   }
 
-  def getCheckEligibilityPage(): Action[AnyContent] = Action.async { implicit request =>
+  def getCheckEligibilityPage: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(get_check_eligibility_page(EligibilityRequestForm.eligibilityForm)))
   }
 
-  def checkEligibility(): Action[AnyContent] = Action.async { implicit request =>
+  def checkEligibility: Action[AnyContent] = Action.async { implicit request =>
     EligibilityRequestForm.eligibilityForm
       .bindFromRequest()
       .fold(
@@ -101,11 +101,11 @@ class HelpToSaveApiController @Inject()(
       )
   }
 
-  def getCreateAccountPage(): Action[AnyContent] = Action.async { implicit request =>
+  def getCreateAccountPage: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(get_create_account_page(CreateAccountForm.createAccountForm)))
   }
 
-  def createAccount(): Action[AnyContent] = Action.async { implicit request =>
+  def createAccount: Action[AnyContent] = Action.async { implicit request =>
     CreateAccountForm.createAccountForm
       .bindFromRequest()
       .fold(
@@ -149,7 +149,7 @@ class HelpToSaveApiController @Inject()(
 
         case Left(error) =>
           logger.warn(s"Could not get access_token for code ($code) -  $error")
-          internalServerError()
+          internalServerError
       }
   }
 
@@ -169,15 +169,15 @@ class HelpToSaveApiController @Inject()(
 
         case Left(error) =>
           logger.warn(s"Could not get access_token for code ($code) -  $error")
-          internalServerError()
+          internalServerError
       }
   }
 
-  def getAccountPage(): Action[AnyContent] = Action.async { implicit request =>
+  def getAccountPage: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(get_account_page(GetAccountForm.getAccountForm)))
   }
 
-  def getAccount(): Action[AnyContent] = Action.async { implicit request =>
+  def getAccount: Action[AnyContent] = Action.async { implicit request =>
     GetAccountForm.getAccountForm
       .bindFromRequest()
       .fold(
@@ -252,12 +252,12 @@ class HelpToSaveApiController @Inject()(
 
         case Left(e) =>
           logger.warn(s"error getting the access token, error=$e")
-          internalServerError()
+          internalServerError
       }
       .recover {
         case e =>
           logger.warn(s"error getting the access token, error=$e")
-          internalServerError()
+          internalServerError
       }
 
   private def tokenRequest(accessType: AccessType, authUserDetails: AuthUserDetails): TokenRequest =
@@ -267,30 +267,24 @@ class HelpToSaveApiController @Inject()(
     }
 
   private def toCurlRequestLines(httpHeaders: HttpHeaders): String =
-    httpHeaders
-      .toMap()
+    httpHeaders.toMap
       .map { case (k, v) => s"""-H "$k: $v" \\""" }
       .mkString("\n")
 
   private def newId(): UUID = UUID.randomUUID()
-
 }
 
 object HelpToSaveApiController {
-
   sealed trait TokenRequest
 
   object TokenRequest {
-
     case class UserRestrictedTokenRequest(authUserDetails: AuthUserDetails) extends TokenRequest
 
     case class PrivilegedTokenRequest() extends TokenRequest
-
   }
 
   implicit class HttpHeadersOps(val h: HttpHeaders) extends AnyVal {
-
-    def toMap(): Map[String, String] =
+    def toMap: Map[String, String] =
       List(
         "Accept"                 -> h.accept,
         "Content-Type"           -> h.contentType,
@@ -299,7 +293,5 @@ object HelpToSaveApiController {
         "Gov-Vendor-Version"     -> h.govVendorVersion,
         "Gov-Vendor-Instance-ID" -> h.govVendorInstanceId
       ).collect { case (k, Some(v)) => k -> v }.toMap
-
   }
-
 }

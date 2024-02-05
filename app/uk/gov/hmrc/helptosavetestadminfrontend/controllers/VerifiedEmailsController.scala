@@ -35,7 +35,7 @@ class VerifiedEmailsController @Inject()(
 )(
   implicit val appConfig: AppConfig,
   ec: ExecutionContext
-) extends AdminFrontendController(appConfig, mcc, errorHandler) with I18nSupport {
+) extends AdminFrontendController(mcc, errorHandler) with I18nSupport {
 
   def deleteVerifiedEmails: Action[AnyContent] = Action.async { implicit request =>
     EmailsForm.deleteEmailsForm
@@ -53,8 +53,7 @@ class VerifiedEmailsController @Inject()(
       )
   }
 
-  val specifyEmailsToDelete = Action.async { implicit request =>
+  val specifyEmailsToDelete: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(specify_emails_to_delete(EmailsForm.deleteEmailsForm)))
   }
-
 }
