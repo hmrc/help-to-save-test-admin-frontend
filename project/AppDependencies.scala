@@ -11,7 +11,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "totp-generator"             % "0.24.0",
     "com.github.kxbmap" %% "configs"                    % "0.6.1",
     "org.typelevel"     %% "cats-core"                  % "2.2.0",
-    "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "5.0.0-play-28"
+    "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "7.29.0-play-28"
   )
 
   def test(scope: String = "test"): Seq[ModuleID] = Seq(
