@@ -38,7 +38,7 @@
       content = Text(s"${e.key} ${Messages(e.message)}")
     )), title = Text(messages("There is a problem"))))
   }
-  @formWithCSRF(routes.VerifiedEmailsController.deleteVerifiedEmails, 'class -> "group subsection--wide") {
+  @formWithCSRF(routes.VerifiedEmailsController.deleteVerifiedEmails, Symbol("class") -> "group subsection--wide") {
     @govukInput(Input(
       id = key,
       name = key,

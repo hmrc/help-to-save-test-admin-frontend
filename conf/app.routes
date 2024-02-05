@@ -1,6 +1,6 @@
 # microservice specific routes
 
-GET         /                                     uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions()
+GET         /                                     uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions
 
 ->          /hmrc-frontend                        hmrcfrontend.Routes
 
@@ -10,23 +10,23 @@ GET         /forbidden                            uk.gov.hmrc.helptosavetestadmi
 
 GET         /specify-emails-to-delete             uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.specifyEmailsToDelete
 
-GET         /available-functions                  uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions()
+GET         /available-functions                  uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions
 
 GET         /authorize-callback                   uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.oAuthCallback(code: String, id: java.util.UUID)
 
 GET         /authorize-callback-for-itests        uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.oAuthCallbackForITests(code: String)
 
-GET         /get-check-eligibility-page           uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCheckEligibilityPage()
+GET         /get-check-eligibility-page           uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCheckEligibilityPage
 
-POST        /check-eligibility                    uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.checkEligibility()
+POST        /check-eligibility                    uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.checkEligibility
 
-GET         /get-create-account-page              uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCreateAccountPage()
+GET         /get-create-account-page              uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCreateAccountPage
 
-POST        /create-account                       uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.createAccount()
+POST        /create-account                       uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.createAccount
 
-GET         /get-account-page                     uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getAccountPage()
+GET         /get-account-page                     uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getAccountPage
 
-GET         /account                              uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getAccount()
+GET         /account                              uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getAccount
 
 GET         /curl-result                          uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.getCurlRequestIsPage(id: java.util.UUID)
 

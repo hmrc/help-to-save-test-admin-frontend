@@ -27,12 +27,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
 class VerifiedEmailMongoRepositorySpec
-    extends MongoSupport
-    with MockitoSugar
-    with UnitSpec
-    with DefaultPlayMongoRepositorySupport[Email] {
-  override lazy val repository = new VerifiedEmailMongoRepository(
-    mongoComponent)
+    extends MongoSupport with MockitoSugar with UnitSpec with DefaultPlayMongoRepositorySupport[Email] {
+  override lazy val repository = new VerifiedEmailMongoRepository(mongoComponent)
 
   "deleteEmails" must {
     def delete(emails: List[String]): Either[List[String], Unit] =

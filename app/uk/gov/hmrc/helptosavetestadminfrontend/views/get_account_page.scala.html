@@ -128,7 +128,7 @@
 
   <h1 class="govuk-heading-l">@title</h1>
 
-  @formWithCSRF(routes.HelpToSaveApiController.getAccount(), 'id -> "inputForm") {
+  @formWithCSRF(routes.HelpToSaveApiController.getAccount, Symbol("id") -> "inputForm") {
     @govukFieldset(Fieldset(
       legend = Some(Legend(
         content = Text("Enter HTTP Headers"),
@@ -149,5 +149,4 @@
       content = Text("Continue")
     ))
   }
-
 }

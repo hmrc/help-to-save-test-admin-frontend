@@ -27,39 +27,33 @@ import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
 import scala.concurrent.{ExecutionContext, Future}
 
 class VerifiedEmailsController @Inject()(
-    verifiedEmailRepo: VerifiedEmailMongoRepository,
-    mcc: MessagesControllerComponents,
-    errorHandler: ErrorHandler,
-    specify_emails_to_delete: specify_emails_to_delete,
-    emails_deleted: emails_deleted
+  verifiedEmailRepo: VerifiedEmailMongoRepository,
+  mcc: MessagesControllerComponents,
+  errorHandler: ErrorHandler,
+  specify_emails_to_delete: specify_emails_to_delete,
+  emails_deleted: emails_deleted
 )(
-    implicit val appConfig: AppConfig,
-    ec: ExecutionContext
-) extends AdminFrontendController(appConfig, mcc, errorHandler)
-    with I18nSupport {
+  implicit val appConfig: AppConfig,
+  ec: ExecutionContext
+) extends AdminFrontendController(mcc, errorHandler) with I18nSupport {
 
-  def deleteVerifiedEmails: Action[AnyContent] = Action.async {
-    implicit request =>
-      EmailsForm.deleteEmailsForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            Future.successful(Ok(specify_emails_to_delete(formWithErrors))), {
-            emails =>
-              val emailsList: List[String] =
-                emails.emails.split(",").toList.map(_.trim)
-              verifiedEmailRepo.deleteEmails(emailsList).map {
-                case Right(()) => Ok(emails_deleted())
-                case Left(errors) =>
-                  InternalServerError(
-                    s"An error occurred, error messages: $errors")
-              }
+  def deleteVerifiedEmails: Action[AnyContent] = Action.async { implicit request =>
+    EmailsForm.deleteEmailsForm
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(Ok(specify_emails_to_delete(formWithErrors))), { emails =>
+          val emailsList: List[String] =
+            emails.emails.split(",").toList.map(_.trim)
+          verifiedEmailRepo.deleteEmails(emailsList).map {
+            case Right(()) => Ok(emails_deleted())
+            case Left(errors) =>
+              InternalServerError(s"An error occurred, error messages: $errors")
           }
-        )
+        }
+      )
   }
 
-  val specifyEmailsToDelete = Action.async { implicit request =>
+  val specifyEmailsToDelete: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(specify_emails_to_delete(EmailsForm.deleteEmailsForm)))
   }
-
 }

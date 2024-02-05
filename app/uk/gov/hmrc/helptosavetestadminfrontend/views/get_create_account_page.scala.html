@@ -485,7 +485,7 @@
         @title
     </h1>
 
-    @formWithCSRF(action = routes.HelpToSaveApiController.createAccount()) {
+    @formWithCSRF(action = routes.HelpToSaveApiController.createAccount) {
         @govukFieldset(Fieldset(
             legend = Some(Legend(
                 content = Text("Enter HTTP Headers"),
