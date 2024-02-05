@@ -23,6 +23,7 @@ import org.mongodb.scala.model.Indexes.ascending
 import uk.gov.hmrc.helptosavetestadminfrontend.forms.Email
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import uk.gov.hmrc.play.http.logging.Mdc.preservingMdc
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,23 +33,21 @@ class VerifiedEmailMongoRepository @Inject()(mongo: MongoComponent)(implicit exe
       collectionName = "verifiedEmail",
       mongoComponent = mongo,
       domainFormat = Email.emailFormats,
-      indexes = Seq(
-        IndexModel(ascending("_id"))
-      )
+      indexes = Seq(IndexModel(ascending("_id")))
     ) {
-
   def deleteEmails(emails: List[String]): Future[Either[List[String], Unit]] = {
-
-    val result: List[Future[Either[String, Unit]]] = emails.map { email =>
-      collection
-        .deleteOne(Document("email" -> email))
-        .toFuture()
-        .map { res =>
-          Right(())
-        }
-        .recover {
-          case e => Left(s"${e.getMessage}")
-        }
+    val result = emails.map { email =>
+      preservingMdc {
+        collection
+          .deleteOne(Document("email" -> email))
+          .toFuture()
+          .map { _ =>
+            Right(())
+          }
+          .recover {
+            case e => Left(s"${e.getMessage}")
+          }
+      }
     }
 
     Future.sequence(result).map { x =>
@@ -60,5 +59,4 @@ class VerifiedEmailMongoRepository @Inject()(mongo: MongoComponent)(implicit exe
       }
     }
   }
-
 }
