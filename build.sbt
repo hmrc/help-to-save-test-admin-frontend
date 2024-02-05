@@ -6,19 +6,11 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     majorVersion := 2,
     scalaVersion := "2.13.11",
-    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test(),
-    // ***************
-    // Use the silencer plugin to suppress warnings
-    scalacOptions ++= Seq(
-      "-P:silencer:pathFilters=routes;views"
-    ),
-    libraryDependencies += compilerPlugin(
-      "com.github.ghik" % "silencer-plugin" % "1.7.13" cross CrossVersion.full)
-    // ***************
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test()
   )
-  .settings(
-    PlayKeys.playDefaultPort := 7007
-  )
+  .settings(scalacOptions += "-Wconf:src=routes/.*:s")
+  .settings(scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s")
+  .settings(PlayKeys.playDefaultPort := 7007)
   .settings(CodeCoverageSettings.settings *)
   .settings(scalafmtOnCompile := true)
 
