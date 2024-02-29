@@ -18,7 +18,6 @@ package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
 import cats.data.NonEmptyList
 import com.google.inject.Inject
-import org.joda.time.DateTime
 import play.api.http.HeaderNames
 import play.api.libs.json._
 import play.api.mvc.Session
@@ -29,6 +28,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId, SessionKeys}
 
+import java.time.Instant
 import java.util.UUID
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
@@ -56,7 +56,7 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig)
                   SessionKeys.sessionId -> SessionId(
                     s"session-${UUID.randomUUID}").value,
                   SessionKeys.authToken -> token,
-                  SessionKeys.lastRequestTimestamp -> DateTime.now.getMillis.toString
+                  SessionKeys.lastRequestTimestamp -> Instant.now().toEpochMilli.toString
                 ))
 
               Right(SessionToken(session))

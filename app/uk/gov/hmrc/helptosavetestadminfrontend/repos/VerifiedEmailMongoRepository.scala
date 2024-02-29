@@ -38,6 +38,9 @@ class VerifiedEmailMongoRepository @Inject()(mongo: MongoComponent)(
       )
     ) {
 
+  // Temporary measure to allow for the service to be updated, we will re-visit the TTL properly in its' own ticket
+  override lazy val requiresTtlIndex: Boolean = false
+
   def deleteEmails(emails: List[String]): Future[Either[List[String], Unit]] = {
 
     val result: List[Future[Either[String, Unit]]] = emails.map { email =>

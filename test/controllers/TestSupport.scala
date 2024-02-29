@@ -27,7 +27,7 @@ import play.api.test.FakeRequest
 import play.api.{Application, Configuration, Play}
 import play.filters.csrf.CSRFAddToken
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
-import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
+import uk.gov.hmrc.helptosavetestadminfrontend.views.html.{emails_deleted, specify_emails_to_delete}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 
 import java.util.UUID
@@ -40,7 +40,7 @@ trait TestSupport
     with MockitoSugar {
   this: Suite =>
 
-  lazy val additionalConfig = Configuration()
+  lazy val additionalConfig: Configuration = Configuration()
 
   def buildFakeApplication(additionalConfig: Configuration): Application =
     new GuiceApplicationBuilder()
