@@ -5,14 +5,13 @@ lazy val microservice = Project(appName, file("."))
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
     majorVersion := 2,
-    scalaVersion := "2.13.11",
+    scalaVersion := "2.13.12",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test()
   )
   .settings(scalacOptions += "-Wconf:src=routes/.*:s")
   .settings(scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s")
   .settings(PlayKeys.playDefaultPort := 7007)
-  .settings(CodeCoverageSettings.settings *)
-  .settings(scalafmtOnCompile := true)
+  .settings(CodeCoverageSettings.settings: _*)
   // Disable default sbt Test options (might change with new versions of bootstrap)
   .settings(Test / testOptions -= Tests
     .Argument("-o", "-u", "target/test-reports", "-h", "target/test-reports/html-report"))
@@ -26,5 +25,3 @@ lazy val microservice = Project(appName, file("."))
       "target/test-reports",
       "-h",
       "target/test-reports/html-report"))
-
-libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
