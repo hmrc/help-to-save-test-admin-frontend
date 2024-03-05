@@ -35,6 +35,10 @@ class VerifiedEmailMongoRepository @Inject()(mongo: MongoComponent)(implicit exe
       domainFormat = Email.emailFormats,
       indexes = Seq(IndexModel(ascending("_id")))
     ) {
+
+  // Temporary measure to allow for the service to be updated, we will re-visit the TTL properly in its' own ticket
+  override lazy val requiresTtlIndex: Boolean = false
+
   def deleteEmails(emails: List[String]): Future[Either[List[String], Unit]] = {
     val result = emails.map { email =>
       preservingMdc {
