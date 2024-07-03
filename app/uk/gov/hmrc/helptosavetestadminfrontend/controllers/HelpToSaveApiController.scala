@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class HelpToSaveApiController @Inject()(
+class HelpToSaveApiController @Inject() (
   authConnector: AuthConnector,
   oauthConnector: OAuthConnector,
   mcc: MessagesControllerComponents,
@@ -46,10 +46,8 @@ class HelpToSaveApiController @Inject()(
   get_check_eligibility_page: get_check_eligibility_page,
   get_create_account_page: get_create_account_page,
   get_account_page: get_account_page,
-  available_Functions: availableFunctions)(
-  implicit val appConfig: AppConfig,
-  val messageApi: MessagesApi,
-  ec: ExecutionContext)
+  available_Functions: availableFunctions
+)(implicit val appConfig: AppConfig, val messageApi: MessagesApi, ec: ExecutionContext)
     extends AdminFrontendController(mcc, errorHandler) with I18nSupport with Logging {
 
   private val userIdCache: Cache[UUID, String] =
@@ -83,15 +81,16 @@ class HelpToSaveApiController @Inject()(
     EligibilityRequestForm.eligibilityForm
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(Ok(get_check_eligibility_page(formWithErrors))), { params =>
+        formWithErrors => Future.successful(Ok(get_check_eligibility_page(formWithErrors))),
+        { params =>
           def curlRequest(token: String) =
             s"""
                |curl -v -X GET \\
                |${toCurlRequestLines(params.httpHeaders)}
                |-H "Authorization: Bearer $token" \\
                | "${appConfig.apiUrl}/eligibility${params.requestNino
-                 .map("/" + _)
-                 .getOrElse("")}"
+                .map("/" + _)
+                .getOrElse("")}"
                |""".stripMargin
 
           val tokenResult =
@@ -109,7 +108,8 @@ class HelpToSaveApiController @Inject()(
     CreateAccountForm.createAccountForm
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(Ok(get_create_account_page(formWithErrors))), { params =>
+        formWithErrors => Future.successful(Ok(get_create_account_page(formWithErrors))),
+        { params =>
           def curlRequest(token: String) = {
             val json = Json.toJson(CreateAccountRequest(params.requestHeaders, params.requestBody))
             s"""
@@ -181,7 +181,8 @@ class HelpToSaveApiController @Inject()(
     GetAccountForm.getAccountForm
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(Ok(get_account_page(formWithErrors))), { params =>
+        formWithErrors => Future.successful(Ok(get_account_page(formWithErrors))),
+        { params =>
           def curlRequest(token: String) =
             s"""
                |curl -v -X GET \\
@@ -214,8 +215,9 @@ class HelpToSaveApiController @Inject()(
     }
   }
 
-  private def handleTokenResult(tokenResult: Future[Either[String, Token]], id: UUID)(curl: String => String)(
-    implicit request: Request[_]) =
+  private def handleTokenResult(tokenResult: Future[Either[String, Token]], id: UUID)(
+    curl: String => String
+  )(implicit request: Request[_]) =
     tokenResult
       .map {
         case Right(AccessToken(token)) =>
@@ -254,10 +256,9 @@ class HelpToSaveApiController @Inject()(
           logger.warn(s"error getting the access token, error=$e")
           internalServerError
       }
-      .recover {
-        case e =>
-          logger.warn(s"error getting the access token, error=$e")
-          internalServerError
+      .recover { case e =>
+        logger.warn(s"error getting the access token, error=$e")
+        internalServerError
       }
 
   private def tokenRequest(accessType: AccessType, authUserDetails: AuthUserDetails): TokenRequest =

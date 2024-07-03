@@ -100,4 +100,5 @@ case class CreateAccountParams(
   requestHeaders: CreateAccountHeader,
   requestBody: CreateAccountBody,
   authUserDetails: AuthUserDetails,
-  accessType: AccessType)
+  accessType: AccessType
+)

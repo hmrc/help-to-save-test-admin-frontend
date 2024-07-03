@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.http.logging.Mdc.preservingMdc
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class VerifiedEmailMongoRepository @Inject()(mongo: MongoComponent)(implicit executionContext: ExecutionContext)
+class VerifiedEmailMongoRepository @Inject() (mongo: MongoComponent)(implicit executionContext: ExecutionContext)
     extends PlayMongoRepository[Email](
       collectionName = "verifiedEmail",
       mongoComponent = mongo,
@@ -48,8 +48,8 @@ class VerifiedEmailMongoRepository @Inject()(mongo: MongoComponent)(implicit exe
           .map { _ =>
             Right(())
           }
-          .recover {
-            case e => Left(s"${e.getMessage}")
+          .recover { case e =>
+            Left(s"${e.getMessage}")
           }
       }
     }

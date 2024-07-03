@@ -23,10 +23,11 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class AppConfig @Inject()(
+class AppConfig @Inject() (
   val runModeConfiguration: Configuration,
   environment: Environment,
-  servicesConfig: ServicesConfig) {
+  servicesConfig: ServicesConfig
+) {
 
   protected def mode: Mode = environment.mode
 
@@ -64,8 +65,7 @@ class AppConfig @Inject()(
       id.fold("authorize-callback-for-itests")(i => s"authorize-callback?id=${i.toString}")
 
   def authorizeUrl(id: UUID) =
-    s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=${authorizeCallback(
-      Some(id))}"
+    s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=${authorizeCallback(Some(id))}"
 
   val authLoginApiUrl: String =
     servicesConfig.getString("microservice.services.auth-login-api.url")

@@ -32,9 +32,8 @@ object EligibilityRequestForm {
         "govClientTimezone"   -> optional(text),
         "govVendorVersion"    -> optional(text),
         "govVendorInstanceId" -> optional(text)
-      ) {
-        case (a, clientId, clientTimeZone, vendorVersion, vendorId) =>
-          HttpHeaders(a, None, clientId, clientTimeZone, vendorVersion, vendorId)
+      ) { case (a, clientId, clientTimeZone, vendorVersion, vendorId) =>
+        HttpHeaders(a, None, clientId, clientTimeZone, vendorVersion, vendorId)
       } { h =>
         Some((h.accept, h.govClientUserId, h.govClientTimezone, h.govVendorVersion, h.govVendorInstanceId))
       },

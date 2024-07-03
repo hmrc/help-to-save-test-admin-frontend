@@ -28,11 +28,12 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class OAuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
+class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends Logging {
 
-  private def getAccessToken(body: JsValue, extraHeaders: Map[String, String])(
-    implicit hc: HeaderCarrier,
-    ec: ExecutionContext): Future[Either[String, AccessToken]] =
+  private def getAccessToken(body: JsValue, extraHeaders: Map[String, String])(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[String, AccessToken]] =
     http
       .post("https://oauth.protected.mdtp/token", body, extraHeaders)
       .map[Either[String, AccessToken]] { response =>
@@ -48,14 +49,15 @@ class OAuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends L
             Left(s"Got status $other, body was ${response.body}")
         }
       }
-      .recover {
-        case ex =>
-          Left(ex.getMessage)
+      .recover { case ex =>
+        Left(ex.getMessage)
       }
 
-  def getAccessTokenUserRestricted(authorisationCode: String, id: Option[UUID], extraHeaders: Map[String, String])(
-    implicit hc: HeaderCarrier,
-    ec: ExecutionContext): Future[Either[String, AccessToken]] = {
+  def getAccessTokenUserRestricted(
+    authorisationCode: String,
+    id: Option[UUID],
+    extraHeaders: Map[String, String]
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
     val json =
       Json.parse(s"""{
           "client_secret":"${appConfig.clientSecret}",
@@ -67,9 +69,10 @@ class OAuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends L
     getAccessToken(json, extraHeaders)
   }
 
-  def getAccessTokenPrivileged(totpCode: String, extraHeaders: Map[String, String])(
-    implicit hc: HeaderCarrier,
-    ec: ExecutionContext): Future[Either[String, AccessToken]] = {
+  def getAccessTokenPrivileged(totpCode: String, extraHeaders: Map[String, String])(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[String, AccessToken]] = {
     val json =
       Json.parse(s"""{
           "client_secret":"$totpCode",
