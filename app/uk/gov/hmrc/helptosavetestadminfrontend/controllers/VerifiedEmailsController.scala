@@ -26,14 +26,14 @@ import uk.gov.hmrc.helptosavetestadminfrontend.views.html._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class VerifiedEmailsController @Inject()(
+class VerifiedEmailsController @Inject() (
   verifiedEmailRepo: VerifiedEmailMongoRepository,
   mcc: MessagesControllerComponents,
   errorHandler: ErrorHandler,
   specify_emails_to_delete: specify_emails_to_delete,
   emails_deleted: emails_deleted
-)(
-  implicit val appConfig: AppConfig,
+)(implicit
+  val appConfig: AppConfig,
   ec: ExecutionContext
 ) extends AdminFrontendController(mcc, errorHandler) with I18nSupport {
 
@@ -41,7 +41,8 @@ class VerifiedEmailsController @Inject()(
     EmailsForm.deleteEmailsForm
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(Ok(specify_emails_to_delete(formWithErrors))), { emails =>
+        formWithErrors => Future.successful(Ok(specify_emails_to_delete(formWithErrors))),
+        { emails =>
           val emailsList: List[String] =
             emails.emails.split(",").toList.map(_.trim)
           verifiedEmailRepo.deleteEmails(emailsList).map {

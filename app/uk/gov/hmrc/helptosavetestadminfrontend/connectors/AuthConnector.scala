@@ -34,11 +34,11 @@ import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Logging {
+class AuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends Logging {
 
-  def login(authUserDetails: AuthUserDetails)(
-    implicit hc: HeaderCarrier,
-    ec: ExecutionContext): Future[Either[String, SessionToken]] = {
+  def login(
+    authUserDetails: AuthUserDetails
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, SessionToken]] = {
     val credId = Random.alphanumeric.take(10).mkString // scalastyle:ignore magic.number
     val json = getGGRequestBody(authUserDetails, credId)
     http
@@ -48,14 +48,16 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
           (
             response.header(HeaderNames.AUTHORIZATION),
             response.header(HeaderNames.LOCATION),
-            (response.json \ "gatewayToken").asOpt[String]) match {
+            (response.json \ "gatewayToken").asOpt[String]
+          ) match {
             case (Some(token), Some(_), Some(_)) =>
               val session = Session(
                 Map(
                   SessionKeys.sessionId            -> SessionId(s"session-${UUID.randomUUID}").value,
                   SessionKeys.authToken            -> token,
                   SessionKeys.lastRequestTimestamp -> Instant.now().toEpochMilli.toString
-                ))
+                )
+              )
 
               Right(SessionToken(session))
             case _ =>
@@ -65,14 +67,15 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
           Left(s"failed calling auth-login-api, got status ${response.status}, body: ${response.body}")
         }
       }
-      .recover {
-        case ex => Left(s"error during auth, error=${ex.getMessage}")
+      .recover { case ex =>
+        Left(s"error during auth, error=${ex.getMessage}")
       }
   }
 
-  def getPrivilegedToken()(
-    implicit hc: HeaderCarrier,
-    ec: ExecutionContext): Future[Either[String, LocalPrivilegedToken]] =
+  def getPrivilegedToken()(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[String, LocalPrivilegedToken]] =
     http
       .post(s"${appConfig.authUrl}/auth/sessions", privilegedRequestBody)
       .map { response =>
@@ -88,7 +91,8 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
       "clientId"   -> JsString("id"),
       "enrolments" -> JsArray(),
       "ttl"        -> JsNumber(1200) // scalastyle:ignore magic.number
-    ))
+    )
+  )
 
   def getGGRequestBody(authUserDetails: AuthUserDetails, credId: String): JsValue = {
     val json: JsObject = JsObject(
@@ -98,7 +102,8 @@ class AuthConnector @Inject()(http: HttpClient, appConfig: AppConfig) extends Lo
         "confidenceLevel"    -> JsNumber(200), // scalastyle:ignore magic.number
         "credentialStrength" -> JsString("strong"),
         "credentialRole"     -> JsString("User")
-      ))
+      )
+    )
 
     json
       .withField("nino", authUserDetails.nino.map(JsString))

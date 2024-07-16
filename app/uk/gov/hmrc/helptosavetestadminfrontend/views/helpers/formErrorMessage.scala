@@ -24,10 +24,10 @@ object FormErrorMessage {
   def formErrorMessage(form: Form[_], key: String): Option[ErrorMessage] =
     form
       .error(key)
-      .map(
-        e =>
-          ErrorMessage(
-            content = Text(e.message),
-            visuallyHiddenText = Some("Error")
-        ))
+      .map(e =>
+        ErrorMessage(
+          content = Text(e.message),
+          visuallyHiddenText = Some("Error")
+        )
+      )
 }

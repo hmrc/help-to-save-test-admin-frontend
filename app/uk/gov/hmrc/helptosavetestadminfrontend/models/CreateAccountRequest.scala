@@ -28,7 +28,8 @@ object CreateAccountRequest {
     version: Option[String],
     createdTimestamp: Option[String],
     clientCode: Option[String],
-    requestCorrelationId: Option[String])
+    requestCorrelationId: Option[String]
+  )
 
   case class CreateAccountBody(
     nino: Option[String],
@@ -37,7 +38,8 @@ object CreateAccountRequest {
     dateOfBirth: Option[String],
     contactDetails: ContactDetails,
     registrationChannel: Option[String],
-    bankDetails: BankDetails)
+    bankDetails: BankDetails
+  )
 
   object CreateAccountBody {
 
@@ -51,13 +53,15 @@ object CreateAccountRequest {
       countryCode: Option[String],
       communicationPreference: Option[String],
       email: Option[String],
-      phoneNumber: Option[String])
+      phoneNumber: Option[String]
+    )
 
     case class BankDetails(
       sortCode: Option[String],
       accountNumber: Option[String],
       rollNumber: Option[String],
-      accountName: Option[String])
+      accountName: Option[String]
+    )
 
   }
 

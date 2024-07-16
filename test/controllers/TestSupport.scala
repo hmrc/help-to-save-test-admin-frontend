@@ -46,7 +46,8 @@ trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with
                                       |
                                       |
           """.stripMargin)
-        ).withFallback(additionalConfig))
+        ).withFallback(additionalConfig)
+      )
       .build()
 
   implicit lazy val fakeApplication: Application = buildFakeApplication(additionalConfig)
