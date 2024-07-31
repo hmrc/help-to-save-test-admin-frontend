@@ -76,8 +76,6 @@ trait TestSupport extends UnitSpec with BeforeAndAfterAll with ScalaFutures with
 
   implicit lazy val appConfig: AppConfig =
     fakeApplication.injector.instanceOf[AppConfig]
-  implicit lazy val specify_emails_to_delete: specify_emails_to_delete =
-    fakeApplication.injector.instanceOf[specify_emails_to_delete]
   implicit lazy val emails_deleted: emails_deleted =
     fakeApplication.injector.instanceOf[emails_deleted]
 

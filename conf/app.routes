@@ -4,11 +4,7 @@ GET         /                                     uk.gov.hmrc.helptosavetestadmi
 
 ->          /hmrc-frontend                        hmrcfrontend.Routes
 
-POST        /delete-emails                        uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.deleteVerifiedEmails
-
 GET         /forbidden                            uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController.forbidden
-
-GET         /specify-emails-to-delete             uk.gov.hmrc.helptosavetestadminfrontend.controllers.VerifiedEmailsController.specifyEmailsToDelete
 
 GET         /available-functions                  uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.availableFunctions
 
