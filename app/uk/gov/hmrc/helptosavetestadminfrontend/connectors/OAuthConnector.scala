@@ -17,6 +17,7 @@
 package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
 import com.google.inject.Inject
+import play.api.Configuration
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
@@ -28,14 +29,14 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends Logging {
+class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig, config: Configuration) extends Logging {
 
   private def getAccessToken(body: JsValue, extraHeaders: Map[String, String])(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Either[String, AccessToken]] =
     http
-      .post("https://oauth.protected.mdtp/token", body, extraHeaders)
+      .post(config.underlying.getString("oauth-access-token-url"), body, extraHeaders)
       .map[Either[String, AccessToken]] { response =>
         response.status match {
           case OK =>
