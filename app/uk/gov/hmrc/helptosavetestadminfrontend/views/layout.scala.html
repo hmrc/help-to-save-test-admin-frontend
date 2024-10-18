@@ -26,7 +26,7 @@
         appConfig: AppConfig
 )
 
-@(title: String, pageScripts: Option[Html] = None, pageHeadBlock: Option[Html] = None, backLocation: Option[Call] = None)(contentBlock: Html)(implicit request : Request[_], messages: Messages)
+@(title: String, pageScripts: Option[Html] = None, pageHeadBlock: Option[Html] = None, backLocation: Option[Call] = None)(contentBlock: Html)(implicit request : RequestHeader, messages: Messages)
 
 @beforeContentBlock = {
   <div class="govuk-!-display-none-print">

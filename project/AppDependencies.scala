@@ -1,8 +1,8 @@
 import play.sbt.PlayImport.ws
-import sbt._
+import sbt.*
 
 object AppDependencies {
-  val hmrcBootstrapVersion = "8.4.0"
+  val hmrcBootstrapVersion = "9.0.0"
   val playVersion = "play-30"
 
   val compile: Seq[ModuleID] = Seq(
