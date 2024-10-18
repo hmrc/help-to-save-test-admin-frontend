@@ -12,7 +12,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalacOptions += "-Wconf:src=routes/.*:s")
   .settings(scalacOptions += "-Wconf:src=html/.*:s")
   .settings(PlayKeys.playDefaultPort := 7007)
-  .settings(CodeCoverageSettings.settings: _*)
+  .settings(CodeCoverageSettings.settings *)
   // Disable default sbt Test options (might change with new versions of bootstrap)
   .settings(Test / testOptions -= Tests
     .Argument("-o", "-u", "target/test-reports", "-h", "target/test-reports/html-report"))
