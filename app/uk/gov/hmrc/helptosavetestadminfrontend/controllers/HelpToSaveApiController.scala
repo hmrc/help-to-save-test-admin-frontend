@@ -20,7 +20,7 @@ import com.google.common.cache._
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
+import play.api.mvc._
 import uk.gov.hmrc.helptosavetestadminfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.{AuthConnector, OAuthConnector}
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.HelpToSaveApiController.TokenRequest.{PrivilegedTokenRequest, UserRestrictedTokenRequest}
@@ -60,12 +60,12 @@ class HelpToSaveApiController @Inject() (
       })
       .build()
 
-  def getCurlRequestIsPage(id: UUID): Action[AnyContent] = Action { implicit request =>
+  def getCurlRequestIsPage(id: UUID): Action[AnyContent] = Action.async { implicit request =>
     Option(userIdCache.getIfPresent(id)).fold {
       logger.warn(s"Could not find curl request for id: $id")
       internalServerError
     } { curl =>
-      Ok(curl_result(curl))
+      Future.successful(Ok(curl_result(curl)))
     }
   }
 
@@ -137,7 +137,7 @@ class HelpToSaveApiController @Inject() (
 
     oauthConnector
       .getAccessTokenUserRestricted(code, Some(id), Map("Cookie" -> cookies))
-      .map {
+      .flatMap {
         case Right(AccessToken(token)) =>
           val curl =
             Option(userIdCache.getIfPresent(id))
@@ -145,7 +145,7 @@ class HelpToSaveApiController @Inject() (
               .replace("REPLACE", token)
 
           userIdCache.put(id, curl)
-          SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url)
+          Future.successful(SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url))
 
         case Left(error) =>
           logger.warn(s"Could not get access_token for code ($code) -  $error")
@@ -163,9 +163,9 @@ class HelpToSaveApiController @Inject() (
 
     oauthConnector
       .getAccessTokenUserRestricted(code, None, Map("Cookie" -> cookies))
-      .map {
+      .flatMap {
         case Right(AccessToken(token)) =>
-          Ok(token)
+          Future.successful(Ok(token))
 
         case Left(error) =>
           logger.warn(s"Could not get access_token for code ($code) -  $error")
@@ -217,21 +217,21 @@ class HelpToSaveApiController @Inject() (
 
   private def handleTokenResult(tokenResult: Future[Either[String, Token]], id: UUID)(
     curl: String => String
-  )(implicit request: Request[_]) =
+  )(implicit request: Request[_]): Future[Result] =
     tokenResult
-      .map {
+      .flatMap {
         case Right(AccessToken(token)) =>
           if (appConfig.runLocal) {
             sys.error("Generated privileged access token whilst running locally")
           } else {
             userIdCache.put(id, curl(token.stripPrefix("Bearer ")))
-            SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url)
+            Future.successful(SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url))
           }
 
         case Right(LocalPrivilegedToken(token)) =>
           if (appConfig.runLocal) {
             userIdCache.put(id, curl(token.stripPrefix("Bearer ")))
-            SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url)
+            Future.successful(SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url))
           } else {
             sys.error("Generated local privileged token but not running locally")
           }
@@ -245,18 +245,18 @@ class HelpToSaveApiController @Inject() (
                 sys.error("Could not find auth token")
               ) { t =>
                 userIdCache.put(id, curl(t))
-                SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url)
+                Future.successful(SeeOther(routes.HelpToSaveApiController.getCurlRequestIsPage(id).url))
               }
           } else {
             userIdCache.put(id, curl("REPLACE"))
-            SeeOther(appConfig.authorizeUrl(id)).withSession(session)
+            Future.successful(SeeOther(appConfig.authorizeUrl(id)).withSession(session))
           }
 
         case Left(e) =>
           logger.warn(s"error getting the access token, error=$e")
           internalServerError
       }
-      .recover { case e =>
+      .recoverWith { case e =>
         logger.warn(s"error getting the access token, error=$e")
         internalServerError
       }

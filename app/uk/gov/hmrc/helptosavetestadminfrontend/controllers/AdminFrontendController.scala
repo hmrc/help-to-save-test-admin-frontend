@@ -21,11 +21,12 @@ import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.ErrorHandler
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import scala.concurrent.{ExecutionContext, Future}
+
 @Singleton
-class AdminFrontendController(mcc: MessagesControllerComponents, errorHandler: ErrorHandler)
-    extends FrontendController(mcc) {
-
-  def internalServerError(implicit request: Request[_]): Result =
-    InternalServerError(errorHandler.internalServerErrorTemplate(request))
-
+class AdminFrontendController(mcc: MessagesControllerComponents, errorHandler: ErrorHandler)(implicit
+  ec: ExecutionContext
+) extends FrontendController(mcc) {
+  def internalServerError()(implicit request: Request[_]): Future[Result] =
+    errorHandler.internalServerErrorTemplate(request).map(InternalServerError(_))
 }
