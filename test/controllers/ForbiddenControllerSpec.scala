@@ -17,22 +17,18 @@
 package controllers
 
 import play.api.http.Status
-import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.helptosavetestadminfrontend.controllers.ForbiddenController
 
-class ForbiddenControllerSpec extends TestSupport {
-
+class ForbiddenControllerSpec extends UnitSpec {
   "The ForbiddenController" must {
-
-    val controller = new ForbiddenController(testMCC)
+    val controller = new ForbiddenController(Helpers.stubMessagesControllerComponents())
 
     "return a forbidden status" in {
       val result = controller.forbidden(FakeRequest())
       status(result) shouldBe Status.FORBIDDEN
       contentAsString(result) shouldBe "Please ask the HtS Dev team for permissions to access this site"
     }
-
   }
-
 }
