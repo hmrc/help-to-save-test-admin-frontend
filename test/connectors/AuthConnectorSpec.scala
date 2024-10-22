@@ -23,20 +23,18 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsArray, JsNumber, JsObject, JsString, JsValue, Json}
+import play.api.libs.json._
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import play.api.{Application, Configuration}
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector
 import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, LocalPrivilegedToken}
 import uk.gov.hmrc.http.test.WireMockSupport
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import util.WireMockMethods
+import _root_.util.WireMockMethods
 
-import scala.concurrent.ExecutionContext
 import scala.language.postfixOps
 
 class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSupport with GuiceOneAppPerSuite {
-
   val (desBearerToken, desEnvironment) = "token" -> "environment"
 
   private val config = Configuration(
@@ -60,16 +58,12 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
 
   val connector: AuthConnector = app.injector.instanceOf[AuthConnector]
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   private val emptyJsonBody = "{}"
 
   "The AuthConnector" when {
-
     "log in " must {
-
       "successful log in" in {
-
         val authUserDetails = AuthUserDetails.empty()
         val token: String = "token13579"
 
@@ -84,11 +78,9 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
 
         val result = await(connector.login(authUserDetails)).value
         result.value.toOption.get.session.get("authToken").get shouldBe "auth1"
-
       }
 
       "Error for missing auth header" in {
-
         val authUserDetails = AuthUserDetails.empty()
         val token: String = "token13579"
 
@@ -104,11 +96,9 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
         await(connector.login(authUserDetails)).value shouldBe Left(
           "Internal Error, missing headers or gatewayToken in response from auth-login-api"
         )
-
       }
 
       "Error for missing location header" in {
-
         val authUserDetails = AuthUserDetails.empty()
         val token: String = "token13579"
 
@@ -124,11 +114,9 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
         await(connector.login(authUserDetails)).value shouldBe Left(
           "Internal Error, missing headers or gatewayToken in response from auth-login-api"
         )
-
       }
 
       "Error for missing gateway token" in {
-
         val authUserDetails = AuthUserDetails.empty()
 
         val headers = Map(HeaderNames.AUTHORIZATION -> "auth1", HeaderNames.LOCATION -> "loc1")
@@ -142,7 +130,6 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
         await(connector.login(authUserDetails)).value shouldBe Left(
           "Internal Error, missing headers or gatewayToken in response from auth-login-api"
         )
-
       }
 
       "verify error status codes" in {
@@ -164,7 +151,7 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
           ) thenReturn (httpResponse.status, headers, httpResponse.body)
 
           await(connector.login(authUserDetails)).value shouldBe Left(
-            s"failed calling auth-login-api, got status ${httpResponse.status}, body: ${httpResponse.body}"
+            s"failed calling auth-login-api, got status ${httpResponse.status}, message: POST of '$wireMockUrl/government-gateway/session/login' returned ${httpResponse.status}. Response body: '${httpResponse.body}'"
           )
         }
       }
@@ -180,7 +167,6 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
       )
 
       "returns token successfully" in {
-
         val token = "token123"
 
         val headers = Map(HeaderNames.AUTHORIZATION -> token)
@@ -197,7 +183,6 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
       }
 
       "Error for missing auth header" in {
-
         val httpResponse: HttpResponse = HttpResponse(200, emptyJsonBody, Map.empty[String, Seq[String]])
 
         when(
@@ -207,7 +192,6 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
         ) thenReturn (httpResponse.status, httpResponse.body)
 
         await(connector.getPrivilegedToken()).value shouldBe Left("Could not find Authorization header in response")
-
       }
 
       "verify error status codes" in {
@@ -228,8 +212,6 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
           await(connector.getPrivilegedToken()).value shouldBe Left("Could not find Authorization header in response")
         }
       }
-
     }
-
   }
 }

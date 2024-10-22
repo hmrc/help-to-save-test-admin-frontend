@@ -35,7 +35,6 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext
 
 class OAuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSupport with GuiceOneAppPerSuite {
-
   val (desBearerToken, desEnvironment) = "token" -> "environment"
 
   private val config = Configuration(
@@ -71,7 +70,6 @@ class OAuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockS
   private val emptyJsonBody = "{}"
 
   "The OAuthConnector" when {
-
     "successfully get Access token Restricted" in {
       val token: String = "token13579"
       val authCode = "auth123"
@@ -128,7 +126,7 @@ class OAuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockS
         ) thenReturn (httpResponse.status, httpResponse.body)
 
         await(connector.getAccessTokenUserRestricted(authCode, uuid, Map.empty)) shouldBe Left(
-          s"Got status ${httpResponse.status}, body was ${httpResponse.body}"
+          s"Got status ${httpResponse.status}, body was POST of '$wireMockUrl' returned ${httpResponse.status}. Response body: '${httpResponse.body}'"
         )
       }
     }
@@ -178,10 +176,9 @@ class OAuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockS
         ) thenReturn (httpResponse.status, httpResponse.body)
 
         await(connector.getAccessTokenPrivileged(totpCode, Map.empty)) shouldBe Left(
-          s"Got status ${httpResponse.status}, body was ${httpResponse.body}"
+          s"Got status ${httpResponse.status}, body was POST of '$wireMockUrl' returned ${httpResponse.status}. Response body: '${httpResponse.body}'"
         )
       }
     }
   }
-
 }
