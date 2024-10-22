@@ -29,11 +29,11 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig, config: Configuration) extends Logging {
-
+class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig, config: Configuration)(implicit
+  ec: ExecutionContext
+) extends Logging {
   private def getAccessToken(body: JsValue, extraHeaders: Map[String, String])(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
+    hc: HeaderCarrier
   ): Future[Either[String, AccessToken]] =
     http
       .post(config.underlying.getString("oauth-access-token-url"), body, extraHeaders)
@@ -58,7 +58,7 @@ class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig, config: 
     authorisationCode: String,
     id: Option[UUID],
     extraHeaders: Map[String, String]
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
+  )(implicit hc: HeaderCarrier): Future[Either[String, AccessToken]] = {
     val json =
       Json.parse(s"""{
           "client_secret":"${appConfig.clientSecret}",
@@ -71,8 +71,7 @@ class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig, config: 
   }
 
   def getAccessTokenPrivileged(totpCode: String, extraHeaders: Map[String, String])(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
+    hc: HeaderCarrier
   ): Future[Either[String, AccessToken]] = {
     val json =
       Json.parse(s"""{
@@ -82,5 +81,4 @@ class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig, config: 
       }""")
     getAccessToken(json, extraHeaders)
   }
-
 }

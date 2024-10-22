@@ -34,11 +34,10 @@ import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-class AuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends Logging {
-
+class AuthConnector @Inject() (http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) extends Logging {
   def login(
     authUserDetails: AuthUserDetails
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, SessionToken]] = {
+  )(implicit hc: HeaderCarrier): Future[Either[String, SessionToken]] = {
     val credId = Random.alphanumeric.take(10).mkString // scalastyle:ignore magic.number
     val json = getGGRequestBody(authUserDetails, credId)
     http
@@ -73,8 +72,7 @@ class AuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends L
   }
 
   def getPrivilegedToken()(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
+    hc: HeaderCarrier
   ): Future[Either[String, LocalPrivilegedToken]] =
     http
       .post(s"${appConfig.authUrl}/auth/sessions", privilegedRequestBody)
@@ -86,7 +84,7 @@ class AuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends L
           )(t => Right(LocalPrivilegedToken(t)))
       }
 
-  val privilegedRequestBody: JsValue = JsObject(
+  private val privilegedRequestBody = JsObject(
     Map(
       "clientId"   -> JsString("id"),
       "enrolments" -> JsArray(),
@@ -94,7 +92,7 @@ class AuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends L
     )
   )
 
-  def getGGRequestBody(authUserDetails: AuthUserDetails, credId: String): JsValue = {
+  private def getGGRequestBody(authUserDetails: AuthUserDetails, credId: String) = {
     val json: JsObject = JsObject(
       Map(
         "credId"             -> JsString(credId),
@@ -120,11 +118,9 @@ class AuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends L
       .withField("email", authUserDetails.email.map(JsString))
       .withField("enrolments", Some(JsArray()))
   }
-
 }
 
 object AuthConnector {
-
   implicit class JsObjectOps(val j: JsObject) extends AnyVal {
     def withField(path: NonEmptyList[String], value: Option[JsValue]): JsObject =
       value.fold(j)(v => j.deepMerge(jsObject(path -> v)))
@@ -134,7 +130,6 @@ object AuthConnector {
   }
 
   private def jsObject(s: (NonEmptyList[String], JsValue)): JsObject = {
-
     @tailrec
     def loop(l: List[String], acc: JsObject): JsObject = l match {
       case Nil          => acc
@@ -145,5 +140,4 @@ object AuthConnector {
     val reversed = s._1.reverse
     loop(reversed.tail, JsObject(List(reversed.head -> s._2)))
   }
-
 }
