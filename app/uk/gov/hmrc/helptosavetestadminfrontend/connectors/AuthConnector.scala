@@ -23,10 +23,11 @@ import play.api.libs.json._
 import play.api.mvc.Session
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
-import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
 import uk.gov.hmrc.helptosavetestadminfrontend.models._
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId, SessionKeys}
+import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId, SessionKeys, StringContextOps, UpstreamErrorResponse}
 
 import java.time.Instant
 import java.util.UUID
@@ -34,38 +35,43 @@ import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-class AuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends Logging {
-
+class AuthConnector @Inject() (http: HttpClientV2, appConfig: AppConfig)(implicit ec: ExecutionContext)
+    extends Logging {
   def login(
     authUserDetails: AuthUserDetails
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, SessionToken]] = {
+  )(implicit hc: HeaderCarrier): Future[Either[String, SessionToken]] = {
     val credId = Random.alphanumeric.take(10).mkString // scalastyle:ignore magic.number
     val json = getGGRequestBody(authUserDetails, credId)
     http
-      .post(s"${appConfig.authLoginApiUrl}/government-gateway/session/login", json)
-      .map { response =>
-        if (response.status == 201) {
-          (
-            response.header(HeaderNames.AUTHORIZATION),
-            response.header(HeaderNames.LOCATION),
-            (response.json \ "gatewayToken").asOpt[String]
-          ) match {
-            case (Some(token), Some(_), Some(_)) =>
-              val session = Session(
-                Map(
-                  SessionKeys.sessionId            -> SessionId(s"session-${UUID.randomUUID}").value,
-                  SessionKeys.authToken            -> token,
-                  SessionKeys.lastRequestTimestamp -> Instant.now().toEpochMilli.toString
+      .post(url"${appConfig.authLoginApiUrl}/government-gateway/session/login")
+      .withBody(json)
+      .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      .map {
+        case Left(UpstreamErrorResponse(message, statusCode, _, _)) =>
+          Left(s"failed calling auth-login-api, got status $statusCode, message: $message")
+        case Right(HttpResponse(status, body, headers)) =>
+          if (status == 201) {
+            (
+              headers.get(HeaderNames.AUTHORIZATION),
+              headers.get(HeaderNames.LOCATION),
+              (Json.parse(body) \ "gatewayToken").asOpt[String]
+            ) match {
+              case (Some(token), Some(_), Some(_)) =>
+                val session = Session(
+                  Map(
+                    SessionKeys.sessionId            -> SessionId(s"session-${UUID.randomUUID}").value,
+                    SessionKeys.authToken            -> token.head,
+                    SessionKeys.lastRequestTimestamp -> Instant.now().toEpochMilli.toString
+                  )
                 )
-              )
 
-              Right(SessionToken(session))
-            case _ =>
-              Left("Internal Error, missing headers or gatewayToken in response from auth-login-api")
+                Right(SessionToken(session))
+              case _ =>
+                Left("Internal Error, missing headers or gatewayToken in response from auth-login-api")
+            }
+          } else {
+            Left(s"failed calling auth-login-api, got status $status, body: $body")
           }
-        } else {
-          Left(s"failed calling auth-login-api, got status ${response.status}, body: ${response.body}")
-        }
       }
       .recover { case ex =>
         Left(s"error during auth, error=${ex.getMessage}")
@@ -73,20 +79,23 @@ class AuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends L
   }
 
   def getPrivilegedToken()(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
+    hc: HeaderCarrier
   ): Future[Either[String, LocalPrivilegedToken]] =
     http
-      .post(s"${appConfig.authUrl}/auth/sessions", privilegedRequestBody)
-      .map { response =>
-        response
-          .header(HeaderNames.AUTHORIZATION)
-          .fold[Either[String, LocalPrivilegedToken]](
-            Left("Could not find Authorization header in response")
-          )(t => Right(LocalPrivilegedToken(t)))
+      .post(url"${appConfig.authUrl}/auth/sessions")
+      .withBody(privilegedRequestBody)
+      .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      .map {
+        case Left(_) => Left("Could not find Authorization header in response")
+        case Right(HttpResponse(_, _, headers)) =>
+          headers
+            .get(HeaderNames.AUTHORIZATION)
+            .fold[Either[String, LocalPrivilegedToken]](
+              Left("Could not find Authorization header in response")
+            )(t => Right(LocalPrivilegedToken(t.head)))
       }
 
-  val privilegedRequestBody: JsValue = JsObject(
+  private val privilegedRequestBody = JsObject(
     Map(
       "clientId"   -> JsString("id"),
       "enrolments" -> JsArray(),
@@ -94,7 +103,7 @@ class AuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends L
     )
   )
 
-  def getGGRequestBody(authUserDetails: AuthUserDetails, credId: String): JsValue = {
+  private def getGGRequestBody(authUserDetails: AuthUserDetails, credId: String) = {
     val json: JsObject = JsObject(
       Map(
         "credId"             -> JsString(credId),
@@ -120,11 +129,9 @@ class AuthConnector @Inject() (http: HttpClient, appConfig: AppConfig) extends L
       .withField("email", authUserDetails.email.map(JsString))
       .withField("enrolments", Some(JsArray()))
   }
-
 }
 
 object AuthConnector {
-
   implicit class JsObjectOps(val j: JsObject) extends AnyVal {
     def withField(path: NonEmptyList[String], value: Option[JsValue]): JsObject =
       value.fold(j)(v => j.deepMerge(jsObject(path -> v)))
@@ -134,7 +141,6 @@ object AuthConnector {
   }
 
   private def jsObject(s: (NonEmptyList[String], JsValue)): JsObject = {
-
     @tailrec
     def loop(l: List[String], acc: JsObject): JsObject = l match {
       case Nil          => acc
@@ -145,5 +151,4 @@ object AuthConnector {
     val reversed = s._1.reverse
     loop(reversed.tail, JsObject(List(reversed.head -> s._2)))
   }
-
 }

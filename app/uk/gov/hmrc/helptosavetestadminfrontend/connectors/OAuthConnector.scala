@@ -21,34 +21,41 @@ import play.api.Configuration
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
-import uk.gov.hmrc.helptosavetestadminfrontend.http.HttpClient.HttpClientOps
 import uk.gov.hmrc.helptosavetestadminfrontend.models.AccessToken
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig, config: Configuration) extends Logging {
-
+class OAuthConnector @Inject() (http: HttpClientV2, appConfig: AppConfig, config: Configuration)(implicit
+  ec: ExecutionContext
+) extends Logging {
   private def getAccessToken(body: JsValue, extraHeaders: Map[String, String])(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
+    hc: HeaderCarrier
   ): Future[Either[String, AccessToken]] =
     http
-      .post(config.underlying.getString("oauth-access-token-url"), body, extraHeaders)
-      .map[Either[String, AccessToken]] { response =>
-        response.status match {
-          case OK =>
-            (response.json \ "access_token")
-              .validate[String]
-              .fold(
-                errors => Left(s"An error occurred during token validation: $errors"),
-                token => Right(AccessToken(token))
-              )
-          case other: Int =>
-            Left(s"Got status $other, body was ${response.body}")
-        }
+      .post(url"${config.underlying.getString("oauth-access-token-url")}")
+      .withBody(body)
+      .setHeader(extraHeaders.toSeq: _*)
+      .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      .map {
+        case Left(UpstreamErrorResponse(message, statusCode, _, _)) =>
+          Left(s"Got status $statusCode, body was $message")
+        case Right(HttpResponse(status, body, _)) =>
+          status match {
+            case OK =>
+              (Json.parse(body) \ "access_token")
+                .validate[String]
+                .fold(
+                  errors => Left(s"An error occurred during token validation: $errors"),
+                  token => Right(AccessToken(token))
+                )
+            case other: Int =>
+              Left(s"Got status $other, body was $body")
+          }
       }
       .recover { case ex =>
         Left(ex.getMessage)
@@ -58,7 +65,7 @@ class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig, config: 
     authorisationCode: String,
     id: Option[UUID],
     extraHeaders: Map[String, String]
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, AccessToken]] = {
+  )(implicit hc: HeaderCarrier): Future[Either[String, AccessToken]] = {
     val json =
       Json.parse(s"""{
           "client_secret":"${appConfig.clientSecret}",
@@ -71,8 +78,7 @@ class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig, config: 
   }
 
   def getAccessTokenPrivileged(totpCode: String, extraHeaders: Map[String, String])(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
+    hc: HeaderCarrier
   ): Future[Either[String, AccessToken]] = {
     val json =
       Json.parse(s"""{
@@ -82,5 +88,4 @@ class OAuthConnector @Inject() (http: HttpClient, appConfig: AppConfig, config: 
       }""")
     getAccessToken(json, extraHeaders)
   }
-
 }
