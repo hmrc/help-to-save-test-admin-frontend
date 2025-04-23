@@ -7,7 +7,7 @@ object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
     hmrc            %% s"bootstrap-frontend-$playVersion" % hmrcBootstrapVersion,
-    hmrc            %% "totp-generator"                   % "0.25.0",
+    hmrc            %% "totp-generator"                   % "0.26.0",
     "org.typelevel" %% "cats-core"                        % "2.12.0",
     hmrc            %% s"play-frontend-hmrc-$playVersion" % "11.13.0"
   )
