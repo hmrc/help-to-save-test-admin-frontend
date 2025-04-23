@@ -27,6 +27,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class AdminFrontendController(mcc: MessagesControllerComponents, errorHandler: ErrorHandler)(implicit
   ec: ExecutionContext
 ) extends FrontendController(mcc) {
-  def internalServerError()(implicit request: Request[_]): Future[Result] =
+  def internalServerError(implicit request: Request[_]): Future[Result] =
     errorHandler.internalServerErrorTemplate(request).map(InternalServerError(_))
 }

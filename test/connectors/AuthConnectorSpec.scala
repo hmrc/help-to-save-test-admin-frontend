@@ -32,8 +32,6 @@ import uk.gov.hmrc.http.test.WireMockSupport
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import _root_.util.WireMockMethods
 
-import scala.language.postfixOps
-
 class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSupport with GuiceOneAppPerSuite {
   val (desBearerToken, desEnvironment) = "token" -> "environment"
 
