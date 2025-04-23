@@ -24,7 +24,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 
 object GetAccountForm {
 
-  def getAccountForm = Form(
+  def getAccountForm: Form[GetAccountParams] = Form(
     mapping(
       "httpHeaders" -> mapping(
         "accept"              -> optional(text),

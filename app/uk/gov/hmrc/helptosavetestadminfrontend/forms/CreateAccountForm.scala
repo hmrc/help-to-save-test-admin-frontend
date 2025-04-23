@@ -26,7 +26,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 
 object CreateAccountForm {
 
-  val httpHeaderMapping = mapping(
+  val httpHeaderMapping: Mapping[HttpHeaders] = mapping(
     "accept"              -> optional(text),
     "contentType"         -> optional(text),
     "govClientUserId"     -> optional(text),
@@ -35,14 +35,14 @@ object CreateAccountForm {
     "govVendorInstanceId" -> optional(text)
   )(HttpHeaders.apply)(HttpHeaders.unapply)
 
-  val requestHeaderMapping = mapping(
+  val requestHeaderMapping: Mapping[CreateAccountHeader] = mapping(
     "version"              -> optional(text),
     "createdTimestamp"     -> optional(text),
     "clientCode"           -> optional(text),
     "requestCorrelationId" -> optional(text)
   )(CreateAccountHeader.apply)(CreateAccountHeader.unapply)
 
-  val requestBodyMapping = mapping(
+  val requestBodyMapping: Mapping[CreateAccountBody] = mapping(
     "nino"        -> optional(text),
     "forename"    -> optional(text),
     "surname"     -> optional(text),
@@ -68,7 +68,7 @@ object CreateAccountForm {
     )(BankDetails.apply)(BankDetails.unapply)
   )(CreateAccountBody.apply)(CreateAccountBody.unapply)
 
-  val authUserDetailsMapping = mapping(
+  val authUserDetailsMapping: Mapping[AuthUserDetails] = mapping(
     "nino"        -> optional(text),
     "forename"    -> optional(text),
     "surname"     -> optional(text),
@@ -83,7 +83,7 @@ object CreateAccountForm {
     "email"       -> optional(text)
   )(AuthUserDetails.apply)(AuthUserDetails.unapply)
 
-  def createAccountForm = Form(
+  def createAccountForm: Form[CreateAccountParams] = Form(
     mapping(
       "httpHeaders"     -> httpHeaderMapping,
       "requestHeaders"  -> requestHeaderMapping,

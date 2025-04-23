@@ -48,7 +48,7 @@ class AppConfig @Inject() (
     s"$adminFrontendUrl/help-to-save-test-admin-frontend/" +
       id.fold("authorize-callback-for-itests")(i => s"authorize-callback?id=${i.toString}")
 
-  def authorizeUrl(id: UUID) =
+  def authorizeUrl(id: UUID): String =
     s"$oauthURL/oauth/authorize?client_id=$clientId&response_type=code&scope=$scopes&redirect_uri=${authorizeCallback(Some(id))}"
 
   val authLoginApiUrl: String =

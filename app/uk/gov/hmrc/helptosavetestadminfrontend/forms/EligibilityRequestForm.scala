@@ -24,7 +24,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 
 object EligibilityRequestForm {
 
-  def eligibilityForm = Form(
+  def eligibilityForm: Form[EligibilityParams] = Form(
     mapping(
       "httpHeaders" -> mapping(
         "accept"              -> optional(text),

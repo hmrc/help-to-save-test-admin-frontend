@@ -21,7 +21,7 @@ import play.api.data.format.Formatter
 
 object AccessFormatter {
 
-  val accessFormatter = new Formatter[AccessType] {
+  val accessFormatter: Formatter[AccessType] = new Formatter[AccessType] {
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], AccessType] =
       data
         .get(key)
