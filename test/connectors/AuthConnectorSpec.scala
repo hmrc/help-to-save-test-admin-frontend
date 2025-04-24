@@ -18,7 +18,7 @@ package connectors
 
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko.util.Helpers.Requiring
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.HeaderNames
