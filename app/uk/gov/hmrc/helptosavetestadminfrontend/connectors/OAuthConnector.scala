@@ -18,7 +18,7 @@ package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 
 import com.google.inject.Inject
 import play.api.Configuration
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
@@ -41,7 +41,7 @@ class OAuthConnector @Inject() (http: HttpClientV2, appConfig: AppConfig, config
     http
       .post(url"${config.underlying.getString("oauth-access-token-url")}")
       .withBody(body)
-      .setHeader(extraHeaders.toSeq: _*)
+      .setHeader(extraHeaders.toSeq*)
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .map {
         case Left(UpstreamErrorResponse(message, statusCode, _, _)) =>

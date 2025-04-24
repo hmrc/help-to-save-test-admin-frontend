@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.forms
 
-import play.api.data.Forms._
-import play.api.data._
+import play.api.data.*
+import play.api.data.Forms.*
 import uk.gov.hmrc.helptosavetestadminfrontend.models.HttpHeaders
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter.accessFormatter
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType

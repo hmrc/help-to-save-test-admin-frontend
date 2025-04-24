@@ -19,12 +19,12 @@ package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 import cats.data.NonEmptyList
 import com.google.inject.Inject
 import play.api.http.HeaderNames
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.libs.ws.writeableOf_JsValue
 import play.api.mvc.Session
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
-import uk.gov.hmrc.helptosavetestadminfrontend.models._
+import uk.gov.hmrc.helptosavetestadminfrontend.models.*
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
