@@ -19,12 +19,14 @@ package uk.gov.hmrc.helptosavetestadminfrontend.connectors
 import cats.data.NonEmptyList
 import com.google.inject.Inject
 import play.api.http.HeaderNames
-import play.api.libs.json._
+import play.api.libs.json.*
+import play.api.libs.ws.writeableOf_JsValue
 import play.api.mvc.Session
 import uk.gov.hmrc.helptosavetestadminfrontend.config.AppConfig
 import uk.gov.hmrc.helptosavetestadminfrontend.connectors.AuthConnector.JsObjectOps
-import uk.gov.hmrc.helptosavetestadminfrontend.models._
+import uk.gov.hmrc.helptosavetestadminfrontend.models.*
 import uk.gov.hmrc.helptosavetestadminfrontend.util.Logging
+import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId, SessionKeys, StringContextOps, UpstreamErrorResponse}
@@ -115,18 +117,18 @@ class AuthConnector @Inject() (http: HttpClientV2, appConfig: AppConfig)(implici
     )
 
     json
-      .withField("nino", authUserDetails.nino.map(JsString))
-      .withField(NonEmptyList.of("itmpData", "givenName"), authUserDetails.forename.map(JsString))
-      .withField(NonEmptyList.of("itmpData", "familyName"), authUserDetails.surname.map(JsString))
-      .withField(NonEmptyList.of("itmpData", "birthdate"), authUserDetails.dateOfBirth.map(JsString))
-      .withField(NonEmptyList.of("itmpData", "address", "line1"), authUserDetails.address1.map(JsString))
-      .withField(NonEmptyList.of("itmpData", "address", "line2"), authUserDetails.address2.map(JsString))
-      .withField(NonEmptyList.of("itmpData", "address", "line3"), authUserDetails.address3.map(JsString))
-      .withField(NonEmptyList.of("itmpData", "address", "line4"), authUserDetails.address4.map(JsString))
-      .withField(NonEmptyList.of("itmpData", "address", "line5"), authUserDetails.address5.map(JsString))
-      .withField(NonEmptyList.of("itmpData", "address", "postCode"), authUserDetails.postcode.map(JsString))
-      .withField(NonEmptyList.of("itmpData", "address", "countryCode"), authUserDetails.countryCode.map(JsString))
-      .withField("email", authUserDetails.email.map(JsString))
+      .withField("nino", authUserDetails.nino.map(JsString.apply))
+      .withField(NonEmptyList.of("itmpData", "givenName"), authUserDetails.forename.map(JsString.apply))
+      .withField(NonEmptyList.of("itmpData", "familyName"), authUserDetails.surname.map(JsString.apply))
+      .withField(NonEmptyList.of("itmpData", "birthdate"), authUserDetails.dateOfBirth.map(JsString.apply))
+      .withField(NonEmptyList.of("itmpData", "address", "line1"), authUserDetails.address1.map(JsString.apply))
+      .withField(NonEmptyList.of("itmpData", "address", "line2"), authUserDetails.address2.map(JsString.apply))
+      .withField(NonEmptyList.of("itmpData", "address", "line3"), authUserDetails.address3.map(JsString.apply))
+      .withField(NonEmptyList.of("itmpData", "address", "line4"), authUserDetails.address4.map(JsString.apply))
+      .withField(NonEmptyList.of("itmpData", "address", "line5"), authUserDetails.address5.map(JsString.apply))
+      .withField(NonEmptyList.of("itmpData", "address", "postCode"), authUserDetails.postcode.map(JsString.apply))
+      .withField(NonEmptyList.of("itmpData", "address", "countryCode"), authUserDetails.countryCode.map(JsString.apply))
+      .withField("email", authUserDetails.email.map(JsString.apply))
       .withField("enrolments", Some(JsArray()))
   }
 }

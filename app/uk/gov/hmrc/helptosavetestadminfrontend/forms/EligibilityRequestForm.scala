@@ -23,8 +23,7 @@ import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter._
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 
 object EligibilityRequestForm {
-
-  def eligibilityForm = Form(
+  def eligibilityForm: Form[EligibilityParams] = Form(
     mapping(
       "httpHeaders" -> mapping(
         "accept"              -> optional(text),
@@ -40,9 +39,8 @@ object EligibilityRequestForm {
       "authNino"    -> optional(text),
       "requestNino" -> optional(text),
       "accessType"  -> of(accessFormatter)
-    )(EligibilityParams.apply)(EligibilityParams.unapply)
+    )(EligibilityParams.apply)(o => Some((o.httpHeaders, o.authNino, o.requestNino, o.accessType)))
   )
-
 }
 
 case class EligibilityParams(

@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.helptosavetestadminfrontend.forms
 
-import play.api.data.Forms._
-import play.api.data._
+import play.api.data.*
+import play.api.data.Forms.*
 import uk.gov.hmrc.helptosavetestadminfrontend.models.HttpHeaders
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessFormatter.accessFormatter
 import uk.gov.hmrc.helptosavetestadminfrontend.util.AccessType
 
 object GetAccountForm {
-
-  def getAccountForm = Form(
+  def getAccountForm: Form[GetAccountParams] = Form(
     mapping(
       "httpHeaders" -> mapping(
         "accept"              -> optional(text),
@@ -39,9 +38,8 @@ object GetAccountForm {
       },
       "authNino"   -> optional(text),
       "accessType" -> of(accessFormatter)
-    )(GetAccountParams.apply)(GetAccountParams.unapply)
+    )(GetAccountParams.apply)(o => Some((o.httpHeaders, o.authNino, o.accessType)))
   )
-
 }
 
 case class GetAccountParams(httpHeaders: HttpHeaders, authNino: Option[String], accessType: AccessType)

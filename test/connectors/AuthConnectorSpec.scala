@@ -18,7 +18,7 @@ package connectors
 
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko.util.Helpers.Requiring
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.HeaderNames
@@ -31,8 +31,6 @@ import uk.gov.hmrc.helptosavetestadminfrontend.models.{AuthUserDetails, LocalPri
 import uk.gov.hmrc.http.test.WireMockSupport
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import _root_.util.WireMockMethods
-
-import scala.language.postfixOps
 
 class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSupport with GuiceOneAppPerSuite {
   val (desBearerToken, desEnvironment) = "token" -> "environment"
