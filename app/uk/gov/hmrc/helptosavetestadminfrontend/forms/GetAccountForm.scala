@@ -37,7 +37,7 @@ object GetAccountForm {
         Some((h.accept, h.govClientUserId, h.govClientTimezone, h.govVendorVersion, h.govVendorInstanceId))
       },
       "authNino"   -> optional(text),
-      "accessType" -> of(accessFormatter)
+      "accessType" -> of(using accessFormatter)
     )(GetAccountParams.apply)(o => Some((o.httpHeaders, o.authNino, o.accessType)))
   )
 }
