@@ -72,7 +72,7 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
         when(
           POST,
           "/government-gateway/session/login"
-        ) thenReturn (httpResponse.status, headers, httpResponse.body)
+        ) `thenReturn` (httpResponse.status, headers, httpResponse.body)
 
         val result = await(connector.login(authUserDetails)).value
         result.value.toOption.get.session.get("authToken").get shouldBe "auth1"
@@ -89,7 +89,7 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
         when(
           POST,
           "/government-gateway/session/login"
-        ) thenReturn (httpResponse.status, headers, httpResponse.body)
+        ) `thenReturn` (httpResponse.status, headers, httpResponse.body)
 
         await(connector.login(authUserDetails)).value shouldBe Left(
           "Internal Error, missing headers or gatewayToken in response from auth-login-api"
@@ -107,7 +107,7 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
         when(
           POST,
           "/government-gateway/session/login"
-        ) thenReturn (httpResponse.status, headers, httpResponse.body)
+        ) `thenReturn` (httpResponse.status, headers, httpResponse.body)
 
         await(connector.login(authUserDetails)).value shouldBe Left(
           "Internal Error, missing headers or gatewayToken in response from auth-login-api"
@@ -123,7 +123,7 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
         when(
           POST,
           "/government-gateway/session/login"
-        ) thenReturn (httpResponse.status, headers, httpResponse.body)
+        ) `thenReturn` (httpResponse.status, headers, httpResponse.body)
 
         await(connector.login(authUserDetails)).value shouldBe Left(
           "Internal Error, missing headers or gatewayToken in response from auth-login-api"
@@ -146,7 +146,7 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
           when(
             POST,
             "/government-gateway/session/login"
-          ) thenReturn (httpResponse.status, headers, httpResponse.body)
+          ) `thenReturn` (httpResponse.status, headers, httpResponse.body)
 
           await(connector.login(authUserDetails)).value shouldBe Left(
             s"failed calling auth-login-api, got status ${httpResponse.status}, message: POST of '$wireMockUrl/government-gateway/session/login' returned ${httpResponse.status}. Response body: '${httpResponse.body}'"
@@ -175,7 +175,7 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
           method = POST,
           uri = "/auth/sessions",
           body = Some(privilegedRequestBody.toString())
-        ) thenReturn (httpResponse.status, headers, httpResponse.body)
+        ) `thenReturn` (httpResponse.status, headers, httpResponse.body)
 
         await(connector.getPrivilegedToken()).value shouldBe Right(LocalPrivilegedToken(token))
       }
@@ -187,7 +187,7 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
           method = POST,
           uri = "/auth/sessions",
           body = Some(privilegedRequestBody.toString())
-        ) thenReturn (httpResponse.status, httpResponse.body)
+        ) `thenReturn` (httpResponse.status, httpResponse.body)
 
         await(connector.getPrivilegedToken()).value shouldBe Left("Could not find Authorization header in response")
       }
@@ -205,7 +205,7 @@ class AuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockSu
             method = POST,
             uri = "/auth/sessions",
             body = Some(privilegedRequestBody.toString())
-          ) thenReturn (httpResponse.status, httpResponse.body)
+          ) `thenReturn` (httpResponse.status, httpResponse.body)
 
           await(connector.getPrivilegedToken()).value shouldBe Left("Could not find Authorization header in response")
         }

@@ -128,7 +128,7 @@ object CreateAccountForm {
       "requestHeaders"  -> requestHeaderMapping,
       "requestBody"     -> requestBodyMapping,
       "authUserDetails" -> authUserDetailsMapping,
-      "accessType"      -> of(accessFormatter)
+      "accessType"      -> of(using accessFormatter)
     )(CreateAccountParams.apply)(o =>
       Some((o.httpHeaders, o.requestHeaders, o.requestBody, o.authUserDetails, o.accessType))
     )

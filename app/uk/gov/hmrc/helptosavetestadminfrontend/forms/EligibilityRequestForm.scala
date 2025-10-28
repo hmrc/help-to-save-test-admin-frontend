@@ -38,7 +38,7 @@ object EligibilityRequestForm {
       },
       "authNino"    -> optional(text),
       "requestNino" -> optional(text),
-      "accessType"  -> of(accessFormatter)
+      "accessType"  -> of(using accessFormatter)
     )(EligibilityParams.apply)(o => Some((o.httpHeaders, o.authNino, o.requestNino, o.accessType)))
   )
 }

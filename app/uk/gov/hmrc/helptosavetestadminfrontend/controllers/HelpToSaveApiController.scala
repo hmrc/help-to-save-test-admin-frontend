@@ -217,7 +217,7 @@ class HelpToSaveApiController @Inject() (
 
   private def handleTokenResult(tokenResult: Future[Either[String, Token]], id: UUID)(
     curl: String => String
-  )(implicit request: Request[_]): Future[Result] =
+  )(implicit request: Request[?]): Future[Result] =
     tokenResult
       .flatMap {
         case Right(AccessToken(token)) =>

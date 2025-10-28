@@ -93,7 +93,7 @@ class OAuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockS
         "/",
         headers = Map.empty,
         body = Some(json.toString())
-      ) thenReturn (httpResponse.status, httpResponse.body)
+      ) `thenReturn` (httpResponse.status, httpResponse.body)
       await(connector.getAccessTokenUserRestricted(authCode, uuid, Map.empty)) shouldBe Right(AccessToken(token))
     }
 
@@ -123,7 +123,7 @@ class OAuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockS
           "/",
           headers = Map.empty,
           body = Some(json.toString())
-        ) thenReturn (httpResponse.status, httpResponse.body)
+        ) `thenReturn` (httpResponse.status, httpResponse.body)
 
         await(connector.getAccessTokenUserRestricted(authCode, uuid, Map.empty)) shouldBe Left(
           s"Got status ${httpResponse.status}, body was POST of '$wireMockUrl' returned ${httpResponse.status}. Response body: '${httpResponse.body}'"
@@ -148,7 +148,7 @@ class OAuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockS
         "/",
         headers = Map.empty,
         body = Some(json.toString())
-      ) thenReturn (httpResponse.status, httpResponse.body)
+      ) `thenReturn` (httpResponse.status, httpResponse.body)
       await(connector.getAccessTokenPrivileged(totpCode, Map.empty)) shouldBe Right(AccessToken(token))
     }
 
@@ -173,7 +173,7 @@ class OAuthConnectorSpec extends AnyWordSpec with WireMockMethods with WireMockS
           "/",
           headers = Map.empty,
           body = Some(json.toString())
-        ) thenReturn (httpResponse.status, httpResponse.body)
+        ) `thenReturn` (httpResponse.status, httpResponse.body)
 
         await(connector.getAccessTokenPrivileged(totpCode, Map.empty)) shouldBe Left(
           s"Got status ${httpResponse.status}, body was POST of '$wireMockUrl' returned ${httpResponse.status}. Response body: '${httpResponse.body}'"
