@@ -74,6 +74,8 @@ class AuthConnector @Inject() (http: HttpClientV2, appConfig: AppConfig)(implici
           } else {
             Left(s"failed calling auth-login-api, got status $status, body: $body")
           }
+        case Right(_) =>
+          Left(s"failed calling auth-login-api, got an unexpected response")
       }
       .recover { case ex =>
         Left(s"error during auth, error=${ex.getMessage}")
@@ -95,6 +97,7 @@ class AuthConnector @Inject() (http: HttpClientV2, appConfig: AppConfig)(implici
             .fold[Either[String, LocalPrivilegedToken]](
               Left("Could not find Authorization header in response")
             )(t => Right(LocalPrivilegedToken(t.head)))
+        case Right(_) => Left("Received an unexpected response")
       }
 
   private val privilegedRequestBody = JsObject(

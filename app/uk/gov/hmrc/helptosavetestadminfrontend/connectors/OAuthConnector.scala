@@ -58,6 +58,8 @@ class OAuthConnector @Inject() (http: HttpClientV2, appConfig: AppConfig, config
             case other: Int =>
               Left(s"Got status $other, body was $body")
           }
+        case Right(_) =>
+          Left(s"An error occurred on getting token ")
       }
       .recover { case ex =>
         Left(ex.getMessage)
