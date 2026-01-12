@@ -9,7 +9,10 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test()
   )
   .settings(scalafmtOnCompile := true)
-  .settings(scalacOptions += "-Wconf:src=routes/.*:s,src=html/.*:s")
+  .settings(
+    scalacOptions += "-Wconf:src=routes/.*:s,src=html/.*:s",
+    scalacOptions += "-Wconf:msg=Flag.*repeatedly:s"
+  )
   .settings(PlayKeys.playDefaultPort := 7007)
   .settings(CodeCoverageSettings.settings*)
   // Disable default sbt Test options (might change with new versions of bootstrap)
