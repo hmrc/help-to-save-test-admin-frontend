@@ -1,7 +1,7 @@
 import sbt.*
 
 object AppDependencies {
-  val hmrcBootstrapVersion = "10.7.0"
+  val hmrcBootstrapVersion = "10.8.0"
   val playVersion = "play-30"
   val hmrc = "uk.gov.hmrc"
 
@@ -9,7 +9,7 @@ object AppDependencies {
     hmrc            %% s"bootstrap-frontend-$playVersion" % hmrcBootstrapVersion,
     hmrc           %% "totp-generator"                   % "1.0.0",
     "org.typelevel" %% "cats-core"                        % "2.13.0",
-    hmrc            %% s"play-frontend-hmrc-$playVersion" % "13.14.0"
+    hmrc            %% s"play-frontend-hmrc-$playVersion" % "13.16.0"
   )
 
   def test(scope: String = "test"): Seq[ModuleID] = Seq(
